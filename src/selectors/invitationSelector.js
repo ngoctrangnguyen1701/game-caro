@@ -1,1 +1,0 @@
-export const invitationListSelector = state => state.invitation

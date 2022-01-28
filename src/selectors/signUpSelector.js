@@ -1,1 +1,0 @@
-export const signUpSelector = state => state.auth.signUp
