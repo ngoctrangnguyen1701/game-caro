@@ -8,6 +8,8 @@
 # testing
 /coverage
 
+.env-cmdrc.json
+
 # production
 /build
 
