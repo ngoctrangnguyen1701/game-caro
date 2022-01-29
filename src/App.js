@@ -44,6 +44,7 @@ const elementLoading = (
 )
 
 function App() {
+  console.log({linkServer});
   const dispatch = useDispatch()
 
   useEffect(()=>{
