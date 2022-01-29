@@ -29,9 +29,8 @@
     "yup": "^0.32.11"
   },
   "scripts": {
-    "start-dev": "env-cmd -e dev react-scripts start",
-    "start-prod": "env-cmd -e prod react-scripts start",
-    "build": "CI= env-cmd -e prod react-scripts build",
+    "start": "react-scripts start",
+    "build": "CI= react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -46,7 +45,7 @@
       ">0.2%",
       "not dead",
       "not op_mini all"
-    ], 
+    ],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
