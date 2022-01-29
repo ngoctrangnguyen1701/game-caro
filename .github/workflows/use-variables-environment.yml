@@ -1,0 +1,13 @@
+name: Set variables environment
+'on':
+  push:
+    bracnches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-lastest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Test
+        run: echo ${{secrects.REACT_APP_LINK_SERVER_HOSTING}}
