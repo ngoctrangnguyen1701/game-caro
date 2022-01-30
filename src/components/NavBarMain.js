@@ -5,14 +5,16 @@ import { useSelector } from 'react-redux'
 import {AuthContext} from '../contexts/AuthContextProvider'
 import { socket } from 'src/App'
 
-import AppBar from '@mui/material/AppBar'
-import Box from '@mui/material/Box'
-import Toolbar from '@mui/material/Toolbar'
-import Typography from '@mui/material/Typography'
-import Container from '@mui/material/Container'
-import Avatar from '@mui/material/Avatar'
-import Grid from '@mui/material/Grid'
-import Tooltip from '@mui/material/Tooltip'
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  Typography,
+  Container,
+  Avatar,
+  Grid,
+  Tooltip,
+} from '@mui/material'
 
 import { fightingStatusSelector } from 'src/selectors/fightingSelector'
 

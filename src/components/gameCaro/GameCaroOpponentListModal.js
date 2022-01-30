@@ -26,7 +26,9 @@ const ModifyDialog = styled(Dialog)`
 const GameCaroOpponentListModal = props => {
   const {isShowModal, setIsShowModal, setPrepareShowOpponentListModal} = props
   const list = useSelector(onlineUserListSelector)
+
   const [showScale, setShowScale] = useState(false)
+  // const [renderList, setRenderList] = useState([])
 
   useEffect(()=>{
     let deplayScaleTimeout
@@ -40,6 +42,12 @@ const GameCaroOpponentListModal = props => {
     }
     return () => clearTimeout(deplayScaleTimeout)
   }, [isShowModal])
+
+  // useEffect(()=>{
+  //   if(list?.length > 0){
+  //     setRenderList([...list])
+  //   }
+  // }, [list])
   
   let elementOpponent = []
   if(list && list.length > 0){
@@ -56,6 +64,7 @@ const GameCaroOpponentListModal = props => {
     >
       <Grid container spacing={2} sx={{padding: 2}}>
         {elementOpponent}
+        {/* {renderList.map((item, index) => <GameCaroOpponent key={index} {...item}/>)} */}
       </Grid>
     </ModifyDialog>
   );

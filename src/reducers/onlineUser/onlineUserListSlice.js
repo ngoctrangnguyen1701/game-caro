@@ -18,14 +18,14 @@ const mySlice = createSlice({
       const {onlineUser} = action.payload
       const {username, socketId, } = onlineUser
 
-      const usernameIndex = state.findIndex(item => item.username === username)
-      if(usernameIndex !== -1){
+      const index = state.findIndex(item => item.username === username)
+      if(index !== -1){
         //đang có username đó
         //có thể do người kia F5 lại trang web nên socketId bị thay đổi,
         //hoặc rớt mạng đăng nhập lại...
         //cập nhật lại socketId và nếu đang có removeLoading do mất kết nối thì xóa nó đi
-        state[usernameIndex].socketId = socketId
-        state[usernameIndex].removeLoading = false
+        state[index].socketId = socketId
+        state[index].removeLoading = false
       }
       else{
         //username không có trong mảng --> 1 người online mới hoàn toàn
@@ -34,18 +34,27 @@ const mySlice = createSlice({
       }
     },
     prepareRemove(state, action){
-      const {offlineUser} = action.payload
-      const {username} = offlineUser
+      const {username} = action.payload.offlineUser
       const index = state.findIndex(item => item.username === username)
-      state[index].removeLoading = true
+      if(index !== -1) state[index].removeLoading = true
     },
     remove(state, action){
-      const {username} = action.payload
-      const newArr = state.filter(item => item.username !== username)
-      //do đã dùng hàm filte, state bị clone ra 1 mảng mới,
-      //nên chỗ này phải có return, nếu không state sẽ không được cập nhật
-      return newArr 
-    }
+      const {username} = action.payload.offlineUser
+      const index = state.findIndex(item => item.username === username)
+      if(state[index]?.removeLoading){
+        //nếu vẫn còn removeLoading (tức chưa có đăng nhập lại) thì sẽ xóa nó đi
+        return state.filter(item => item.username !== username)
+        //do đã dùng hàm filte, state bị clone ra 1 mảng mới,
+        //nên chỗ này phải có return, nếu không state sẽ không được cập nhật
+      }
+    },
+    updateFightingStatus(state, action){
+      state.forEach(item => {
+        if(action.payload.updateFightingUserList.includes(item.username)){
+          item.isFighting = true
+        }
+      })
+    },
   }
 })
 

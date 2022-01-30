@@ -3,10 +3,12 @@ import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Modal from '@mui/material/Modal';
-import Grid from '@mui/material/Grid';
+import {
+  Box,
+  Typography,
+  Modal,
+  Grid,
+} from '@mui/material'
 
 import { socket } from 'src/App';
 import { invitationAction } from 'src/reducers/invitation/invitationSlice';
@@ -64,7 +66,7 @@ const InvitationModal = () => {
       // console.log('receiveInvitation: ', data);
       setIsShowNotify(true)
       setHideInititalNotify(true)
-      dispatch(invitationAction.update(data))
+      dispatch(invitationAction.add(data))
     })
 
     socket.on('choosePlayerSuccess', data => {
@@ -79,10 +81,15 @@ const InvitationModal = () => {
     socket.on('disagreeInvitationFailed', data => {
       toast.error(data.message)
     })
-
     //don't need to off event of socket, cause when component InvitationModal unmount, 
     //it's mean exsit to this webapp
   }, [])
+
+  useEffect(()=>{
+    if(invitationList.length === 0){
+      setIsShowModal(false)
+    }
+  }, [invitationList])
 
   //auto hide notify when no click
   useEffect(()=>{

@@ -2,8 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   status: 'waiting',
-  player1: '',
-  player2: '',
+  player1: {},
+  player2: {},
   width: 30,
   height: 30,
   fightingTime: 5,

@@ -1,0 +1,76 @@
+1. Trang chủ : có nút 'PLAY GAME CARO'
++ kiểm tra nếu đã có login, --> sang màn hình chơi
++ nếu chưa có login, --> sang màn hình login
++ login nếu đúng tài khoản đã đăng ký, --> sang màn hình chơi
++ nếu chưa có tài khoản, --> sang màn hình signup
+↑完成
+
+2. Màn hình signup : 
+  + username (required)
+  + password (required)
+  + email (required)
+↑完成
+  + avatar (làm thêm)
+
+3. Login Screen:
+  + After fill username + password + press Login button
+    --> call api check username, password is correct?
+  + If correct, 
+    --> api return token
+    --> redirect Play Game Caro Screen
+    --> By default, save token in context
+  + If check 'Remember me'
+    --> save token in localStorage
+↑完成
+  + If incorrect,
+    --> show message --- 'check username or password'
+                     --- 'you forgot password?' (extra)
+
+4. Login with google or facebook
+  + check that account of email is signed up ?
+  + if signed up, return that account of information include accessToken (such as api getUser)
+  + if no signed up, create new user with username: displayName
+                                          password: ''
+                                          email: email
+↑完成                                        
+
+5. 'Update Profile' Screen:
+  + update username
+  + update avatar
+  + update gender
+
+6. When login success, online user list is be returned too
+↑完成
+
+7. popup 'GO FIND OPPONENT', 
+  + when add new online user, effect addLoading will display, after then, display new online user
+  + when user disconnect, effect removeLoading will display, 
+within 10s , if don't reconnect that user will be removed from list (process this in 'GameCaroOpponent' component)
+↑完成
+
+8. popup 'Invitation List'
+  + when user disconnect, effect removeLoading will display, 
+within 10s , if don't reconnect that user will be removed from list (process this in 'GameCaroOpponent' component)
+
+9. when user click button 'agree', effect agreeLoading will be display, disable other button
+↑完成  
+
+10. 'Setting Fighting' Screen
+  + player1 can set up (not player2)
+  + when player1 set up complete, submit to player2, if player2 agree, fighting will be started
+↑完成
+
+11. process in 'Setting Fighting' Screen
+          Status	          Button/Text		                        Status	              Button/Text
+player1	  setting	          [btn] Complete	            player2	  waiting setting	      [text] Player 1 is setting…
+player1 	complete setting	[text] Waiting confirm	    player2	  agree/disagree      	[btn] Agree setting, [btn] Disargee setting
+
+**if player 2 agree					
+player1	  start fighting		                            player2	  start fighting	
+					
+**if player2 disagree					
+player1	  setting	          [btn] Complete	            player2	  waiting setting	      [text] Player 1 is setting…
+↑完成
+
+12. when player is in fighting room, update status(isFighting: true) display to other, notify invitation come and click modal invitation wil not be display
+↑完成

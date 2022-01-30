@@ -31,8 +31,7 @@ export const Card = styled.div`
 
 export const Content = styled(CardContent)`
   display: flex;
-  width: 100%;
-  height: 100%;
+  height: 240px;
   padding: 24px 0;
   
   background-image: linear-gradient(${props => props?.color === 'black' ? linearBlack : ''});

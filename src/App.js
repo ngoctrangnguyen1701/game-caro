@@ -14,6 +14,7 @@ import { linkServer } from './constants/constants';
 import routes from './routes'
 import { onlineUserAction } from './reducers/onlineUser/onlineUserListSlice';
 import { fightingAction } from './reducers/fighting/fightingSlice';
+import { invitationAction } from './reducers/invitation/invitationSlice';
 
 import NavBarMain from './components/NavBarMain'
 import InvitationModal from './components/InvitationModal';
@@ -55,10 +56,27 @@ function App() {
     })
     socket.on('offlineUser', data => {
       dispatch(onlineUserAction.prepareRemove(data))
+      setTimeout(()=>{
+        //sau 10s, sẽ gửi lệnh remove tới reducer,
+        //trong đó sẽ so sánh nếu chưa có add lại thì sẽ remove nó đi
+        return dispatch(onlineUserAction.remove(data))
+        //dispatch chỗ này nếu không có return thì sẽ bị lặp lại dispatch thêm 1 lần nữa
+        //nguyên nhân: chưa hiểu chắc liên quan đến callback
+      }, 10000)
+
+      dispatch(invitationAction.prepareRemove(data))
+      setTimeout(()=>{
+        return dispatch(invitationAction.remove(data))
+      }, 10000)
     })
     socket.on('settingFighting', data => {
       // console.log('settingFighting: ', data);
-      dispatch(fightingAction.setting(data))
+      dispatch(fightingAction.setting(data.players))
+    })
+    socket.on('updateFightingUserList', data => {
+      console.log('updateFightingUserList : ', data)
+      dispatch(onlineUserAction.updateFightingStatus(data))
+      dispatch(invitationAction.updateFightingStatus(data))
     })
     //don't need to off event of socket, cause when component App unmount, 
     //it's mean exsit to this webapp

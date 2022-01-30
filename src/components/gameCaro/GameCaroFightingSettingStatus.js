@@ -1,14 +1,16 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Button from '@mui/material/Button';
 
+import { AuthContext } from 'src/contexts/AuthContextProvider';
 import { socket } from 'src/App';
 import { fightingSelector } from 'src/selectors/fightingSelector';
 import { fightingAction } from 'src/reducers/fighting/fightingSlice';
 
 const GameCaroFightingSettingStatus = props => {
-  const {isPlayer1} = props
+  const {user} = useContext(AuthContext)
+  const isPlayer1 = user.isPlayer1
 
   const dispatch = useDispatch()
   const {status, height, width, fightingTime} = useSelector(fightingSelector)

@@ -1,27 +1,29 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import Avatar from '@mui/material/Avatar';
-import Grid from '@mui/material/Grid';
-import FemaleIcon from '@mui/icons-material/Female';
-import MaleIcon from '@mui/icons-material/Male';
-import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
+import {
+  Button,
+  Typography,
+  Avatar,
+  Grid,
+  Box,
+  CircularProgress,
+} from '@mui/material';
+
+import {
+  LocalFireDepartmentIcon, 
+  FemaleIcon,
+  MaleIcon,
+} from '@mui/icons-material';
 
 import { socket } from 'src/App';
 import { AuthContext } from 'src/contexts/AuthContextProvider';
-import { onlineUserAction } from 'src/reducers/onlineUser/onlineUserListSlice';
 import { invitationAction } from 'src/reducers/invitation/invitationSlice';
 import {Card, Content} from './styles/GameCaroOpponentStyle'
 
-const elementRemoveLoading = (
-  <div className='w-100 h-100 position-absolute' style={{zIndex: '1'}}>
-    <div className='loader'></div>
-  </div>
-)
+import { Loader } from './styles/LoadingStyle';
 
+// let i = 1
 const GameCaroOpponent = props => {
   const {
     username,
@@ -29,6 +31,7 @@ const GameCaroOpponent = props => {
     gender,
     winRate,
     socketId,
+    isFighting,
 
     addLoading : addLoadingFromRedux,
     removeLoading,
@@ -37,6 +40,7 @@ const GameCaroOpponent = props => {
     notChosen,
     agreeLoading,
   } = props
+  // console.log(`Render GameCaroOpponent ${i++}: ${username}`);
 
   const dispatch = useDispatch()
   const {user} = useContext(AuthContext)
@@ -53,18 +57,6 @@ const GameCaroOpponent = props => {
     }
   }, [addLoading])
 
-  useEffect(()=>{
-    if(removeLoading){
-      const removeLoadingTimeout = setTimeout(()=>{
-        //sau khoảng thời gian 10s nếu như không có kết nối socket online trở 
-        console.log({username, removeLoading});
-        if(removeLoading){
-          dispatch(onlineUserAction.remove({username}))
-        }
-      }, 10000)
-      return () => clearTimeout(removeLoadingTimeout)
-    }
-  }, [removeLoading])
 
   const onChoosePlayer = () => {
     const from = {
@@ -103,12 +95,16 @@ const GameCaroOpponent = props => {
 
   return (
     <Grid item xs={4}>
-      {addLoading ? <div className='loader'></div> : (
+      {addLoading ? <Loader color={isInvitation ? 'orange' : 'blue'}/> : (
         <Card
           color={isInvitation ? 'orange' : 'black'}
           opacity={removeLoading || notChosen ? '0.8' : '1'}
         >
-          {removeLoading && elementRemoveLoading}
+          {removeLoading && (
+            <div className='w-100 h-100 position-absolute' style={{zIndex: '1'}}>
+              <Loader color={isInvitation ? 'orange' : 'blue'}/>
+            </div>
+          )}
           <Content color={isInvitation ? 'orange' : 'black'}>
             <div className='m-auto'>
               <Avatar
@@ -128,7 +124,7 @@ const GameCaroOpponent = props => {
                 Win rate: {winRate || '0/0'}
               </Typography>
               
-              {isInvitation ? (
+              {isInvitation && !isFighting && (
                 <Box className="jusity-content-center">
                   <Button
                     size="small"
@@ -148,7 +144,9 @@ const GameCaroOpponent = props => {
                     disabled={notChosen || agreeLoading}
                   >Disagree</Button>
                 </Box>
-              ) : (
+              )}
+
+              {!isInvitation && !isFighting && (
                 <Button
                   size="small"
                   variant='contained'
@@ -158,6 +156,12 @@ const GameCaroOpponent = props => {
                   disabled={removeLoading}
                 >Choose</Button>
               )}
+
+              {isFighting && (
+                <Typography variant="h6" sx={{color: 'red'}}>
+                  Fighting <LocalFireDepartmentIcon/>
+                </Typography>
+              )}
             </div>
           </Content>
         </Card>
@@ -166,4 +170,4 @@ const GameCaroOpponent = props => {
   );
 };
 
-export default React.memo(GameCaroOpponent);
+export default React.memo(GameCaroOpponent)

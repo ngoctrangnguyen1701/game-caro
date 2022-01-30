@@ -11,31 +11,29 @@ import Select from '@mui/material/Select';
 import whoIsWinner from './functions/whoIsWinner';
 import { AuthContext } from 'src/contexts/AuthContextProvider';
 import {socket} from 'src/App'
-import { fightingPlayer1Selector, fightingPlayer2Selector, fightingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
+import { fightingPlayer1Selector, fightingPlayer2Selector, fightingSelector } from 'src/selectors/fightingSelector';
 import { fightingAction } from 'src/reducers/fighting/fightingSlice';
 import useCountTime from './hooks/countTimeHook';
 
-import GameCaroFightingSetting from './GameCaroFightingSetting';
+import GameCaroFightingSettingStatus from './GameCaroFightingSetting';
 import Board from './Board';
 import { toast } from 'react-toastify';
-import GameCaroFightingSettingStatus from './GameCaroFightingSettingStatus';
 
 
 function GameCaroContent() {
   const {user} = useContext(AuthContext)
 
   const dispatch = useDispatch()
-  const status = useSelector(fightingStatusSelector)
-  // const player1 = useSelector(fightingPlayer1Selector)
-  // const player2 = useSelector(fightingPlayer2Selector)
-  // const {status, height, width, fightingTime} = useSelector(fightingSelector)
+  const player1 = useSelector(fightingPlayer1Selector)
+  const player2 = useSelector(fightingPlayer2Selector)
+  const {status, height, width, fightingTime} = useSelector(fightingSelector)
 
-  // const [isPlayer1, setIsPlayer1] = useState(false)
+  const [isPlayer1, setIsPlayer1] = useState(false)
 
-  // const [name1, setName1] = useState('')
-  // const [name1Complete, setName1Complete] = useState(false)
-  // const [name2, setName2] = useState('')
-  // const [name2Complete, setName2Complete] = useState(false)
+  const [name1, setName1] = useState('')
+  const [name1Complete, setName1Complete] = useState(false)
+  const [name2, setName2] = useState('')
+  const [name2Complete, setName2Complete] = useState(false)
 
   const [startCountTime, setStartCountTime] = useState(false)
   const [stopCountTime, setStopCountTime] = useState(false)
@@ -49,91 +47,91 @@ function GameCaroContent() {
   const [isFinish, setIsFinish] = useState(false)
 
 
-  // useEffect(()=>{
-  //   if(player1?.username && player2?.username && user){
-  //     setName1(player1.username)
-  //     setName1Complete(true)
-  //     setName2(player2.username)
-  //     setName2Complete(true)
+  useEffect(()=>{
+    if(player1?.username && player2?.username && user){
+      setName1(player1.username)
+      setName1Complete(true)
+      setName2(player2.username)
+      setName2Complete(true)
 
-  //     if(user.username === player1.username){
-  //       setIsPlayer1(true)
-  //     }
-  //   } 
-  // }, [player1, player2, user])
+      if(user.username === player1.username){
+        setIsPlayer1(true)
+      }
+    } 
+  }, [player1, player2, user])
 
-  // useEffect(()=>{
-  //   if(isPlayer1){
-  //     socket.on('receiveDisagreeFightingSetting', () => {
-  //       console.log('receiveDisagreeFightingSetting')
-  //       dispatch(fightingAction.resetSetting())
-  //       toast.error(`${player2} has already disagree fighting setting`)
-  //     })
-  //   }
-  //   else{
-  //     //only player2 listen event 'receiveFightingSetting'
-  //     socket.on('receiveFightingSetting', data => {
-  //       console.log('receiveFightingSetting: ', data)
-  //       dispatch(fightingAction.settingComplete(data))
-  //     })
-  //   }
-  //   socket.on('startFighting', () => {
-  //     console.log('startFighting')
-  //     dispatch(fightingAction.start())
-  //   })
+  useEffect(()=>{
+    if(isPlayer1){
+      socket.on('receiveDisagreeFightingSetting', () => {
+        console.log('receiveDisagreeFightingSetting')
+        dispatch(fightingAction.resetSetting())
+        toast.error(`${player2} has already disagree fighting setting`)
+      })
+    }
+    else{
+      //only player2 listen event 'receiveFightingSetting'
+      socket.on('receiveFightingSetting', data => {
+        console.log('receiveFightingSetting: ', data)
+        dispatch(fightingAction.settingComplete(data))
+      })
+    }
+    socket.on('startFighting', () => {
+      console.log('startFighting')
+      dispatch(fightingAction.start())
+    })
 
-  //   return () => {
-  //     socket.off('receiveFightingSetting')
-  //     socket.off('receiveDisagreeFightingSetting')
-  //     socket.off('startFighting')
-  //   }
-  //   //if don't off listen event when this component unmount
-  //   //every this component render, one function listen on will be created
-  // }, [isPlayer1])
+    return () => {
+      socket.off('receiveFightingSetting')
+      socket.off('receiveDisagreeFightingSetting')
+      socket.off('startFighting')
+    }
+    //if don't off listen event when this component unmount
+    //every this component render, one function listen on will be created
+  }, [isPlayer1])
 
-  // useEffect(()=>{
-  //   if(squares2 && squares2.length > 0){
-  //     const winner = whoIsWinner(squares2, width, height)
-  //     // console.log('winner: ', winner)
-  //     if(winner){
-  //       setWinner(winner)
-  //       setIsFinish(true)
-  //       setStopCountTime(true)
-  //     }
-  //   }
-  // }, [squares2])
+  useEffect(()=>{
+    if(squares2 && squares2.length > 0){
+      const winner = whoIsWinner(squares2, width, height)
+      // console.log('winner: ', winner)
+      if(winner){
+        setWinner(winner)
+        setIsFinish(true)
+        setStopCountTime(true)
+      }
+    }
+  }, [squares2])
 
   //fighting time is over, no winner -> draw
-  // useEffect(()=>{
-  //   if(time){
-  //     //console.log(time);
-  //     const minutes = time.slice(0, 2)
-  //     //console.log('minutes: ', minutes)
-  //     if(parseInt(minutes) === fightingTime){
-  //       setIsFinish(true)
-  //       setStopCountTime(true)
-  //     }
-  //   }
-  // }, [time])
+  useEffect(()=>{
+    if(time){
+      //console.log(time);
+      const minutes = time.slice(0, 2)
+      //console.log('minutes: ', minutes)
+      if(parseInt(minutes) === fightingTime){
+        setIsFinish(true)
+        setStopCountTime(true)
+      }
+    }
+  }, [time])
 
-  // useEffect(()=>{
-  //   let board = []
-  //   for(let y = 0; y < height; y++){
-  //     let row = []
-  //     for(let x = 0; x < width; x++){
-  //       row.push({x, y, value: null})
-  //     }
-  //     board = [...board, ...row]
-  //   }
-  //   setSquares2([...board])
-  // }, [height, width])
+  useEffect(()=>{
+    let board = []
+    for(let y = 0; y < height; y++){
+      let row = []
+      for(let x = 0; x < width; x++){
+        row.push({x, y, value: null})
+      }
+      board = [...board, ...row]
+    }
+    setSquares2([...board])
+  }, [height, width])
 
-  // useEffect(()=>{
-  //   if(status === 'start'){
-  //     console.log('start count time');
-  //     setStartCountTime(true)
-  //   }
-  // }, [status])
+  useEffect(()=>{
+    if(status === 'start'){
+      console.log('start count time');
+      setStartCountTime(true)
+    }
+  }, [status])
 
 
   //-------------------------------------------
@@ -269,13 +267,11 @@ function GameCaroContent() {
       {name1Complete && name2Complete && !startCountTime && (
         <GameCaroFightingSettingStatus isPlayer1={isPlayer1}/>
       )} */}
-      <GameCaroFightingSetting/>
-      <GameCaroFightingSettingStatus/>
       {startCountTime && status === 'start' && (
         <div className='container-fluid'>
           {!isFinish && <h4 className='text-center'><i className='fas fa-clock'></i> {time}</h4>}
-          {/* <h5 className='text-danger text-center'>{winner && winner === 'X' && `Winner: ${name1}`}</h5>
-          <h5 className='text-danger text-center'>{winner && winner === 'O' && `Winner: ${name2}`}</h5> */}
+          <h5 className='text-danger text-center'>{winner && winner === 'X' && `Winner: ${name1}`}</h5>
+          <h5 className='text-danger text-center'>{winner && winner === 'O' && `Winner: ${name2}`}</h5>
           <h5 className='text-danger text-center'>{!isFinish && !winner && `Next player: ${xIsNext ? 'X' : 'O'}`}</h5>
           <h5 className='text-danger text-center'>{isFinish && !winner && `Draw`}</h5>
           <h5 className='text-danger text-center'>{isFinish && `Fighting time: ${time}`}</h5>
@@ -287,12 +283,12 @@ function GameCaroContent() {
               >Replay</button>
             )}
           </div>
-          {/* <Board
+          <Board
             squares={squares2}
             onClick={handleClick}
             width={width}
             height={height}
-          /> */}
+          />
         </div>
       )}
     </>
