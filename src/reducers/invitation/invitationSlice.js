@@ -12,8 +12,9 @@ const mySlice = createSlice({
       const index = state.findIndex(item => item.username === newInvitation.username)
       if(index !== -1){
         //username is exist, socketId has be changed
-        state[index].socketId = newInvitation.socketId
-        state[index].removeLoading = false
+        // state[index].socketId = newInvitation.socketId
+        // state[index].removeLoading = false
+        state[index] = newInvitation
       }
       else{
         state.push({...newInvitation, addLoading: true})

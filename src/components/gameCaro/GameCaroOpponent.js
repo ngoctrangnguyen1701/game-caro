@@ -10,11 +10,9 @@ import {
   CircularProgress,
 } from '@mui/material';
 
-import {
-  LocalFireDepartmentIcon, 
-  FemaleIcon,
-  MaleIcon,
-} from '@mui/icons-material';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+import MaleIcon from '@mui/icons-material/Male';
+import FemaleIcon from '@mui/icons-material/Female';
 
 import { socket } from 'src/App';
 import { AuthContext } from 'src/contexts/AuthContextProvider';

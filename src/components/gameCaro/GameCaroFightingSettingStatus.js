@@ -5,15 +5,16 @@ import Button from '@mui/material/Button';
 
 import { AuthContext } from 'src/contexts/AuthContextProvider';
 import { socket } from 'src/App';
-import { fightingSelector } from 'src/selectors/fightingSelector';
-import { fightingAction } from 'src/reducers/fighting/fightingSlice';
+import { fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
+import { fightingAction } from 'src/reducers/fighting/statusSlice';
 
 const GameCaroFightingSettingStatus = props => {
   const {user} = useContext(AuthContext)
   const isPlayer1 = user.isPlayer1
 
   const dispatch = useDispatch()
-  const {status, height, width, fightingTime} = useSelector(fightingSelector)
+  const status = useSelector(fightingStatusSelector)
+  const {height, width, fightingTime} = useSelector(fightingSettingSelector)
 
   const handleComplete = () => {
     dispatch(fightingAction.settingComplete())
@@ -21,6 +22,7 @@ const GameCaroFightingSettingStatus = props => {
   }
 
   const handleDisagree = () => {
+    console.log('handleDisagree');
     dispatch(fightingAction.resetSetting())
     socket.emit('disagreeFightingSetting')
   }

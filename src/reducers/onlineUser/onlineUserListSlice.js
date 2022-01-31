@@ -16,7 +16,7 @@ const mySlice = createSlice({
     },
     add(state, action){
       const {onlineUser} = action.payload
-      const {username, socketId, } = onlineUser
+      const {username, socketId, isFighting} = onlineUser
 
       const index = state.findIndex(item => item.username === username)
       if(index !== -1){
@@ -24,8 +24,10 @@ const mySlice = createSlice({
         //có thể do người kia F5 lại trang web nên socketId bị thay đổi,
         //hoặc rớt mạng đăng nhập lại...
         //cập nhật lại socketId và nếu đang có removeLoading do mất kết nối thì xóa nó đi
-        state[index].socketId = socketId
-        state[index].removeLoading = false
+        // state[index].socketId = socketId
+        // state[index].isFighting = isFighting
+        // state[index].removeLoading = false
+        state[index] = onlineUser
       }
       else{
         //username không có trong mảng --> 1 người online mới hoàn toàn

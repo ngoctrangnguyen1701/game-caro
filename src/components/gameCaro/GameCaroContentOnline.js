@@ -12,13 +12,15 @@ import whoIsWinner from './functions/whoIsWinner';
 import { AuthContext } from 'src/contexts/AuthContextProvider';
 import {socket} from 'src/App'
 import { fightingPlayer1Selector, fightingPlayer2Selector, fightingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
-import { fightingAction } from 'src/reducers/fighting/fightingSlice';
+import { fightingAction } from 'src/reducers/fighting/settingSlice';
 import useCountTime from './hooks/countTimeHook';
 
 import GameCaroFightingSetting from './GameCaroFightingSetting';
-import Board from './Board';
+import GameCaroBoard from './GameCaroBoard';
 import { toast } from 'react-toastify';
 import GameCaroFightingSettingStatus from './GameCaroFightingSettingStatus';
+import GameCaroCountTime from './GameCaroCountTime';
+import GameCaroFightingMessage from './GameCaroFightingMessage';
 
 
 function GameCaroContent() {
@@ -37,17 +39,18 @@ function GameCaroContent() {
   // const [name2, setName2] = useState('')
   // const [name2Complete, setName2Complete] = useState(false)
 
-  const [startCountTime, setStartCountTime] = useState(false)
-  const [stopCountTime, setStopCountTime] = useState(false)
-  const time = useCountTime({isStart: startCountTime, isStop: stopCountTime})
-
+  // const [startCountTime, setStartCountTime] = useState(false)
+  // const [stopCountTime, setStopCountTime] = useState(false)
+  // const time = useCountTime({isStart: startCountTime, isStop: stopCountTime})
 
   const [winner, setWinner] = useState(null)
-
   const [squares2, setSquares2] = useState([])
-  const [xIsNext, setXIsNext] = useState(true);
+  const [xIsNext, setXIsNext] = useState(true)
   const [isFinish, setIsFinish] = useState(false)
 
+  // useEffect(()=>{
+  //   if(status === 'start') setStartCountTime(true)
+  // }, [status])
 
   // useEffect(()=>{
   //   if(player1?.username && player2?.username && user){
@@ -137,17 +140,17 @@ function GameCaroContent() {
 
 
   //-------------------------------------------
-  const handleChangeSize = obj => {
-    const {height, width} = obj
-    if(height && height <= 40 && height >= 15){
-      // setHeight(height)
-      dispatch(fightingAction.setting({height}))
-    }
-    if(width && width <= 40 && width >= 15){
-      // setWidth(width)
-      dispatch(fightingAction.setting({width}))
-    }
-  }
+  // const handleChangeSize = obj => {
+  //   const {height, width} = obj
+  //   if(height && height <= 40 && height >= 15){
+  //     // setHeight(height)
+  //     dispatch(fightingAction.setting({height}))
+  //   }
+  //   if(width && width <= 40 && width >= 15){
+  //     // setWidth(width)
+  //     dispatch(fightingAction.setting({width}))
+  //   }
+  // }
 
   const handleClick = index => {
     if (winner || squares2[index]?.value || isFinish) {
@@ -169,7 +172,7 @@ function GameCaroContent() {
     setXIsNext(true)
     // setIsDraw(false)
     // setStartCountTime(true)
-    setStopCountTime(false)
+    // setStopCountTime(false)
 
     const newArr = squares2.map(item => ({
       x: item.x,
@@ -271,30 +274,36 @@ function GameCaroContent() {
       )} */}
       <GameCaroFightingSetting/>
       <GameCaroFightingSettingStatus/>
-      {startCountTime && status === 'start' && (
-        <div className='container-fluid'>
-          {!isFinish && <h4 className='text-center'><i className='fas fa-clock'></i> {time}</h4>}
+      <GameCaroCountTime/>
+      <GameCaroFightingMessage/>
+      <GameCaroBoard/>
+      
+      
+      {/* {true
+       && status === 'start' && (
+        <div className='container-fluid'> */}
+          {/* {!isFinish && <h4 className='text-center'><i className="fas fa-stopwatch"></i> {time}</h4>} */}
           {/* <h5 className='text-danger text-center'>{winner && winner === 'X' && `Winner: ${name1}`}</h5>
           <h5 className='text-danger text-center'>{winner && winner === 'O' && `Winner: ${name2}`}</h5> */}
-          <h5 className='text-danger text-center'>{!isFinish && !winner && `Next player: ${xIsNext ? 'X' : 'O'}`}</h5>
-          <h5 className='text-danger text-center'>{isFinish && !winner && `Draw`}</h5>
-          <h5 className='text-danger text-center'>{isFinish && `Fighting time: ${time}`}</h5>
-          <div>
+          {/* <h5 className='text-danger text-center'>{!isFinish && !winner && `Next player: ${xIsNext ? 'X' : 'O'}`}</h5>
+          <h5 className='text-danger text-center'>{isFinish && !winner && `Draw`}</h5> */}
+          {/* <h5 className='text-danger text-center'>{isFinish && `Fighting time: ${time}`}</h5> */}
+          {/* <div>
             {isFinish && (
               <button
                 className='btn btn-success d-block mx-auto'
                 onClick={()=>handleReplay()}
               >Replay</button>
             )}
-          </div>
+          </div> */}
           {/* <Board
             squares={squares2}
             onClick={handleClick}
             width={width}
             height={height}
           /> */}
-        </div>
-      )}
+        {/* </div>
+      )} */}
     </>
   );
 }

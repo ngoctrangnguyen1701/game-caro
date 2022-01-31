@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  status: 'waiting',
   player1: {},
   player2: {},
   width: 30,
@@ -17,23 +16,20 @@ const mySlice = createSlice({
       return {
         ...state,
         ...action.payload,
-        status: 'setting'
       }
     },
     settingComplete(state, action){
       return {
         ...state, 
         ...action.payload,
-        status: 'settingComplete',
       }
-      //do đã clone ra 1 mảng mới nên phải return để state nó cập nhật
     },
-    resetSetting(state, action){
-      state.status = 'setting'
-    },
-    start(state, action){
-      state.status = 'start'
-    }
+    // resetSetting(state, action){
+    //   state.status = 'setting'
+    // },
+    // start(state, action){
+    //   state.status = 'start'
+    // }
   }
 })
 

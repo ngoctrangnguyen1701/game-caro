@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 
 import whoIsWinner from './functions/whoIsWinner';
 
-import Board from './Board';
+import Board from './Board(before)';
 import Button from '@mui/material/Button';
 
 

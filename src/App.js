@@ -13,7 +13,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { linkServer } from './constants/constants';
 import routes from './routes'
 import { onlineUserAction } from './reducers/onlineUser/onlineUserListSlice';
-import { fightingAction } from './reducers/fighting/fightingSlice';
+import { fightingAction } from './reducers/fighting/settingSlice';
 import { invitationAction } from './reducers/invitation/invitationSlice';
 
 import NavBarMain from './components/NavBarMain'
@@ -70,11 +70,11 @@ function App() {
       }, 10000)
     })
     socket.on('settingFighting', data => {
-      // console.log('settingFighting: ', data);
-      dispatch(fightingAction.setting(data.players))
+      // console.log('settingFighting: ', data)
+      dispatch(fightingAction.setting(data))
     })
     socket.on('updateFightingUserList', data => {
-      console.log('updateFightingUserList : ', data)
+      // console.log('updateFightingUserList : ', data)
       dispatch(onlineUserAction.updateFightingStatus(data))
       dispatch(invitationAction.updateFightingStatus(data))
     })

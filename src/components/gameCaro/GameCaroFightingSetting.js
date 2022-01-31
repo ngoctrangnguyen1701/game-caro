@@ -13,8 +13,9 @@ import {
 
 import { AuthContext } from 'src/contexts/AuthContextProvider';
 import { socket } from 'src/App';
-import { fightingSelector } from 'src/selectors/fightingSelector';
-import { fightingAction } from 'src/reducers/fighting/fightingSlice';
+import { fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
+import { fightingAction } from 'src/reducers/fighting/settingSlice';
+import { fightingAction as fightingStatusAction } from 'src/reducers/fighting/statusSlice';
 
 
 const GameCaroFightingSetting = props => {
@@ -22,8 +23,8 @@ const GameCaroFightingSetting = props => {
   const isPlayer1 = user.isPlayer1
 
   const dispatch = useDispatch()
-  const {status, height, width, fightingTime, player1, player2} = useSelector(fightingSelector)
-
+  const status = useSelector(fightingStatusSelector)
+  const {height, width, fightingTime, player1, player2} = useSelector(fightingSettingSelector)
 
   useEffect(()=>{
     if(user.username === player1?.username){
@@ -35,8 +36,8 @@ const GameCaroFightingSetting = props => {
     if(isPlayer1){
       socket.on('receiveDisagreeFightingSetting', () => {
         // console.log('receiveDisagreeFightingSetting')
-        dispatch(fightingAction.resetSetting())
-        toast.error(`${player2} has already disagree fighting setting`)
+        dispatch(fightingStatusAction.resetSetting())
+        toast.error(`${player2?.username} has already disagree fighting setting`)
       })
     }
     else{
@@ -48,7 +49,7 @@ const GameCaroFightingSetting = props => {
     }
     socket.on('startFighting', () => {
       console.log('startFighting')
-      dispatch(fightingAction.start())
+      dispatch(fightingStatusAction.start())
     })
 
     return () => {
@@ -64,11 +65,11 @@ const GameCaroFightingSetting = props => {
   //-------------------------------------------
   const handleChangeSize = obj => {
     const {height, width} = obj
-    if(height && height <= 40 && height >= 15){
+    if(height && height <= 30 && height >= 15){
       // setHeight(height)
       dispatch(fightingAction.setting({height}))
     }
-    if(width && width <= 40 && width >= 15){
+    if(width && width <= 30 && width >= 15){
       // setWidth(width)
       dispatch(fightingAction.setting({width}))
     }

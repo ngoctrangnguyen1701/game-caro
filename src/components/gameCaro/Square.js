@@ -9,7 +9,9 @@ const style = {
   fontSize: '18px',
 }
 
-const Square = ({ onClick, value }) => {
+let i = 1
+const Square = ({index, onClick, value }) => {
+  console.log(`Square ${index} render ${i++}`);
 
   return (
     <button 

@@ -1,17 +1,16 @@
-import React, {useEffect, useState} from 'react'
+import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 
-const useCountTime = ({isStart, isStop}) => {
+import { fightingStatusSelector } from 'src/selectors/fightingSelector'
+
+const GameCaroCountTime = () => {
+  const status = useSelector(fightingStatusSelector)
+
   const [time, setTime] = useState('00:00.0')
-  // const [timeObj, setTimeObj] = useState({
-  //   miliseconds: 0,
-  //   seconds: 0,
-  //   minutes: 0,
-  // })
-  
+
   useEffect(()=>{
     let runTime
-    if(isStart){
-      // let {miliseconds, seconds, minutes,} = timeObj
+    if(status === 'start'){
       let miliseconds = 0
       let seconds = 0
       let minutes = 0
@@ -32,14 +31,18 @@ const useCountTime = ({isStart, isStop}) => {
       }, 100)
     }
 
-    if(isStop){
+    if(status === 'stop'){
       clearInterval(runTime) 
     }
     
     return () => clearInterval(runTime)
-  }, [isStop, isStart])
+  }, [status])
 
-  return time
-}
+  return (
+    <>
+      {status === 'start' && <h4 className='text-center'><i className="fas fa-stopwatch"></i> {time}</h4>}
+    </>
+  );
+};
 
-export default useCountTime
+export default React.memo(GameCaroCountTime)
