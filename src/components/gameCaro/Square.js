@@ -1,4 +1,8 @@
 import React from "react";
+import { useDispatch } from 'react-redux';
+
+
+import { fightingAction } from 'src/reducers/fighting/playSlice';
 
 const style = {
   width: '30px', 
@@ -10,16 +14,17 @@ const style = {
 }
 
 let i = 1
-const Square = ({index, onClick, value }) => {
+const Square = ({index, value }) => {
   console.log(`Square ${index} render ${i++}`);
+  const dispatch = useDispatch()
 
   return (
     <button 
-      onClick={onClick}
+      onClick={()=>dispatch(fightingAction.changeTurn({index}))}
       style={style}
       className={value === 'X' ? 'text-danger' : 'text-primary'}
     >
-       {value}
+      {value}
     </button>
   );
 }

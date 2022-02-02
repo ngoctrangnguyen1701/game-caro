@@ -43,7 +43,7 @@ const GameCaroFightingSetting = props => {
     else{
       //only player2 listen event 'receiveFightingSetting'
       socket.on('receiveFightingSetting', data => {
-        console.log('receiveFightingSetting: ', data)
+        // console.log('receiveFightingSetting: ', data)
         dispatch(fightingAction.settingComplete(data.receiveFightingSetting))
       })
     }

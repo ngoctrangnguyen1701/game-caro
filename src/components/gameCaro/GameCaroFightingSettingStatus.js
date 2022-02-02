@@ -17,7 +17,7 @@ const GameCaroFightingSettingStatus = props => {
   const {height, width, fightingTime} = useSelector(fightingSettingSelector)
 
   const handleComplete = () => {
-    dispatch(fightingAction.settingComplete())
+    dispatch(fightingAction.settingComplete({width, height}))
     socket.emit('fightingSettingComplete', {width, height, fightingTime})
   }
 

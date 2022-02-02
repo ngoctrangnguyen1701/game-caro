@@ -3,8 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   player1: {},
   player2: {},
-  width: 30,
-  height: 30,
+  width: 15,
+  height: 15,
   fightingTime: 5,
 }
 
@@ -24,12 +24,6 @@ const mySlice = createSlice({
         ...action.payload,
       }
     },
-    // resetSetting(state, action){
-    //   state.status = 'setting'
-    // },
-    // start(state, action){
-    //   state.status = 'start'
-    // }
   }
 })
 
