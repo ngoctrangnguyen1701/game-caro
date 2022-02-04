@@ -16,10 +16,10 @@ import {
 import { AuthContext } from 'src/contexts/AuthContextProvider';
 import { socket } from 'src/App';
 import { fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
-import { fightingAction } from 'src/reducers/fighting/settingSlice';
-import { fightingAction as fightingStatusAction } from 'src/reducers/fighting/statusSlice';
+import { fightingAction } from 'src/reducers/fighting/statusSlice';
 
 import GameCaroLeaveFightingModal from './GameCaroLeaveFightingModal'
+import { date } from 'yup';
 
 const GameCaroFightingSetting = props => {
   const {user, setUser} = useContext(AuthContext)
@@ -41,7 +41,7 @@ const GameCaroFightingSetting = props => {
     if(isPlayer1){
       socket.on('receiveDisagreeFightingSetting', () => {
         // console.log('receiveDisagreeFightingSetting')
-        dispatch(fightingStatusAction.resetSetting())
+        dispatch(fightingAction.resetSetting())
         toast.error(`${player2?.username} has already disagree fighting setting`)
       })
     }
@@ -52,15 +52,26 @@ const GameCaroFightingSetting = props => {
         dispatch(fightingAction.settingComplete(data.receiveFightingSetting))
       })
     }
+
     socket.on('startFighting', () => {
       console.log('startFighting')
-      dispatch(fightingStatusAction.start())
+      dispatch(fightingAction.start())
+    })
+
+    socket.on('opponentLeaveFighting', data => {
+      // console.log('opponentLeaveFighting: ', data);
+      if(status !== 'stop'){
+        //when player leave, but fighting still be stop yet, that player will be lose
+        dispatch(fightingAction.stop({result: 'win', message: data.message, winner: user.username}))
+        setIsShowLeaveFightingModal(true)
+      }
     })
 
     return () => {
       socket.off('receiveFightingSetting')
       socket.off('receiveDisagreeFightingSetting')
       socket.off('startFighting')
+      socket.off('opponentLeaveFighting')
     }
     //if don't off listen event when this component unmount
     //every this component render, one function listen on will be created

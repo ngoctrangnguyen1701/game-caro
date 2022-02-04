@@ -4,6 +4,8 @@ const initialState = {
   board: [],
   xIsNext: true,
   winner: null,
+  result: '',
+  message: '',
 }
 
 const mySlice = createSlice({
@@ -31,7 +33,12 @@ const mySlice = createSlice({
     },
     waiting(state, action){
       return initialState
-    }
+    },
+    stop(state, action){
+      state.result = action.payload.result
+      state.message = action.payload.message
+      state.winner = action.payload.winner
+    },
   }
 })
 

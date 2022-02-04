@@ -9,7 +9,8 @@ import Slide from '@mui/material/Slide';
 
 import { fightingAction } from 'src/reducers/fighting/statusSlice';
 import { socket } from 'src/App';
-import { fightingStatusSelector } from 'src/selectors/fightingSelector';
+import { fightingStatusSelector, fightingResultSelector, fightingMessageSelector } from 'src/selectors/fightingSelector';
+import { AuthContext } from 'src/contexts/AuthContextProvider';
 
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -18,13 +19,29 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const GameCaroLeaveFightingModal = (props) =>{
   const {isShowModal, setIsShowModal} = props
+  const {user} = React.useContext(AuthContext)
 
   const dispatch = useDispatch()
-  const fightingStatus = useSelector(fightingStatusSelector)
+  const status = useSelector(fightingStatusSelector)
+  const message = useSelector(fightingMessageSelector)
+  const result = useSelector(fightingResultSelector)
 
   const handleLeaveFighting = () =>{
+    let obj = {}
+    if(status === 'stop'){
+      obj = {
+        fightingResult: result
+      }
+    }
+    else{
+      //when player leave, but fighting still be stop yet, that player will be lose
+      obj = {
+        fightingResult: 'lose',
+        message: `${user.username} has already leave fighting`
+      }
+    }
+    socket.emit('leaveFighting', obj)
     dispatch(fightingAction.waiting())
-    socket.emit('leaveFighting', {fightingStatus})
   }
 
 
@@ -36,20 +53,25 @@ const GameCaroLeaveFightingModal = (props) =>{
       onClose={()=>setIsShowModal(false)}
     >
       <DialogTitle>
-        {fightingStatus !== 'stop' ? 'If you leave, you will lose' : 'result figting(nếu đang giữa trận thì báo thắng do đối thủ rời đi)'}
+        {status === 'stop' ? (
+          <div className='text-center text-danger'>
+            YOU {result.toUpperCase()}
+            <span className="text-secondary d-block" style={{fontSize: '14px'}}>{message}</span>
+          </div>
+        ) : 'If you leave, you will lose'}
       </DialogTitle>
-      <DialogActions style={{justifyContent: 'center', paddingBottom: '24px'}}>
+      <DialogActions style={{justifyContent: 'center', paddingBottom: '24px', paddingTop: '0px'}}>
         <Button
           variant="contained"
           color='success'
           onClick={()=>setIsShowModal(false)}
-        >Disagree
+        >{status === 'stop' ? 'Review board': 'Stay'}
         </Button>
         <Button
           variant="outlined"
           color='success'
           onClick={handleLeaveFighting}
-        >Agree
+        >Leave
         </Button>
       </DialogActions>
     </Dialog>

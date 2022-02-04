@@ -20,12 +20,14 @@ const mySlice = createSlice({
       }
     },
     prepareRemove(state, action){
-      const {username} = action.payload.offlineUser
+      const user = action.payload.offlineUser
+      const {username} = user
       const index = state.findIndex(item => item.username === username)
       if(index !== -1) state[index].removeLoading = true
     },
     remove(state, action){
-      const {username} = action.payload.offlineUser
+      const user = action.payload.offlineUser
+      const {username} = user
       const index = state.findIndex(item => item.username === username)
       if(state[index]?.removeLoading){
         //nếu vẫn còn removeLoading thì sẽ xóa nó đi

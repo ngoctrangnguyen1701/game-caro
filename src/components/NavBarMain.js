@@ -1,6 +1,6 @@
 import React, {useContext, useEffect} from 'react';
 import {Link, useNavigate} from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import {AuthContext} from '../contexts/AuthContextProvider'
 import { socket } from 'src/App'
@@ -17,13 +17,15 @@ import {
 } from '@mui/material'
 
 import { fightingStatusSelector } from 'src/selectors/fightingSelector'
-
+import { fightingAction } from 'src/reducers/fighting/playSlice';
 
 
 const NavBarMain = () => {
   const {user, setUser} = useContext(AuthContext)
   const {username, avatar, } = user
   const navigate = useNavigate()
+
+  const dispatch = useDispatch()
   const fightingStatus = useSelector(fightingStatusSelector)
 
   useEffect(()=>{
@@ -36,6 +38,7 @@ const NavBarMain = () => {
     navigate('/')
     setUser({}) //--> set empty object for authContext of setUser
     socket.emit('offline', {username, socketId: socket.id})
+    dispatch(fightingAction.waiting())
   }
 
   return (

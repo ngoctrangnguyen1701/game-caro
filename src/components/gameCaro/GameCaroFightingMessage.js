@@ -20,6 +20,11 @@ const GameCaroFightingMessage = () => {
           className='text-success text-center'
         >Draw</h5>
       }
+      {status === 'stop' && winner &&
+        <h5
+          className='text-success text-center'
+        >Winner: {winner}</h5>
+      }
     </>
   );
 };
