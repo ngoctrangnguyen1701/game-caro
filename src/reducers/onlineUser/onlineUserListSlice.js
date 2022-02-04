@@ -15,24 +15,20 @@ const mySlice = createSlice({
       return action.payload.onlineUserList
     },
     add(state, action){
-      const {onlineUser} = action.payload
-      const {username, socketId, isFighting} = onlineUser
+      const user = action.payload.onlineUser || action.payload.waitingFightingUser
+      const {username} = user
 
       const index = state.findIndex(item => item.username === username)
       if(index !== -1){
         //đang có username đó
         //có thể do người kia F5 lại trang web nên socketId bị thay đổi,
         //hoặc rớt mạng đăng nhập lại...
-        //cập nhật lại socketId và nếu đang có removeLoading do mất kết nối thì xóa nó đi
-        // state[index].socketId = socketId
-        // state[index].isFighting = isFighting
-        // state[index].removeLoading = false
-        state[index] = onlineUser
+        state[index] = user
       }
       else{
         //username không có trong mảng --> 1 người online mới hoàn toàn
         //khi thêm 1 người online mới sẽ có hiệu ứng loading trước khi hiện lên
-        state.push({...onlineUser, addLoading: true})
+        state.push({...user, addLoading: true})
       }
     },
     prepareRemove(state, action){
@@ -44,7 +40,10 @@ const mySlice = createSlice({
       const {username} = action.payload.offlineUser
       const index = state.findIndex(item => item.username === username)
       if(state[index]?.removeLoading){
-        //nếu vẫn còn removeLoading (tức chưa có đăng nhập lại) thì sẽ xóa nó đi
+        //nếu vẫn còn removeLoading thì sẽ xóa nó đi
+        //(chưa có đăng nhập lại, 
+        //nếu đã đăng nhập lại thì state mới bằng cái obj từ socket server gửi về
+        //nên không có removeLoading) 
         return state.filter(item => item.username !== username)
         //do đã dùng hàm filte, state bị clone ra 1 mảng mới,
         //nên chỗ này phải có return, nếu không state sẽ không được cập nhật

@@ -25,10 +25,13 @@ const mySlice = createSlice({
       state.board = newArr
     },
     changeTurn(state, action){
-      state.board[action.payload.index].value = state.xIsNext ? 'X' : 'O'
+      const {index, value} = action.payload
+      state.board[index].value = value
       state.xIsNext = !state.xIsNext
     },
-
+    waiting(state, action){
+      return initialState
+    }
   }
 })
 

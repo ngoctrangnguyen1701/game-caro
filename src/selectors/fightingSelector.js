@@ -3,6 +3,7 @@ export const fightingSelector = state => state.fighting
 export const fightingSettingSelector = state => fightingSelector(state).setting
 export const fightingPlayer1Selector = state => fightingSelector(state).setting.player1
 export const fightingPlayer2Selector = state => fightingSelector(state).setting.player2
+export const fightingTimeSelector = state => fightingSelector(state).setting.fightingTime
 
 export const fightingStatusSelector = state => fightingSelector(state).status
 

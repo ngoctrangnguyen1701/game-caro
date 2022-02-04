@@ -51,9 +51,11 @@ function App() {
     socket.on('onlineUserList', data => {
       dispatch(onlineUserAction.fetchAll(data))
     })
+
     socket.on('onlineUser', data => {
       dispatch(onlineUserAction.add(data))
     })
+
     socket.on('offlineUser', data => {
       dispatch(onlineUserAction.prepareRemove(data))
       setTimeout(()=>{
@@ -69,14 +71,21 @@ function App() {
         return dispatch(invitationAction.remove(data))
       }, 10000)
     })
+
     socket.on('settingFighting', data => {
       // console.log('settingFighting: ', data)
       dispatch(fightingAction.setting(data))
     })
+
     socket.on('updateFightingUserList', data => {
       // console.log('updateFightingUserList : ', data)
       dispatch(onlineUserAction.updateFightingStatus(data))
       dispatch(invitationAction.updateFightingStatus(data))
+    })
+
+    socket.on('waitingFightingUser', data => {
+      console.log('waitingFightingUser: ', data)
+      dispatch(onlineUserAction.add(data))
     })
     //don't need to off event of socket, cause when component App unmount, 
     //it's mean exsit to this webapp

@@ -1,24 +1,31 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useContext} from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import { socket } from "src/App";
 import { fightingAction } from "src/reducers/fighting/playSlice";
 import { fightingBoardSelector, fightingRowSelector, fightingSettingSelector, fightingStatusSelector, fightingWinnerSelector, fightingXIsNextSelector } from "src/selectors/fightingSelector";
+import { AuthContext } from "src/contexts/AuthContextProvider";
+
 
 // import Square from "./Square";
 import GameCaroRow from "./GameCaroRow";
 
 const GameCaroBoard = () =>{
   const dispatch = useDispatch()
-  // const width = useSelector(fightingSettingSelector).width
-  // const height = useSelector(fightingSettingSelector).height
-  // const board = useSelector(fightingBoardSelector)
   const row = useSelector(fightingRowSelector)
   const status = useSelector(fightingStatusSelector)
-  const xIsNext = useSelector(fightingXIsNextSelector)
-  const winner = useSelector(fightingWinnerSelector)
 
-  // const [squares, setSquares] = useState([])
-  // const [row, setRow] = useState([])
+  useEffect(()=>{
+    socket.on('changeTurn', data => {
+      console.log('changeTurn: ', data)
+      return dispatch(fightingAction.changeTurn(data))
+      //return to not double dispatch
+    })
+    //when component unmount, off listen 'changeTurn',
+    //avoid to create many function listen when component render
+    return () => socket.off('changeTurn')
+  }, [])
+
 
   // useEffect(()=>{
   //   if(board && board.length > 0){
@@ -75,6 +82,7 @@ const GameCaroBoard = () =>{
           // squares={squares}
           // board={board}
           yParam={item}
+          // handleClick={handleClick}
           // yParam={yParam}
           // handleClick={handleClick}
         />
@@ -119,8 +127,7 @@ const GameCaroBoard = () =>{
 
   return (
     <div className="mt-3">
-      {status === 'start' && elementRow}
-      {/* {status === 'start' && <GameCaroRow/>} */}
+      {status === 'start' || status === 'stop' && elementRow}
     </div>
   );
 }

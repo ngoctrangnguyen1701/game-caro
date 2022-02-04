@@ -74,3 +74,7 @@ player1	  setting	          [btn] Complete	            player2	  waiting setting
 
 12. when player is in fighting room, update status(isFighting: true) display to other, notify invitation come and click modal invitation wil not be display
 ↑完成
+
+13. feature play online
+  + player1's turn, player2 can not hit and cell which have value can not be hitted again
+  + when 2 players is fighting, if exit will be lose

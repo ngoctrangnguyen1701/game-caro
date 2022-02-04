@@ -35,7 +35,7 @@ const GameCaroFightingSettingStatus = props => {
           className="d-block mx-auto my-2"
           onClick={handleComplete}
         >
-          Complete
+          Setting Complete
         </Button>
       )}
 

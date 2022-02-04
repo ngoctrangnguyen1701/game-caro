@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
@@ -9,6 +9,8 @@ import {
   FormControl,
   Avatar,
   Select,
+  Grid,
+  Button,
 } from '@mui/material'
 
 import { AuthContext } from 'src/contexts/AuthContextProvider';
@@ -17,6 +19,7 @@ import { fightingSettingSelector, fightingStatusSelector } from 'src/selectors/f
 import { fightingAction } from 'src/reducers/fighting/settingSlice';
 import { fightingAction as fightingStatusAction } from 'src/reducers/fighting/statusSlice';
 
+import GameCaroLeaveFightingModal from './GameCaroLeaveFightingModal'
 
 const GameCaroFightingSetting = props => {
   const {user, setUser} = useContext(AuthContext)
@@ -25,6 +28,8 @@ const GameCaroFightingSetting = props => {
   const dispatch = useDispatch()
   const status = useSelector(fightingStatusSelector)
   const {height, width, fightingTime, player1, player2} = useSelector(fightingSettingSelector)
+
+  const [isShowLeaveFightingModal, setIsShowLeaveFightingModal] = useState(false)
 
   useEffect(()=>{
     if(user.username === player1?.username){
@@ -117,7 +122,7 @@ const GameCaroFightingSetting = props => {
             max="40"
             value={width}
             onChange={e=> handleChangeSize({width: parseInt(e.target.value)})}
-            disabled={!isPlayer1 || (status === 'settingComplete' ? true : false)}
+            disabled={!isPlayer1 || (status !== 'setting' ? true : false)}
           />
         </div>
         <div className='text-center mt-2'>
@@ -128,23 +133,42 @@ const GameCaroFightingSetting = props => {
             max="40"
             value={height}
             onChange={e=> handleChangeSize({height: parseInt(e.target.value)})}
-            disabled={!isPlayer1 || (status === 'settingComplete' ? true : false)}
+            disabled={!isPlayer1 || (status !== 'setting' ? true : false)}
           />
         </div>
-        <FormControl sx={{ m: 1, minWidth: 140 }}>
-          <InputLabel>Fighting time</InputLabel>
-          <Select
-            value={fightingTime}
-            onChange={e=>dispatch(fightingAction.setting({fightingTime: e.target.value}))}
-            disabled={!isPlayer1 || (status === 'settingComplete' ? true : false)}
-            color='success'
-          >
-            <MenuItem value={5}>5 minutes</MenuItem>
-            <MenuItem value={10}>10 minutes</MenuItem>
-            <MenuItem value={15}>15 minutes</MenuItem>
-          </Select>
-        </FormControl>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <FormControl sx={{ m: 1, minWidth: 140 }}>
+              <InputLabel>Fighting time</InputLabel>
+              <Select
+                value={fightingTime}
+                onChange={e=>dispatch(fightingAction.setting({fightingTime: e.target.value}))}
+                disabled={!isPlayer1 || (status !== 'setting' ? true : false)}
+                color='success'
+              >
+                <MenuItem value={5}>5 minutes</MenuItem>
+                <MenuItem value={10}>10 minutes</MenuItem>
+                <MenuItem value={15}>15 minutes</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={6} className='d-flex justify-content-end align-items-center'>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={()=>(setIsShowLeaveFightingModal(true))}
+            >
+              Leave fighting
+            </Button>
+          </Grid>
+        </Grid>
       </div>
+
+      {/* MODAL */}
+      <GameCaroLeaveFightingModal
+        isShowModal={isShowLeaveFightingModal}
+        setIsShowModal={setIsShowLeaveFightingModal}
+      />
     </>
   )
 }

@@ -58,7 +58,7 @@ const GameCaro = () => {
           variant="outlined"
           color="error"
           sx={{marginLeft: '10px', display: 'inline-block'}}
-          onClick={()=>onFindOpponent()}
+          onClick={onFindOpponent}
           disabled={fightingStatus === 'waiting' ? false : true}
         >Go find opponent</Button>
       </div>

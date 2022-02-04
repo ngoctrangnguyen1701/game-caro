@@ -17,6 +17,12 @@ const mySlice = createSlice({
     },
     start(state, action){
       return 'start'
+    },
+    stop(state, action){
+      return 'stop'
+    },
+    waiting(state, action){
+      return initialState
     }
   }
 })

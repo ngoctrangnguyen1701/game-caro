@@ -4,7 +4,6 @@ import { Navigate } from 'react-router-dom';
 import {AuthContext} from '../contexts/AuthContextProvider'
 import GameCaro from '../components/gameCaro/GameCaro';
 
-
 const GameCaroPage = props => {
   const {username} = useContext(AuthContext).user
   

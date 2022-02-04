@@ -8,12 +8,11 @@ const mySlice = createSlice({
   initialState,
   reducers: {
     add(state, action){
+      // const user = action.payload.onlineUser || action.payload.waitingFightingUser
       const newInvitation = action.payload.from
       const index = state.findIndex(item => item.username === newInvitation.username)
       if(index !== -1){
         //username is exist, socketId has be changed
-        // state[index].socketId = newInvitation.socketId
-        // state[index].removeLoading = false
         state[index] = newInvitation
       }
       else{
@@ -29,7 +28,10 @@ const mySlice = createSlice({
       const {username} = action.payload.offlineUser
       const index = state.findIndex(item => item.username === username)
       if(state[index]?.removeLoading){
-        //nếu vẫn còn removeLoading (tức chưa có đăng nhập lại) thì sẽ xóa nó đi
+        //nếu vẫn còn removeLoading thì sẽ xóa nó đi
+        //(chưa có đăng nhập lại, 
+        //nếu đã đăng nhập lại thì state mới bằng cái obj từ socket server gửi về
+        //nên không có removeLoading) 
         return state.filter(item => item.username !== username)
         //do đã dùng hàm filte, state bị clone ra 1 mảng mới,
         //nên chỗ này phải có return, nếu không state sẽ không được cập nhật

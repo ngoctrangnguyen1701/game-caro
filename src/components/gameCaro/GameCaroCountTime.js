@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { fightingStatusSelector } from 'src/selectors/fightingSelector'
+import { fightingAction } from 'src/reducers/fighting/statusSlice';
+import { fightingStatusSelector, fightingTimeSelector } from 'src/selectors/fightingSelector'
 
 const GameCaroCountTime = () => {
+  const dispatch = useDispatch()
   const status = useSelector(fightingStatusSelector)
+  const fightingTime = useSelector(fightingTimeSelector)
 
   const [time, setTime] = useState('00:00.0')
 
@@ -34,13 +37,26 @@ const GameCaroCountTime = () => {
     if(status === 'stop'){
       clearInterval(runTime) 
     }
-    
+
     return () => clearInterval(runTime)
   }, [status])
 
+  useEffect(()=>{
+    if(time){
+      const minutes = time.slice(0,2)
+      if(parseInt(minutes) === fightingTime){
+        //after time is over
+        dispatch(fightingAction.stop())
+      }
+    }
+  }, [time])
+
   return (
     <>
-      {status === 'start' && <h4 className='text-center'><i className="fas fa-stopwatch"></i> {time}</h4>}
+      {status === 'start' || status === 'stop' && 
+        <h4 className='text-center'>
+          <i className="fas fa-stopwatch"></i> {time}
+        </h4>}
     </>
   );
 };

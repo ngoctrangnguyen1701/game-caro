@@ -24,6 +24,9 @@ const mySlice = createSlice({
         ...action.payload,
       }
     },
+    waiting(state, action){
+      return initialState
+    }
   }
 })
 
