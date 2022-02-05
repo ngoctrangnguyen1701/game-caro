@@ -44,16 +44,17 @@ const GameCaroCountTime = () => {
   useEffect(()=>{
     if(time){
       const minutes = time.slice(0,2)
-      if(parseInt(minutes) === fightingTime){
+      // if(parseInt(minutes) === fightingTime){
+      if(parseInt(minutes) === 1){
         //after time is over
-        dispatch(fightingAction.stop())
+        dispatch(fightingAction.stop({result: 'draw', message: 'Fighting time is over'}))
       }
     }
   }, [time])
 
   return (
     <>
-      {status === 'start' || status === 'stop' && 
+      {(status === 'start' || status === 'stop') && 
         <h4 className='text-center'>
           <i className="fas fa-stopwatch"></i> {time}
         </h4>}

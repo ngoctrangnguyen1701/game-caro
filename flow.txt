@@ -79,3 +79,4 @@ player1	  setting	          [btn] Complete	            player2	  waiting setting
   + player1's turn, player2 can not hit and cell which have value can not be hitted again
   + when 2 players is fighting, if exit (disconnect, offline...) will be lose
   + when fighting time is over and no winner, result is draw
+  + when fighting is stop, button 'replay' will be display, if player dont leave room yet and agree replay, fighting will be start again

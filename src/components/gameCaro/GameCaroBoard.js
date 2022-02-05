@@ -127,7 +127,7 @@ const GameCaroBoard = () =>{
 
   return (
     <div className="mt-3">
-      {status === 'start' || status === 'stop' && elementRow}
+      {(status === 'start' || status === 'stop') && elementRow}
     </div>
   );
 }

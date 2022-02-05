@@ -35,9 +35,9 @@ const mySlice = createSlice({
       return initialState
     },
     stop(state, action){
-      state.result = action.payload.result
-      state.message = action.payload.message
-      state.winner = action.payload.winner
+      state.result = action.payload?.result
+      state.message = action.payload?.message
+      state.winner = action.payload?.winner
     },
   }
 })

@@ -24,18 +24,16 @@ const Square = ({index, value, onClick }) => {
   const status = useSelector(fightingStatusSelector)
 
   const handleClick = () => {
-    console.log('handleClick: ', index);
-    if((user.isPlayer1 && xIsNext === true)
-      || (!user.isPlayer1 && xIsNext === false)
-      && value === null
-      && status !== 'stop'
-    ){
-      //trong lượt đánh của player1, player2 không được đánh
-      //không đánh trùng với ô đã có giá trị
-      //không được đánh khi trận đấu kết thúc (status === 'stop')
-      const value = user.isPlayer1 ? 'X' : 'O'
-      socket.emit('changeTurn', {index, value})
-      dispatch(fightingAction.changeTurn({index, value}))
+    // console.log('handleClick: ', index);
+    if((user.isPlayer1 && xIsNext === true) || (!user.isPlayer1 && xIsNext === false)){
+      if(value === null && status !== 'stop'){
+        //trong lượt đánh của player1, player2 không được đánh
+        //không đánh trùng với ô đã có giá trị
+        //không được đánh khi trận đấu kết thúc (status === 'stop')
+        const value = user.isPlayer1 ? 'X' : 'O'
+        socket.emit('changeTurn', {index, value})
+        dispatch(fightingAction.changeTurn({index, value}))
+      }
     }
   }
 

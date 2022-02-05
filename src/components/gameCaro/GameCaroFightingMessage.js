@@ -15,7 +15,7 @@ const GameCaroFightingMessage = () => {
           className={xIsNext ? 'text-danger text-center' : 'text-primary text-center'}
         >Next player: {xIsNext ? 'X' : 'O'}</h5>
       }
-      {status === 'stop' && winner === null &&
+      {status === 'stop' && !winner &&
         <h5
           className='text-success text-center'
         >Draw</h5>
