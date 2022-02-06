@@ -23,11 +23,11 @@ import GameCaroCountTime from './GameCaroCountTime';
 import GameCaroFightingMessage from './GameCaroFightingMessage';
 
 
-function GameCaroContent() {
-  const {user} = useContext(AuthContext)
+function GameCaroContentOnline() {
+  // const {user} = useContext(AuthContext)
 
-  const dispatch = useDispatch()
-  const status = useSelector(fightingStatusSelector)
+  // const dispatch = useDispatch()
+  // const status = useSelector(fightingStatusSelector)
   // const player1 = useSelector(fightingPlayer1Selector)
   // const player2 = useSelector(fightingPlayer2Selector)
   // const {status, height, width, fightingTime} = useSelector(fightingSelector)
@@ -308,4 +308,4 @@ function GameCaroContent() {
   );
 }
 
-export default React.memo(GameCaroContent)
+export default React.memo(GameCaroContentOnline)

@@ -1,10 +1,8 @@
 import React, { useContext } from "react";
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch} from 'react-redux';
 
-import { socket } from "src/App";
 import { AuthContext } from "src/contexts/AuthContextProvider";
 import { fightingAction } from 'src/reducers/fighting/playSlice';
-import { fightingStatusSelector, fightingXIsNextSelector } from "src/selectors/fightingSelector";
 
 const style = {
   width: '30px', 
@@ -15,26 +13,24 @@ const style = {
   fontSize: '18px',
 }
 
-// let i = 1
-const Square = ({index, value, onClick }) => {
-  // console.log(`Square ${index} render ${i++}`);
+const effect = ['animate__jackInTheBox', 'animate__rubberBand', 'animate__bounce', 'animate__headShake', 'animate__heartBeat', 'animate__flipInX', 'animate__flipInY', 'animate__lightSpeedInRight', 'animate__zoomIn', 'animate__slideInDown']
+const randomEffect = () => {
+  const index = Math.floor(Math.random()*10)
+  return `animate__animated ${effect[index]} animate__faster`
+}
+
+
+let i = 1
+const Square = ({index, value}) => {
+  console.log(`Square ${index} render ${i++}`);
   const dispatch = useDispatch()
   const {user} = useContext(AuthContext)
-  const xIsNext = useSelector(fightingXIsNextSelector)
-  const status = useSelector(fightingStatusSelector)
 
   const handleClick = () => {
-    // console.log('handleClick: ', index);
-    if((user.isPlayer1 && xIsNext === true) || (!user.isPlayer1 && xIsNext === false)){
-      if(value === null && status !== 'stop'){
-        //trong lượt đánh của player1, player2 không được đánh
-        //không đánh trùng với ô đã có giá trị
-        //không được đánh khi trận đấu kết thúc (status === 'stop')
-        const value = user.isPlayer1 ? 'X' : 'O'
-        socket.emit('changeTurn', {index, value})
-        dispatch(fightingAction.changeTurn({index, value}))
-      }
-    }
+    const {isPlayer1} = user
+    // if(value === null && status !== 'stop'){
+    if(value === null) dispatch(fightingAction.ownTurn({isPlayer1, index}))
+    //không đánh trùng với ô đã có giá trị
   }
 
   return (
@@ -43,7 +39,7 @@ const Square = ({index, value, onClick }) => {
       style={style}
       className={value === 'X' ? 'text-danger' : 'text-primary'}
     >
-      {value}
+      <div className={value && randomEffect()}>{value}</div>
     </button>
   );
 }

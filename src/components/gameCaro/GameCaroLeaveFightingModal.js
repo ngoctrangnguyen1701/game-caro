@@ -29,18 +29,20 @@ const GameCaroLeaveFightingModal = (props) =>{
   const handleLeaveFighting = () =>{
     let obj = {}
     if(status === 'stop'){
-      obj = {
-        fightingResult: result
-      }
+      // obj = {
+      //   fightingResult: result
+      // }
     }
     else{
       //when player leave, but fighting still be stop yet, that player will be lose
-      obj = {
-        fightingResult: 'lose',
-        message: `${user.username} has already leave fighting`
-      }
+      // obj = {
+      //   fightingResult: 'lose',
+      //   // message: `${user.username} has already leave fighting`
+      // }
+      socket.emit('stopFighting', {fightingResult: 'lose'})
+      // socket.emit('leaveFighting')
     }
-    socket.emit('leaveFighting', obj)
+    socket.emit('leaveFighting')
     dispatch(fightingAction.waiting())
   }
 

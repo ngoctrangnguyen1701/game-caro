@@ -24,6 +24,12 @@ const mySlice = createSlice({
     },
     waiting(state, action){
       return initialState
+    },
+    suggestReplay(state, aciton){
+      return 'suggestReplay'
+    },
+    disagreeReplay(state, action){
+      return 'disagreeReplay'
     }
   }
 })

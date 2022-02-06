@@ -1,14 +1,24 @@
 import React, {useContext} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import styled from 'styled-components';
 
 import Button from '@mui/material/Button';
+// import { Loader2 } from './styles/Loading2Style';
 
 import { AuthContext } from 'src/contexts/AuthContextProvider';
 import { socket } from 'src/App';
 import { fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
 import { fightingAction } from 'src/reducers/fighting/statusSlice';
 
-const GameCaroFightingSettingStatus = props => {
+import LoadingThreeDots from './LoadingThreeDots';
+
+const StatusText = styled.div`
+  color: #dc3545;
+  font-weight: bold;
+  text-align: center;
+`
+
+const GameCaroFightingSettingStatus = () => {
   const {user} = useContext(AuthContext)
   const isPlayer1 = user.isPlayer1
 
@@ -39,15 +49,21 @@ const GameCaroFightingSettingStatus = props => {
         </Button>
       )}
 
-      {status === 'setting' && !isPlayer1 && (
-        <h6 className='text-danger text-center'>Player 1 is setting...</h6>
-      )}
+      {status === 'setting' && !isPlayer1 && 
+        <StatusText> 
+          Player 1 is setting
+          <LoadingThreeDots/>
+        </StatusText>
+      }
 
-      {status === 'settingComplete' && isPlayer1 && (
-        <h6 className='text-danger text-center'>Waiting confirm...</h6>
-      )}
+      {status === 'settingComplete' && isPlayer1 && 
+        <StatusText>
+          Waiting confirm
+          <LoadingThreeDots/>
+        </StatusText>
+      }
 
-      {status === 'settingComplete' && !isPlayer1 && (
+      {status === 'settingComplete' && !isPlayer1 && 
         <div className="d-flex justify-content-center">
           <Button
             color='success' variant='contained'
@@ -64,7 +80,19 @@ const GameCaroFightingSettingStatus = props => {
             Disagree setting
           </Button>
         </div>
-      )}
+      }
+
+      {status === 'suggestReplay' && 
+        <StatusText> 
+          Waiting agree replay fighting
+          <LoadingThreeDots/>
+        </StatusText>
+      }
+      {status === 'disagreeReplay' &&
+        <StatusText>
+          Player has already disagree replay fighting
+        </StatusText>
+      }
     </>
   )
 }

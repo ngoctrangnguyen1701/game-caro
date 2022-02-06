@@ -15,17 +15,19 @@ import {
 
 import { AuthContext } from 'src/contexts/AuthContextProvider';
 import { socket } from 'src/App';
-import { fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
+import { fightingResultSelector, fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
 import { fightingAction } from 'src/reducers/fighting/statusSlice';
+import { fightingAction as fightingPlayAction} from 'src/reducers/fighting/playSlice';
 
 import GameCaroLeaveFightingModal from './GameCaroLeaveFightingModal'
 
-const GameCaroFightingSetting = props => {
+const GameCaroFightingSetting = () => {
   const {user, setUser} = useContext(AuthContext)
   const isPlayer1 = user.isPlayer1
 
   const dispatch = useDispatch()
   const status = useSelector(fightingStatusSelector)
+  const result = useSelector(fightingResultSelector)
   const {height, width, fightingTime, player1, player2} = useSelector(fightingSettingSelector)
 
   const [isShowLeaveFightingModal, setIsShowLeaveFightingModal] = useState(false)
@@ -60,6 +62,8 @@ const GameCaroFightingSetting = props => {
       dispatch(fightingAction.start())
     })
 
+    
+
     // if(status !== 'stop'){
     //   socket.on('opponentLeaveFighting', data => {
     //     //when player leave, but fighting still be stop yet, that player will be lose
@@ -79,20 +83,39 @@ const GameCaroFightingSetting = props => {
     //every this component render, one function listen on will be created
   }, [isPlayer1])
 
+  // useEffect(()=>{
+  //   if(status === 'stop'){
+  //     //when fighting is stop, no listen event 'opponentLeaveFighting' anymore
+  //     socket.off('opponentLeaveFighting')
+  //   } else {
+  //     socket.on('opponentLeaveFighting', data => {
+  //       //when player leave, but fighting still be stop yet, that player will be lose
+  //       dispatch(fightingAction.stop({result: 'win', message: data.message, winner: user.username}))
+  //       setIsShowLeaveFightingModal(true)
+  //     })
+  //   }
+  //   return () => {
+  //     socket.off('opponentLeaveFighting')
+  //   }
+  // }, [status])
+
   useEffect(()=>{
     if(status === 'stop'){
-      //when fighting is stop, no listen event 'opponentLeaveFighting' anymore
-      socket.off('opponentLeaveFighting')
-    } else {
+      socket.emit('stopFighting', {fightingResult: result})
       socket.on('opponentLeaveFighting', data => {
-        //when player leave, but fighting still be stop yet, that player will be lose
+        toast.info(data.message)
+        dispatch(fightingPlayAction.opponentLeave())
+      })
+    }
+    else{
+      //when player leave, but fighting still be stop yet, that player will be lose and another player will win
+      socket.on('opponentLeaveFighting', data => {
+        dispatch(fightingPlayAction.opponentLeave())
         dispatch(fightingAction.stop({result: 'win', message: data.message, winner: user.username}))
         setIsShowLeaveFightingModal(true)
       })
     }
-    return () => {
-      socket.off('opponentLeaveFighting')
-    }
+    return () => socket.off('opponentLeaveFighting')
   }, [status])
 
 
@@ -100,11 +123,9 @@ const GameCaroFightingSetting = props => {
   const handleChangeSize = obj => {
     const {height, width} = obj
     if(height && height <= 30 && height >= 15){
-      // setHeight(height)
       dispatch(fightingAction.setting({height}))
     }
     if(width && width <= 30 && width >= 15){
-      // setWidth(width)
       dispatch(fightingAction.setting({width}))
     }
   }

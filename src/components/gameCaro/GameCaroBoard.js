@@ -18,7 +18,7 @@ const GameCaroBoard = () =>{
   useEffect(()=>{
     socket.on('changeTurn', data => {
       console.log('changeTurn: ', data)
-      return dispatch(fightingAction.changeTurn(data))
+      return dispatch(fightingAction.opponentTurn(data))
       //return to not double dispatch
     })
     //when component unmount, off listen 'changeTurn',

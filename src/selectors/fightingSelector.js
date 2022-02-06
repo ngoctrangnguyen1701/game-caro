@@ -12,6 +12,7 @@ export const fightingBoardSelector = state => fightingSelector(state).play.board
 export const fightingXIsNextSelector = state => fightingSelector(state).play.xIsNext
 export const fightingResultSelector = state => fightingSelector(state).play.result
 export const fightingMessageSelector = state => fightingSelector(state).play.message
+export const fightingIsOpponentLeaveSelector = state => fightingSelector(state).play.isOpponentLeave
 
 export const fightingRowSelector = state => {
   const board = fightingBoardSelector(state)

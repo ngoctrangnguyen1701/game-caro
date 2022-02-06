@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { socket } from "src/App";
 
 const initialState = {
   board: [],
@@ -6,6 +7,8 @@ const initialState = {
   winner: null,
   result: '',
   message: '',
+  isOpponentLeave: false,
+  status: '',
 }
 
 const mySlice = createSlice({
@@ -24,9 +27,51 @@ const mySlice = createSlice({
           newArr = [...newArr, ...row]
         }
       }
-      state.board = newArr
+      // state.board = newArr
+      return {
+        ...initialState,
+        board: newArr
+      }
     },
-    changeTurn(state, action){
+    // changeTurn(state, action){
+    //   const {index, value} = action.payload
+    //   state.board[index].value = value
+    //   state.xIsNext = !state.xIsNext
+    // },
+    // player1Turn(state, action){
+    //   const {index, value} = action.payload
+    //   if(xIsNext){
+    //     socket.emit('player1Turn', {index, value})
+    //     state.board[index].value = value
+    //     state.xIsNext = false
+    //   }
+    // },
+    // receivePlayer1Turn(state, action){
+    //   state.board[index].value = value
+    //   state.xIsNext = false
+    // },
+    // player2Turn(state, action){
+    //   const {index, value} = action.payload
+    //   if(!xIsNext){
+    //     socket.emit('player2Turn', {index, value})
+    //     state.board[index].value = value
+    //     state.xIsNext = true
+    //   }
+    // },
+    ownTurn(state, action){
+      const {isPlayer1, index} = action.payload
+      if((isPlayer1 && state.xIsNext) || (!isPlayer1 && !state.xIsNext)){
+        if(state.status !== 'stop'){
+          //trong lượt đánh của player1, player2 không được đánh
+          //không được đánh khi trận đấu kết thúc (status === 'stop')
+          const value = isPlayer1 ? 'X' : 'O'
+          socket.emit('changeTurn', {index, value})
+          state.board[index].value = value
+          state.xIsNext = !state.xIsNext
+        }
+      }
+    },
+    opponentTurn(state, action){
       const {index, value} = action.payload
       state.board[index].value = value
       state.xIsNext = !state.xIsNext
@@ -38,6 +83,10 @@ const mySlice = createSlice({
       state.result = action.payload?.result
       state.message = action.payload?.message
       state.winner = action.payload?.winner
+      state.status = 'stop'
+    },
+    opponentLeave(state, action){
+      state.isOpponentLeave = true
     },
   }
 })
