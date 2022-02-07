@@ -1,8 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { socket } from "src/App";
+import whoIsWinner from "src/components/gameCaro/functions/whoIsWinner";
 
 const initialState = {
   board: [],
+  width: '',
+  height: '',
   xIsNext: true,
   winner: null,
   result: '',
@@ -30,7 +33,9 @@ const mySlice = createSlice({
       // state.board = newArr
       return {
         ...initialState,
-        board: newArr
+        board: newArr,
+        // height,
+        // width
       }
     },
     // changeTurn(state, action){
@@ -68,9 +73,17 @@ const mySlice = createSlice({
           socket.emit('changeTurn', {index, value})
           state.board[index].value = value
           state.xIsNext = !state.xIsNext
+          // const winValue = whoIsWinner(state.board, state.width, state.height)
+          // if(winValue){
+          //   state.winner = winValue === 'X' ? 'player1' : 'player2'
+          // }
         }
       }
     },
+    // ownTurn(state, action){
+    //   state.xIsNext = !state.xIsNext
+    //   state.board = action.payload.board
+    // },
     opponentTurn(state, action){
       const {index, value} = action.payload
       state.board[index].value = value

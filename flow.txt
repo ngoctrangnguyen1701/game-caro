@@ -80,3 +80,5 @@ player1	  setting	          [btn] Complete	            player2	  waiting setting
   + when 2 players is fighting, if exit (disconnect, offline...) will be lose
   + when fighting time is over and no winner, result is draw
   + when fighting is stop, button 'replay' will be display, if player dont leave room yet and agree replay, fighting will be start again
+↑完成
+  + when winner is confirmed, the fighting will be stop

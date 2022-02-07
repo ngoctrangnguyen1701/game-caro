@@ -30,6 +30,7 @@ const Square = ({index, value}) => {
     const {isPlayer1} = user
     // if(value === null && status !== 'stop'){
     if(value === null) dispatch(fightingAction.ownTurn({isPlayer1, index}))
+    // if(value === null) dispatch({type: 'fighting/play', payload: {isPlayer1, index}})
     //không đánh trùng với ô đã có giá trị
   }
 

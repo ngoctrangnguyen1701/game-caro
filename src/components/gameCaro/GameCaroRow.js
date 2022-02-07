@@ -1,13 +1,11 @@
 import React from 'react';
 import { useSelector, } from 'react-redux';
-
 import { fightingBoardSelector, } from 'src/selectors/fightingSelector';
 
 import Square from './Square';
 
 const GameCaroRow = (props) => {
   const {yParam} = props
-
   const board = useSelector(fightingBoardSelector)
 
   let elementSquare = []
