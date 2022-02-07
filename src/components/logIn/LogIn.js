@@ -66,14 +66,18 @@ const LogIn = props => {
     }
     firebase.auth().signInWithPopup(provider)
       .then(res => {
+        console.log('firebase: ', res);
         //when login with facebook or google successlly
+        const {isNewUser} = res.additionalUserInfo
         const {user: socialAccount} = res.user.multiFactor
-        const {displayName, photoURL, email} = socialAccount
         console.log('socialAccount: ', socialAccount)
+
+        const {displayName, photoURL, email} = socialAccount
         const payload = {
           username: displayName,
           email,
           avatar: photoURL,
+          isNewUser
         }
         dispatch({type: 'auth/logIn/logInWithSocialAccount', payload}) 
       })

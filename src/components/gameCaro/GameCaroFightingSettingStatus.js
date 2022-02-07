@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import Button from '@mui/material/Button';
-// import { Loader2 } from './styles/Loading2Style';
 
 import { AuthContext } from 'src/contexts/AuthContextProvider';
 import { socket } from 'src/App';

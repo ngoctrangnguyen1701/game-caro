@@ -1,5 +1,6 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
+import { getFirestore } from "firebase/firestore";
 //refenrence https://stackoverflow.com/questions/70445014/module-not-found-error-package-path-is-not-exported-from-package
 
 const firebaseConfig = {
@@ -13,5 +14,7 @@ const firebaseConfig = {
 
 // Use this to initialize the firebase App
 const firebaseApp = firebase.initializeApp(firebaseConfig);
+// export const db = firebase.firestore()
+export const db = getFirestore()
 
 export default firebase

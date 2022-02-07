@@ -3,6 +3,9 @@ import authApi from '../../api/authApi'
 import { signUpAction } from '../../reducers/auth/signUpSlice'
 import { logInAction } from '../../reducers/auth/logInSlice'
 
+// import {doc, setDoc} from 'firebase/firestore'
+import { db } from 'src/firebase/firebaseConfig'
+import { collection, addDoc } from "firebase/firestore"; 
 
 export default function* saga(){
   yield takeEvery('auth/signUp/submit', signUp)
@@ -10,10 +13,15 @@ export default function* saga(){
   yield takeEvery('auth/logIn/logInWithSocialAccount', logIn)
 }
 
-function* signUp(action){
+function* signUp (action){
+  const {username} = action.payload
   try {
     const res = yield call(authApi.signUp, action.payload)
     yield put(signUpAction.success())
+
+    //create new user in firebase of firestore
+    yield call(addToFirestore, {username})
+    
   } catch (error) {
     console.log(error);
     const responseError = error.request.response
@@ -50,6 +58,16 @@ function* logIn(action){
       }
       yield delay(300) //--> deplay 300 để accessToken được lưu vào sessionStorage trước
       yield put(logInAction.success())
+
+      //create new user in firebase of firestore
+      if(requestData.isNewUser){
+        const obj = {
+          username: requestData.username,
+          avatar: requestData.avatar
+        }
+        //create new user in firebase of firestore
+        yield call(addToFirestore, obj)
+      }
     }
   } catch (error) {
     console.log(error);
@@ -61,5 +79,17 @@ function* logIn(action){
     else{
       yield put(logInAction.failed({message: 'Can not log in'}))
     }
+  }
+}
+
+const addToFirestore = async (data) => {
+  try {
+    const docRef = await addDoc(collection(db, 'users'), {
+      username: data.username,
+      avatar: data.avatar || '',
+    })
+    console.log('Add to firestore successfully', docRef.id);  
+  } catch (error) {
+    console.error(error);
   }
 }

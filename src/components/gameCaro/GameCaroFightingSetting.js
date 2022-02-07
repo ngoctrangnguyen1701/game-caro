@@ -62,42 +62,14 @@ const GameCaroFightingSetting = () => {
       dispatch(fightingAction.start())
     })
 
-    
-
-    // if(status !== 'stop'){
-    //   socket.on('opponentLeaveFighting', data => {
-    //     //when player leave, but fighting still be stop yet, that player will be lose
-    //     dispatch(fightingAction.stop({result: 'win', message: data.message, winner: user.username}))
-    //     setIsShowLeaveFightingModal(true)
-    //   })
-    // }
-    
-
     return () => {
       socket.off('receiveFightingSetting')
       socket.off('receiveDisagreeFightingSetting')
       socket.off('startFighting')
-      // socket.off('opponentLeaveFighting')
     }
     //if don't off listen event when this component unmount
     //every this component render, one function listen on will be created
   }, [isPlayer1])
-
-  // useEffect(()=>{
-  //   if(status === 'stop'){
-  //     //when fighting is stop, no listen event 'opponentLeaveFighting' anymore
-  //     socket.off('opponentLeaveFighting')
-  //   } else {
-  //     socket.on('opponentLeaveFighting', data => {
-  //       //when player leave, but fighting still be stop yet, that player will be lose
-  //       dispatch(fightingAction.stop({result: 'win', message: data.message, winner: user.username}))
-  //       setIsShowLeaveFightingModal(true)
-  //     })
-  //   }
-  //   return () => {
-  //     socket.off('opponentLeaveFighting')
-  //   }
-  // }, [status])
 
   useEffect(()=>{
     if(status === 'stop'){

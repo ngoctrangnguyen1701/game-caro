@@ -10,7 +10,6 @@ import Slide from '@mui/material/Slide';
 import { fightingAction } from 'src/reducers/fighting/statusSlice';
 import { socket } from 'src/App';
 import { fightingStatusSelector, fightingResultSelector, fightingMessageSelector } from 'src/selectors/fightingSelector';
-import { AuthContext } from 'src/contexts/AuthContextProvider';
 
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -19,7 +18,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const GameCaroLeaveFightingModal = (props) =>{
   const {isShowModal, setIsShowModal} = props
-  const {user} = React.useContext(AuthContext)
 
   const dispatch = useDispatch()
   const status = useSelector(fightingStatusSelector)
@@ -27,20 +25,8 @@ const GameCaroLeaveFightingModal = (props) =>{
   const result = useSelector(fightingResultSelector)
 
   const handleLeaveFighting = () =>{
-    let obj = {}
-    if(status === 'stop'){
-      // obj = {
-      //   fightingResult: result
-      // }
-    }
-    else{
-      //when player leave, but fighting still be stop yet, that player will be lose
-      // obj = {
-      //   fightingResult: 'lose',
-      //   // message: `${user.username} has already leave fighting`
-      // }
+    if(status !== 'stop'){
       socket.emit('stopFighting', {fightingResult: 'lose'})
-      // socket.emit('leaveFighting')
     }
     socket.emit('leaveFighting')
     dispatch(fightingAction.waiting())
