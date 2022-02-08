@@ -2,7 +2,7 @@ import React, {useEffect, useState, useContext} from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { socket } from "src/App";
-import { fightingAction } from "src/reducers/fighting/playSlice";
+import { fightingAction } from "src/reducers/fighting/playOnlineSlice";
 import {
   fightingBoardSelector,
   fightingRowSelector,

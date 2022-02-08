@@ -100,7 +100,7 @@ function App() {
         <Suspense fallback={elementLoading}>
           <Routes>
             {routes && routes.length > 0 && (
-              routes.map((item, index) => <Route key={index} path={item.path} exact={item.exact} element={item.element}/>)
+              routes.map((item, index) => <Route key={index} path={item.path} /* exact={item.exact} */ element={item.element}/>)
             )}
           </Routes>
         </Suspense>

@@ -21,21 +21,7 @@ import { fightingAction as fightingPlayAction} from 'src/reducers/fighting/playO
 
 import GameCaroLeaveFightingModal from './GameCaroLeaveFightingModal'
 
-const isDisabledInputSelect = ({isPlayYourself, isPlayer1, status}) => {
-  // let result = true
-  if(status === 'setting'){
-    if(isPlayYourself || isPlayer1) return false
-    // if(isPlayYourself || isPlayer1) result = false
-  } 
-  // console.log({isPlayYourself, isPlayer1, status});
-  // console.log({result});
-  // return result
-  return true
-}
-
-const GameCaroFightingSetting = props => {
-  const {isPlayYourself} = props
-
+const GameCaroFightingSetting = () => {
   const {user, setUser} = useContext(AuthContext)
   const isPlayer1 = user.isPlayer1
 
@@ -45,7 +31,6 @@ const GameCaroFightingSetting = props => {
   const {height, width, fightingTime, player1, player2} = useSelector(fightingSettingSelector)
 
   const [isShowLeaveFightingModal, setIsShowLeaveFightingModal] = useState(false)
-  // const [isDisabledInputSelect, setIsDisabledInputSelect] = useState(false)
 
   useEffect(()=>{
     if(user.username === player1?.username){
@@ -152,25 +137,25 @@ const GameCaroFightingSetting = props => {
           </div>
         </div>
         <div className='text-center'>
-          <label>Width of board (min: 15, max: 30)</label>
+          <label>Width of board (min: 15, max: 40)</label>
           <input
             type="number"
             min="15"
-            max="30"
+            max="40"
             value={width}
             onChange={e=> handleChangeSize({width: parseInt(e.target.value)})}
-            disabled={isDisabledInputSelect({isPlayYourself, isPlayer1, status})}
+            disabled={!isPlayer1 || (status !== 'setting' ? true : false)}
           />
         </div>
         <div className='text-center mt-2'>
-          <label>Height of board (min: 15, max: 30)</label>
+          <label>Height of board (min: 15, max: 40)</label>
           <input
             type="number"
             min="15"
-            max="30"
+            max="40"
             value={height}
             onChange={e=> handleChangeSize({height: parseInt(e.target.value)})}
-            disabled={isDisabledInputSelect({isPlayYourself, isPlayer1, status})}
+            disabled={!isPlayer1 || (status !== 'setting' ? true : false)}
           />
         </div>
         <Grid container spacing={2}>
@@ -180,7 +165,7 @@ const GameCaroFightingSetting = props => {
               <Select
                 value={fightingTime}
                 onChange={e=>dispatch(fightingAction.setting({fightingTime: e.target.value}))}
-                disabled={isDisabledInputSelect({isPlayYourself, isPlayer1, status})}
+                disabled={!isPlayer1 || (status !== 'setting' ? true : false)}
                 color='success'
               >
                 <MenuItem value={5}>5 minutes</MenuItem>
@@ -189,17 +174,15 @@ const GameCaroFightingSetting = props => {
               </Select>
             </FormControl>
           </Grid>
-          {!isPlayYourself && 
-            <Grid item xs={6} className='d-flex justify-content-end align-items-center'>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={()=>(setIsShowLeaveFightingModal(true))}
-              >
-                Leave fighting
-              </Button>
-            </Grid>
-          }
+          <Grid item xs={6} className='d-flex justify-content-end align-items-center'>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={()=>(setIsShowLeaveFightingModal(true))}
+            >
+              Leave fighting
+            </Button>
+          </Grid>
         </Grid>
       </div>
 

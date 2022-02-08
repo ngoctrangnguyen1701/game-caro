@@ -30,6 +30,9 @@ const mySlice = createSlice({
     },
     disagreeReplay(state, action){
       return 'disagreeReplay'
+    },
+    playYourself(state, action){
+      return 'setting'
     }
   }
 })

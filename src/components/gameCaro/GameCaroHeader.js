@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from 'react'
-import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 
 import Button from '@mui/material/Button';
 
 import { onlineUserListSelector } from 'src/selectors/onlineUserSelector';
-import { fightingStatusSelector } from 'src/selectors/fightingSelector';
+import { fightingIsPlayYourselfSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
+import { fightingAction } from 'src/reducers/fighting/playYourselfSlice';
 
 import GameCaroContent from './GameCaroContent';
 import GameCaroPlayOnline from './GameCaroPlayOnline';
@@ -12,11 +14,13 @@ import GameCaroOpponentListModal from './GameCaroOpponentListModal';
 import GameCaroFindingOpponentModal from './GameCaroFindingOpponentModal';
 
 
-const GameCaro = () => {
+const GameCaroHeader = () => {
+  const dispatch = useDispatch()
   const onlineUserList = useSelector(onlineUserListSelector)
   const fightingStatus = useSelector(fightingStatusSelector)
+  const isPlayYourself = useSelector(fightingIsPlayYourselfSelector)
 
-  const [isPlayYourself, setIsPlayYourself] = useState(false)
+  // const [isPlayYourself, setIsPlayYourself] = useState(false)
   const [isShowFindingOpponentModal, setIsShowFindingOpponentModal] = useState(false)
   const [isShowOpponentListModal, setIsShowOpponentListModal] = useState(false)
   const [prepareShowOpponentListModal, setPrepareShowOpponentListModal] = useState(false)
@@ -38,35 +42,44 @@ const GameCaro = () => {
   }, [fightingStatus])
 
   const onFindOpponent = () =>{
-    setIsPlayYourself(false)
+    // setIsPlayYourself(false)
     setIsShowFindingOpponentModal(true)
     setIsShowOpponentListModal(false)
   }
+
+  // const onPlayYourSelf = () => {
+  //   dispatch(fightingAction.playYourself())
+  // }
 
 
   return (
     <>
       <h2 className="text-danger my-4 text-center">Game Caro</h2>
       <div className='text-center'>
-        <Button
-          variant="contained"
-          color="error"
-          onClick={()=>setIsPlayYourself(true)}
-          disabled={isPlayYourself || (fightingStatus === 'waiting' ? false : true)}
-        >Play with yourself</Button>
+        <Link to='/game-caro/play-yourself'>
+          <Button
+            variant="contained"
+            color="error"
+            // onClick={()=>setIsPlayYourself(true)}
+            // onClick={()=>dispatch(fightingAction.playYourself())}
+            disabled={isPlayYourself ? false : (fightingStatus === 'waiting' ? false : true)}
+            // disabled={isPlayYourself || (fightingStatus === 'waiting' ? false : true)}
+          >Play with yourself</Button>
+        </Link>
         <Button 
           variant="outlined"
           color="error"
           sx={{marginLeft: '10px', display: 'inline-block'}}
           onClick={onFindOpponent}
-          disabled={fightingStatus === 'waiting' ? false : true}
+          disabled={isPlayYourself ? false : (fightingStatus === 'waiting' ? false : true)}
+          // disabled={fightingStatus === 'waiting' ? false : true}
         >Go find opponent</Button>
       </div>
-      {isPlayYourself && <GameCaroContent/>}
-      {fightingStatus !== 'waiting' && <GameCaroPlayOnline />}
+      {/* {isPlayYourself && <GameCaroContent/>}
+      {fightingStatus !== 'waiting' && <GameCaroPlayOnline />} */}
 
       {/* MODAL */}
-      <GameCaroFindingOpponentModal
+      {/* <GameCaroFindingOpponentModal
         isShowModal={isShowFindingOpponentModal}
         setIsShowModal={setIsShowFindingOpponentModal}
         setPrepareShowOpponentListModal={setPrepareShowOpponentListModal}
@@ -75,9 +88,9 @@ const GameCaro = () => {
         isShowModal={isShowOpponentListModal}
         setIsShowModal={setIsShowOpponentListModal}
         setPrepareShowOpponentListModal={setPrepareShowOpponentListModal}
-      />
+      /> */}
     </>
   )
 }
 
-export default React.memo(GameCaro)
+export default React.memo(GameCaroHeader)

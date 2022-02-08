@@ -16,8 +16,8 @@ import {
   Tooltip,
 } from '@mui/material'
 
-import { fightingStatusSelector } from 'src/selectors/fightingSelector'
-import { fightingAction } from 'src/reducers/fighting/playSlice';
+import { fightingIsPlayYourselfSelector, fightingStatusSelector } from 'src/selectors/fightingSelector'
+import { fightingAction } from 'src/reducers/fighting/playOnlineSlice';
 
 
 const NavBarMain = () => {
@@ -26,11 +26,12 @@ const NavBarMain = () => {
   const navigate = useNavigate()
 
   const dispatch = useDispatch()
-  const fightingStatus = useSelector(fightingStatusSelector)
+  const status = useSelector(fightingStatusSelector)
+  const isPlayYourself = useSelector(fightingIsPlayYourselfSelector)
 
   useEffect(()=>{
-    if(fightingStatus === 'setting') navigate('/game-caro')
-  }, [fightingStatus])
+    if(status === 'setting' && !isPlayYourself) navigate('/game-caro')
+  }, [status])
 
   const handleLogOut = () =>{
     localStorage.clear()

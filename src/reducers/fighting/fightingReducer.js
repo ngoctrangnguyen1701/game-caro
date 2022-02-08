@@ -1,11 +1,13 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import setting from "./settingSlice";
-import play from './playSlice'
+import playOnline from './playOnlineSlice'
+import playYourself from './playYourselfSlice'
 import status from './statusSlice'
 
 const reducer = combineReducers({
   setting,
-  play,
+  playOnline,
+  playYourself,
   status,
 })
 

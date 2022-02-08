@@ -7,7 +7,7 @@ import GameCaroCountTime from './GameCaroCountTime';
 import GameCaroFightingMessage from './GameCaroFightingMessage';
 
 
-function GameCaroContentOnline() {
+function GameCaroPlayOnline() {
 
   return (
     <>
@@ -20,4 +20,4 @@ function GameCaroContentOnline() {
   );
 }
 
-export default React.memo(GameCaroContentOnline)
+export default React.memo(GameCaroPlayOnline)

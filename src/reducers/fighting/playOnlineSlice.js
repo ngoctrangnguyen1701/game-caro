@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { socket } from "src/App";
-import whoIsWinner from "src/components/gameCaro/functions/whoIsWinner";
 
 const initialState = {
   board: [],
@@ -30,39 +29,11 @@ const mySlice = createSlice({
           newArr = [...newArr, ...row]
         }
       }
-      // state.board = newArr
       return {
         ...initialState,
         board: newArr,
-        // height,
-        // width
       }
     },
-    // changeTurn(state, action){
-    //   const {index, value} = action.payload
-    //   state.board[index].value = value
-    //   state.xIsNext = !state.xIsNext
-    // },
-    // player1Turn(state, action){
-    //   const {index, value} = action.payload
-    //   if(xIsNext){
-    //     socket.emit('player1Turn', {index, value})
-    //     state.board[index].value = value
-    //     state.xIsNext = false
-    //   }
-    // },
-    // receivePlayer1Turn(state, action){
-    //   state.board[index].value = value
-    //   state.xIsNext = false
-    // },
-    // player2Turn(state, action){
-    //   const {index, value} = action.payload
-    //   if(!xIsNext){
-    //     socket.emit('player2Turn', {index, value})
-    //     state.board[index].value = value
-    //     state.xIsNext = true
-    //   }
-    // },
     ownTurn(state, action){
       const {isPlayer1, index} = action.payload
       if((isPlayer1 && state.xIsNext) || (!isPlayer1 && !state.xIsNext)){
@@ -73,17 +44,9 @@ const mySlice = createSlice({
           socket.emit('changeTurn', {index, value})
           state.board[index].value = value
           state.xIsNext = !state.xIsNext
-          // const winValue = whoIsWinner(state.board, state.width, state.height)
-          // if(winValue){
-          //   state.winner = winValue === 'X' ? 'player1' : 'player2'
-          // }
         }
       }
     },
-    // ownTurn(state, action){
-    //   state.xIsNext = !state.xIsNext
-    //   state.board = action.payload.board
-    // },
     opponentTurn(state, action){
       const {index, value} = action.payload
       state.board[index].value = value

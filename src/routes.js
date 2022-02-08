@@ -9,29 +9,31 @@ const Page404 = React.lazy(() => import ('./components/page404/Page404'))
 const routers = [
   {
     path: '/',
-    exact: true,
+    // exact: true,
     element: <HomePage/>,
   },
   {
     path: '/login',
-    exact: false,
+    // exact: false,
     element: <LogInPage/>,
   },
   {
     path: 'signup',
-    exact: false,
+    // exact: false,
     element: <SignUpPage/>,
   },
   {
-    path: '/game-caro',
-    exact: false,
+    path: '/game-caro/*',
+    // exact: false,
     element: <GameCaroPage/>,
   },
   {
     path: '*',
-    exact: false,
+    // exact: false,
     element: <Page404/>,
   },
 ]
 
 export default routers
+
+//syntax react-route-dom dont need 'exact'

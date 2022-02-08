@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { useDispatch} from 'react-redux';
 
 import { AuthContext } from "src/contexts/AuthContextProvider";
-import { fightingAction } from 'src/reducers/fighting/playSlice';
+import { fightingAction } from 'src/reducers/fighting/playOnlineSlice';
 
 const style = {
   width: '30px', 
