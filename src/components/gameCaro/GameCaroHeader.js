@@ -1,11 +1,13 @@
-import React, {useEffect, useState} from 'react'
-import { Link } from 'react-router-dom';
+import React, {useEffect, useState, useContext} from 'react'
+import { Link, Navigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 
 import Button from '@mui/material/Button';
 
 import { onlineUserListSelector } from 'src/selectors/onlineUserSelector';
 import { fightingIsPlayYourselfSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
+import { GameCaroModalContext } from './contexts/GameCaroModalContext';
+
 
 import GameCaroContent from './GameCaroContent';
 import GameCaroPlayOnline from './GameCaroPlayOnline';
@@ -14,55 +16,63 @@ import GameCaroFindingOpponentModal from './GameCaroFindingOpponentModal';
 
 
 const GameCaroHeader = () => {
-  const dispatch = useDispatch()
   const onlineUserList = useSelector(onlineUserListSelector)
-  const fightingStatus = useSelector(fightingStatusSelector)
+  const status = useSelector(fightingStatusSelector)
   const isPlayYourself = useSelector(fightingIsPlayYourselfSelector)
 
-  // const [isPlayYourself, setIsPlayYourself] = useState(false)
-  const [isShowFindingOpponentModal, setIsShowFindingOpponentModal] = useState(false)
-  const [isShowOpponentListModal, setIsShowOpponentListModal] = useState(false)
-  const [prepareShowOpponentListModal, setPrepareShowOpponentListModal] = useState(false)
+  // const [isShowFindingOpponentModal, setIsShowFindingOpponentModal] = useState(false)
+  // const [isShowOpponentListModal, setIsShowOpponentListModal] = useState(false)
+  // const [prepareShowOpponentListModal, setPrepareShowOpponentListModal] = useState(false)
+  const prepareShowOpponentListModal = useContext(GameCaroModalContext).state.prepareShowOpponentListModal
+  const dispatchModalContext = useContext(GameCaroModalContext).dispatch
 
+  // useEffect(()=>{
+  //   if(prepareShowOpponentListModal) setIsShowOpponentListModal(true)
+  // }, [prepareShowOpponentListModal])
   useEffect(()=>{
-    if(prepareShowOpponentListModal) setIsShowOpponentListModal(true)
+    if(prepareShowOpponentListModal) {
+      dispatchModalContext({type: 'SHOW_OPPONENT_LIST_MODAL', payload: true})
+    }
   }, [prepareShowOpponentListModal])
 
   useEffect(()=>{
-    if(onlineUserList.length === 0) setIsShowOpponentListModal(false)
+    if(onlineUserList.length === 0) {
+      //when no user online, modal 'opponent list' will be close
+      // setIsShowOpponentListModal(false)
+      dispatchModalContext({type: 'SHOW_OPPONENT_LIST_MODAL', payload: false})
+    }
   }, [onlineUserList])
 
   useEffect(()=>{
-    if(fightingStatus === 'setting'){
-      //off modal when received agree
-      setIsShowFindingOpponentModal(false)
-      setIsShowOpponentListModal(false)
+    if(status === 'setting'){
+      //close modal when received agree
+      // setIsShowFindingOpponentModal(false)
+      // setIsShowOpponentListModal(false)
+      dispatchModalContext({type: 'SHOW_FINDING_OPPONENT_MODAL', payload: false})
+      dispatchModalContext({type: 'SHOW_OPPONENT_LIST_MODAL', payload: false})
     }
-  }, [fightingStatus])
+  }, [status])
 
   const onFindOpponent = () =>{
-    // setIsPlayYourself(false)
-    setIsShowFindingOpponentModal(true)
-    setIsShowOpponentListModal(false)
+    // setIsShowFindingOpponentModal(true)
+    // setIsShowOpponentListModal(false)
+    dispatchModalContext({type: 'SHOW_FINDING_OPPONENT_MODAL', payload: true})
+    dispatchModalContext({type: 'SHOW_OPPONENT_LIST_MODAL', payload: false})
   }
-
-  // const onPlayYourSelf = () => {
-  //   dispatch(fightingAction.playYourself())
-  // }
 
 
   return (
     <>
+      {!isPlayYourself && status !== 'watting' && <Navigate to='/game-caro/play-online'/>}
       <h2 className="text-danger my-4 text-center">Game Caro</h2>
+      
       <div className='text-center'>
-        <Link to='/game-caro/play-yourself'>
+        {/* <Link to='/game-caro/play-yourself'> */}
+        <Link to={isPlayYourself ? '/game-caro/play-yourself' : (status === 'waiting' ? '/game-caro/play-yourself' : '#')}>
           <Button
             variant="contained"
             color="error"
-            // onClick={()=>setIsPlayYourself(true)}
-            // onClick={()=>dispatch(fightingAction.playYourself())}
-            disabled={isPlayYourself ? false : (fightingStatus === 'waiting' ? false : true)}
-            // disabled={isPlayYourself || (fightingStatus === 'waiting' ? false : true)}
+            disabled={isPlayYourself ? false : (status === 'waiting' ? false : true)}
           >Play with yourself</Button>
         </Link>
         <Button 
@@ -70,24 +80,23 @@ const GameCaroHeader = () => {
           color="error"
           sx={{marginLeft: '10px', display: 'inline-block'}}
           onClick={onFindOpponent}
-          disabled={isPlayYourself ? false : (fightingStatus === 'waiting' ? false : true)}
-          // disabled={fightingStatus === 'waiting' ? false : true}
+          disabled={isPlayYourself ? false : (status === 'waiting' ? false : true)}
         >Go find opponent</Button>
       </div>
       {/* {isPlayYourself && <GameCaroContent/>}
       {fightingStatus !== 'waiting' && <GameCaroPlayOnline />} */}
 
       {/* MODAL */}
-      {/* <GameCaroFindingOpponentModal
-        isShowModal={isShowFindingOpponentModal}
-        setIsShowModal={setIsShowFindingOpponentModal}
-        setPrepareShowOpponentListModal={setPrepareShowOpponentListModal}
+      <GameCaroFindingOpponentModal
+        // isShowModal={isShowFindingOpponentModal}
+        // setIsShowModal={setIsShowFindingOpponentModal}
+        // setPrepareShowOpponentListModal={setPrepareShowOpponentListModal}
       />
       <GameCaroOpponentListModal
-        isShowModal={isShowOpponentListModal}
-        setIsShowModal={setIsShowOpponentListModal}
-        setPrepareShowOpponentListModal={setPrepareShowOpponentListModal}
-      /> */}
+        // isShowModal={isShowOpponentListModal}
+        // setIsShowModal={setIsShowOpponentListModal}
+        // setPrepareShowOpponentListModal={setPrepareShowOpponentListModal}
+      />
     </>
   )
 }

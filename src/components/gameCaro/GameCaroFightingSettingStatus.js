@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 
 import { AuthContext } from 'src/contexts/AuthContextProvider';
 import { socket } from 'src/App';
-import { fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
+import { fightingIsPlayYourselfSelector, fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
 import { fightingAction } from 'src/reducers/fighting/statusSlice';
 import { fightingAction as fightingPlayAction} from 'src/reducers/fighting/playSlice';
 import createBoardFunc from './functions/createBoardFunc';
@@ -19,13 +19,14 @@ const StatusText = styled.div`
   text-align: center;
 `
 
-const GameCaroFightingSettingStatus = ({isPlayYourself}) => {
+const GameCaroFightingSettingStatus = () => {
   const {user} = useContext(AuthContext)
   const isPlayer1 = user.isPlayer1
 
   const dispatch = useDispatch()
   const status = useSelector(fightingStatusSelector)
   const {height, width, fightingTime} = useSelector(fightingSettingSelector)
+  const isPlayYourself = useSelector(fightingIsPlayYourselfSelector)
 
   const handleComplete = () => {
     socket.emit('fightingSettingComplete', {width, height, fightingTime})

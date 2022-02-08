@@ -59,6 +59,9 @@ const mySlice = createSlice({
         state.xIsNext = !state.xIsNext
       }
     },
+    playOnline(state, action){
+      state.isPlayYourself = false
+    }
   }
 })
 

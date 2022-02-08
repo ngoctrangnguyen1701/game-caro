@@ -4,10 +4,12 @@ import { Navigate, Routes, Route } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import {AuthContext} from '../contexts/AuthContextProvider'
+import GameCaroModalContextProvider from 'src/components/gameCaro/contexts/GameCaroModalContext';
 // import GameCaro from '../components/gameCaro/GameCaro';
 import GameCaroHeader from 'src/components/gameCaro/GameCaroHeader';
 
 const GameCaroPlayYourself = React.lazy(() => import ('../components/gameCaro/GameCaroPlayYourself'))
+const GameCaroPlayOnline = React.lazy(() => import ('../components/gameCaro/GameCaroPlayOnline'))
 
 
 const style = {
@@ -29,15 +31,21 @@ const GameCaroPage = props => {
     <>
       {!username && <Navigate to='/login'/>}
       {/* <GameCaro/> */}
-      <GameCaroHeader/>
-      <Suspense fallback={elementLoading}>
-        <Routes>
-          <Route
-            path='play-yourself'
-            element={<GameCaroPlayYourself/>}
-          />
-        </Routes>
-      </Suspense>
+      <GameCaroModalContextProvider>
+        <GameCaroHeader/>
+        <Suspense fallback={elementLoading}>
+          <Routes>
+            <Route
+              path='play-yourself'
+              element={<GameCaroPlayYourself/>}
+            />
+            <Route
+              path='play-online'
+              element={<GameCaroPlayOnline/>}
+            />
+          </Routes>
+        </Suspense>
+      </GameCaroModalContextProvider>
     </>
   );
 };

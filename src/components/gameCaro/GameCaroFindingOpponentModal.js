@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
@@ -14,6 +14,7 @@ import {
 import { onlineUserMessageSelector, onlineUserListSelector } from 'src/selectors/onlineUserSelector';
 
 import LoadingFindOpponent from './LoadingFindOpponent';
+import { GameCaroModalContext } from './contexts/GameCaroModalContext';
 
 const ModifyDialog = styled(Dialog)`
   //.css-1t1j96h-MuiPaper-root-MuiDialog-paper{
@@ -32,7 +33,10 @@ const ModifyDialog = styled(Dialog)`
 
 
 const GameCaroFindingOpponentModal = props => {
-  const {isShowModal, setIsShowModal, setPrepareShowOpponentListModal} = props
+  // const {isShowModal, setIsShowModal, setPrepareShowOpponentListModal} = props
+  const showFindingOpponentModal = useContext(GameCaroModalContext).state.showFindingOpponentModal
+  const dispatchModalContext = useContext(GameCaroModalContext).dispatch
+
   const list = useSelector(onlineUserListSelector)
   const onlineUserMessage = useSelector(onlineUserMessageSelector)
 
@@ -41,12 +45,13 @@ const GameCaroFindingOpponentModal = props => {
   const [closeTextModal, setCloseTextModal] = useState(false)
 
   useEffect(()=>{
-    if(isShowModal) {
+    if(showFindingOpponentModal) {
       setLoading(true)
       setCloseTextModal(false)
-      setPrepareShowOpponentListModal(false)
+      // setPrepareShowOpponentListModal(false)
+      dispatchModalContext({type: 'PREPARE_SHOW_OPPONENT_LIST_MODAL', payload: false})
     }
-  }, [isShowModal])
+  }, [showFindingOpponentModal])
 
   useEffect(()=>{
     let runLoadingTimeout
@@ -70,8 +75,10 @@ const GameCaroFindingOpponentModal = props => {
     if(closeTextModal){
       closeModalTimeout = setTimeout(()=>{
         //sau khi có hiệu ứng transition đóng cái text ở giữa, thì đóng luôn cái modal đi
-        setIsShowModal(false)
-        setPrepareShowOpponentListModal(true)
+        // setIsShowModal(false)
+        // setPrepareShowOpponentListModal(true)
+        dispatchModalContext({type: 'SHOW_FINDING_OPPONENT_MODAL', payload: false})
+        dispatchModalContext({type: 'PREPARE_SHOW_OPPONENT_LIST_MODAL', payload: true})
       }, 300)
     }
     return () => clearTimeout(closeModalTimeout)
@@ -80,8 +87,9 @@ const GameCaroFindingOpponentModal = props => {
 
   return (
     <ModifyDialog
-      open={isShowModal}
-      onClose={()=>setIsShowModal(false)}
+      open={showFindingOpponentModal}
+      // onClose={()=>setIsShowModal(false)}
+      onClose={()=>dispatchModalContext({type: 'SHOW_FINDING_OPPONENT_MODAL', payload: false})}
       closetext={closeTextModal ? 'true' : 'false'}
     >
       <div className='m-auto' style={{width: '275px', height: '150px', backgroundColor: 'white'}}>

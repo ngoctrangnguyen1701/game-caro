@@ -15,7 +15,7 @@ import {
 
 import { AuthContext } from 'src/contexts/AuthContextProvider';
 import { socket } from 'src/App';
-import { fightingResultSelector, fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
+import { fightingIsPlayYourselfSelector, fightingResultSelector, fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
 import { fightingAction } from 'src/reducers/fighting/statusSlice';
 import { fightingAction as fightingPlayOnlineAction} from 'src/reducers/fighting/playSlice';
 
@@ -29,9 +29,7 @@ const isDisabledInputSelect = ({isPlayYourself, isPlayer1, status}) => {
   return true
 }
 
-const GameCaroFightingSetting = props => {
-  const {isPlayYourself} = props
-
+const GameCaroFightingSetting = () => {
   const {user, setUser} = useContext(AuthContext)
   const isPlayer1 = user.isPlayer1
 
@@ -39,6 +37,7 @@ const GameCaroFightingSetting = props => {
   const status = useSelector(fightingStatusSelector)
   const result = useSelector(fightingResultSelector)
   const {height, width, fightingTime, player1, player2} = useSelector(fightingSettingSelector)
+  const isPlayYourself = useSelector(fightingIsPlayYourselfSelector)
 
   const [isShowLeaveFightingModal, setIsShowLeaveFightingModal] = useState(false)
   // const [isDisabledInputSelect, setIsDisabledInputSelect] = useState(false)

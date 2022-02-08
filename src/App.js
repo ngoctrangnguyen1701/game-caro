@@ -14,6 +14,7 @@ import { linkServer } from './constants/constants';
 import routes from './routes'
 import { onlineUserAction } from './reducers/onlineUser/onlineUserListSlice';
 import { fightingAction } from './reducers/fighting/settingSlice';
+import { fightingAction as fightingPlayAction } from './reducers/fighting/playSlice';
 import { invitationAction } from './reducers/invitation/invitationSlice';
 
 import NavBarMain from './components/NavBarMain'
@@ -73,8 +74,10 @@ function App() {
     })
 
     socket.on('settingFighting', data => {
+      //when two players are in fighting room
       // console.log('settingFighting: ', data)
       dispatch(fightingAction.setting(data))
+      dispatch(fightingPlayAction.playOnline())
     })
 
     socket.on('updateFightingUserList', data => {

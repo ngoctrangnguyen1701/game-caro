@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
@@ -7,6 +7,8 @@ import {
 } from '@mui/material';
 
 import { onlineUserListSelector } from 'src/selectors/onlineUserSelector';
+import { GameCaroModalContext } from './contexts/GameCaroModalContext';
+
 import GameCaroOpponent from './GameCaroOpponent';
 
 const ModifyDialog = styled(Dialog)`
@@ -24,14 +26,17 @@ const ModifyDialog = styled(Dialog)`
 
 
 const GameCaroOpponentListModal = props => {
-  const {isShowModal, setIsShowModal, setPrepareShowOpponentListModal} = props
+  // const {isShowModal, setIsShowModal, setPrepareShowOpponentListModal} = props
+  const showOpponentListModal = useContext(GameCaroModalContext).state.showOpponentListModal
+  const dispatchModalContext = useContext(GameCaroModalContext).dispatch
+
   const list = useSelector(onlineUserListSelector)
 
   const [showScale, setShowScale] = useState(false)
 
   useEffect(()=>{
     let deplayScaleTimeout
-    if(isShowModal){
+    if(showOpponentListModal){
       deplayScaleTimeout = setTimeout(()=>{
         setShowScale(true)
       }, 300)
@@ -40,8 +45,14 @@ const GameCaroOpponentListModal = props => {
       setShowScale(false)
     }
     return () => clearTimeout(deplayScaleTimeout)
-  }, [isShowModal])
+  }, [showOpponentListModal])
 
+  const onClose = () => {
+    // setIsShowModal(false);
+    // setPrepareShowOpponentListModal(false)
+    dispatchModalContext({type: 'SHOW_OPPONENT_LIST_MODAL', payload: false})
+    dispatchModalContext({type: 'PREPARE_SHOW_OPPONENT_LIST_MODAL', payload: false})
+  }
   
   let elementOpponent = []
   if(list && list.length > 0){
@@ -52,8 +63,9 @@ const GameCaroOpponentListModal = props => {
 
   return (
     <ModifyDialog
-      open={isShowModal}
-      onClose={()=>{setIsShowModal(false); setPrepareShowOpponentListModal(false)}}
+      // open={isShowModal}
+      open={showOpponentListModal}
+      onClose={onClose}
       showscale={showScale ? 'true' : 'false'}
     >
       <Grid container spacing={2} sx={{padding: 2}}>
