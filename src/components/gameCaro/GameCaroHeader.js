@@ -6,7 +6,6 @@ import Button from '@mui/material/Button';
 
 import { onlineUserListSelector } from 'src/selectors/onlineUserSelector';
 import { fightingIsPlayYourselfSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
-import { fightingAction } from 'src/reducers/fighting/playYourselfSlice';
 
 import GameCaroContent from './GameCaroContent';
 import GameCaroPlayOnline from './GameCaroPlayOnline';

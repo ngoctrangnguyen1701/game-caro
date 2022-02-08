@@ -1,8 +1,9 @@
 import React, { useContext } from "react";
-import { useDispatch} from 'react-redux';
+import { useDispatch, useSelector} from 'react-redux';
 
 import { AuthContext } from "src/contexts/AuthContextProvider";
-import { fightingAction } from 'src/reducers/fighting/playOnlineSlice';
+import { fightingAction } from 'src/reducers/fighting/playSlice';
+import { fightingIsPlayYourselfSelector } from "src/selectors/fightingSelector";
 
 const style = {
   width: '30px', 
@@ -23,15 +24,21 @@ const randomEffect = () => {
 let i = 1
 const Square = ({index, value}) => {
   console.log(`Square ${index} render ${i++}`);
-  const dispatch = useDispatch()
   const {user} = useContext(AuthContext)
+  const dispatch = useDispatch()
+  const isPlayYourself = useSelector(fightingIsPlayYourselfSelector)
 
   const handleClick = () => {
     const {isPlayer1} = user
-    // if(value === null && status !== 'stop'){
-    if(value === null) dispatch(fightingAction.ownTurn({isPlayer1, index}))
-    // if(value === null) dispatch({type: 'fighting/play', payload: {isPlayer1, index}})
-    //không đánh trùng với ô đã có giá trị
+    if(value === null){
+      //không đánh trùng với ô đã có giá trị
+      if(isPlayYourself){
+        dispatch(fightingAction.playYourself({index}))
+      }
+      else{
+        dispatch(fightingAction.ownTurn({isPlayer1, index}))
+      }
+    }
   }
 
   return (

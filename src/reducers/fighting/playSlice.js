@@ -3,36 +3,21 @@ import { socket } from "src/App";
 
 const initialState = {
   board: [],
-  width: '',
-  height: '',
   xIsNext: true,
   winner: null,
   result: '',
   message: '',
   isOpponentLeave: false,
   status: '',
+  isPlayYourself: true,
 }
 
 const mySlice = createSlice({
   name: 'fighting',
   initialState,
   reducers: {
-    settingComplete(state, action){
-      const {width, height} = action.payload
-      let newArr = []
-      if(width && height){
-        for(let y = 0; y < height; y++){
-          let row = []
-          for(let x = 0; x < width; x++){
-            row.push({x, y, value: null})
-          }
-          newArr = [...newArr, ...row]
-        }
-      }
-      return {
-        ...initialState,
-        board: newArr,
-      }
+    createBoard(state, action){
+      state.board = action.payload.board
     },
     ownTurn(state, action){
       const {isPlayer1, index} = action.payload
@@ -55,6 +40,9 @@ const mySlice = createSlice({
     waiting(state, action){
       return initialState
     },
+    setting(state, action){
+      state.status = ''
+    },
     stop(state, action){
       state.result = action.payload?.result
       state.message = action.payload?.message
@@ -63,6 +51,13 @@ const mySlice = createSlice({
     },
     opponentLeave(state, action){
       state.isOpponentLeave = true
+    },
+    playYourself(state, action){
+      if(state.status !== 'stop'){
+        const value = state.xIsNext ? 'X' : 'O'
+        state.board[action.payload.index].value = value
+        state.xIsNext = !state.xIsNext
+      }
     },
   }
 })

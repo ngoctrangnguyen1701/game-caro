@@ -2,7 +2,7 @@ import React, {useEffect, useState, useContext} from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { socket } from "src/App";
-import { fightingAction } from "src/reducers/fighting/playOnlineSlice";
+import { fightingAction } from "src/reducers/fighting/playSlice";
 import {
   fightingBoardSelector,
   fightingRowSelector,
@@ -11,6 +11,7 @@ import {
   fightingWidthSelector,
   fightingPlayer1Selector,
   fightingPlayer2Selector,
+  fightingIsPlayYourselfSelector,
 } from "src/selectors/fightingSelector";
 import { AuthContext } from "src/contexts/AuthContextProvider";
 import whoIsWinner from './functions/whoIsWinner';
@@ -27,6 +28,7 @@ const GameCaroBoard = () =>{
   const width = useSelector(fightingWidthSelector)
   const player1 = useSelector(fightingPlayer1Selector)
   const player2 = useSelector(fightingPlayer2Selector)
+  const isPlayYourself = useSelector(fightingIsPlayYourselfSelector)
 
   useEffect(()=>{
     socket.on('changeTurn', data => {
@@ -50,14 +52,20 @@ const GameCaroBoard = () =>{
     const winValue = whoIsWinner(board, width, height)
     console.log({winValue});
     if(winValue){
-      const winner = winValue === 'X' ? player1.username : player2.username
-      console.log({winner});
-      if(winner === user.username){
-        dispatch(fightingAction.stop({result: 'win', winner, message: `You have won`}))
-        socket.emit('playerHasWon', {winner, message: `${winner} has won`})
+      if(isPlayYourself){
+        const winner = winValue === 'X' ? 'player1' : 'player2'
+        dispatch(fightingAction.stop({result: 'win', winner}))
+      }
+      else{
+        const winner = winValue === 'X' ? player1.username : player2.username
+        console.log({winner});
+        if(winner === user.username){
+          dispatch(fightingAction.stop({result: 'win', winner, message: `You have won`}))
+          socket.emit('playerHasWon', {winner, message: `${winner} has won`})
+        }
       }
     }
-  }, [board])
+  }, [board, isPlayYourself])
 
   let elementRow = []
   if(row && row.length > 0){

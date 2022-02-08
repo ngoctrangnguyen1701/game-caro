@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
 import { fightingAction } from 'src/reducers/fighting/statusSlice';
-import { fightingStatusSelector, fightingWinnerSelector, fightingXIsNextSelector, fightingIsOpponentLeaveSelector } from 'src/selectors/fightingSelector';
+import { fightingStatusSelector, fightingWinnerSelector, fightingXIsNextSelector, fightingIsOpponentLeaveSelector, fightingIsPlayYourselfSelector } from 'src/selectors/fightingSelector';
 import { socket } from 'src/App';
 
 import { Button } from '@mui/material';
@@ -15,6 +15,7 @@ const GameCaroFightingMessage = () => {
   const xIsNext = useSelector(fightingXIsNextSelector)
   const winner = useSelector(fightingWinnerSelector)
   const isOpponentLeave = useSelector(fightingIsOpponentLeaveSelector)
+  const isPlayYourself = useSelector(fightingIsPlayYourselfSelector)
 
   const [isShowReplayFightingModal, setIsShowReplayFightingModal] = useState(false)
   const [message, setMessage] = useState('')
@@ -53,12 +54,17 @@ const GameCaroFightingMessage = () => {
   }, [status])
 
   const handleReplay = () => {
-    if(isOpponentLeave){
-      toast.info('Player has already leave fighting')
-    }
-    else{
-      socket.emit('suggestReplayFighting')
-      dispatch(fightingAction.suggestReplay())
+    if(isPlayYourself){
+      dispatch(fightingAction.setting())
+    } else{
+      //when play online, check opponent still is in fighting room
+      if(isOpponentLeave){
+        toast.info('Player has already leave fighting')
+      }
+      else{
+        socket.emit('suggestReplayFighting')
+        dispatch(fightingAction.suggestReplay())
+      }
     }
   }
   

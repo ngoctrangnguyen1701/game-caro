@@ -17,19 +17,15 @@ import { AuthContext } from 'src/contexts/AuthContextProvider';
 import { socket } from 'src/App';
 import { fightingResultSelector, fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
 import { fightingAction } from 'src/reducers/fighting/statusSlice';
-import { fightingAction as fightingPlayAction} from 'src/reducers/fighting/playOnlineSlice';
+import { fightingAction as fightingPlayOnlineAction} from 'src/reducers/fighting/playSlice';
 
 import GameCaroLeaveFightingModal from './GameCaroLeaveFightingModal'
+import createBoardFunc from './functions/createBoardFunc';
 
 const isDisabledInputSelect = ({isPlayYourself, isPlayer1, status}) => {
-  // let result = true
   if(status === 'setting'){
     if(isPlayYourself || isPlayer1) return false
-    // if(isPlayYourself || isPlayer1) result = false
   } 
-  // console.log({isPlayYourself, isPlayer1, status});
-  // console.log({result});
-  // return result
   return true
 }
 
@@ -69,6 +65,7 @@ const GameCaroFightingSetting = props => {
       socket.on('receiveFightingSetting', data => {
         // console.log('receiveFightingSetting: ', data)
         dispatch(fightingAction.settingComplete(data.receiveFightingSetting))
+        dispatch(fightingPlayOnlineAction.createBoardPlayOnline({board: createBoardFunc(width, height)}))
       })
     }
 
@@ -91,13 +88,13 @@ const GameCaroFightingSetting = props => {
       socket.emit('stopFighting', {fightingResult: result})
       socket.on('opponentLeaveFighting', data => {
         toast.info(data.message)
-        dispatch(fightingPlayAction.opponentLeave())
+        dispatch(fightingPlayOnlineAction.opponentLeave())
       })
     }
     else{
       //when player leave, but fighting still be stop yet, that player will be lose and another player will win
       socket.on('opponentLeaveFighting', data => {
-        dispatch(fightingPlayAction.opponentLeave())
+        dispatch(fightingPlayOnlineAction.opponentLeave())
         dispatch(fightingAction.stop({result: 'win', message: data.message, winner: user.username}))
         setIsShowLeaveFightingModal(true)
       })

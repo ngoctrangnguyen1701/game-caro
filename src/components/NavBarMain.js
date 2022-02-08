@@ -17,7 +17,7 @@ import {
 } from '@mui/material'
 
 import { fightingIsPlayYourselfSelector, fightingStatusSelector } from 'src/selectors/fightingSelector'
-import { fightingAction } from 'src/reducers/fighting/playOnlineSlice';
+import { fightingAction } from 'src/reducers/fighting/playSlice';
 
 
 const NavBarMain = () => {
