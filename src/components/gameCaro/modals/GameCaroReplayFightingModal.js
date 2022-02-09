@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -6,14 +6,22 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
 
 import { socket } from 'src/App';
+import { GameCaroModalContext } from '../contexts/GameCaroModalContext';
 
 const GameCaroReplayFightingModal = props => {
-  const {isShowModal, setIsShowModal, message} = props
+  const show = useContext(GameCaroModalContext).state.showReplayFightingModal
+  const message = useContext(GameCaroModalContext).state.messageReplayFightingModal
+  const dispatchModalContext = useContext(GameCaroModalContext).dispatch
+
+  const onDisagree = () => {
+    socket.emit('disagreeReplayFighting');
+    dispatchModalContext({type: 'SHOW_REPLAY_FIGHTING_MODAL', payload: false})
+  }
 
   return (
     <Dialog
-      open={isShowModal}
-      onClose={()=>setIsShowModal(false)}
+      open={show}
+      onClose={()=>dispatchModalContext({type: 'SHOW_REPLAY_FIGHTING_MODAL', payload: false})}
     >
       <DialogTitle>
         <div className='text-center text-danger'>
@@ -30,7 +38,7 @@ const GameCaroReplayFightingModal = props => {
         <Button
           variant="outlined"
           color='success'
-          onClick={()=>{socket.emit('disagreeReplayFighting'); setIsShowModal(false)}}
+          onClick={onDisagree}
         >Disagree
         </Button>
       </DialogActions>

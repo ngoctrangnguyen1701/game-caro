@@ -16,7 +16,8 @@ export const fightingResultSelector = state => fightingSelector(state).play.resu
 export const fightingMessageSelector = state => fightingSelector(state).play.message
 export const fightingIsOpponentLeaveSelector = state => fightingSelector(state).play.isOpponentLeave
 
-export const fightingIsPlayYourselfSelector = state => fightingSelector(state).play.isPlayYourself
+// export const fightingIsPlayYourselfSelector = state => fightingSelector(state).play.isPlayYourself
+const fightingTypeSelector = state => fightingSelector(state).play.type
 
 export const fightingRowSelector = state => {
   const board = fightingBoardSelector(state)
@@ -29,4 +30,12 @@ export const fightingRowSelector = state => {
     })
     return rowArr
   }
+}
+
+export const fightingIsPlayYourselfSelector = state => {
+  return fightingTypeSelector(state) === 'playYourself' ? true : false
+}
+
+export const fightingIsPlayOnlineSelector = state => {
+  return fightingTypeSelector(state) === 'playOnline' ? true : false
 }

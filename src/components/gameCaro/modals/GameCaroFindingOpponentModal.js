@@ -14,7 +14,7 @@ import {
 import { onlineUserMessageSelector, onlineUserListSelector } from 'src/selectors/onlineUserSelector';
 
 import LoadingFindOpponent from './LoadingFindOpponent';
-import { GameCaroModalContext } from './contexts/GameCaroModalContext';
+import { GameCaroModalContext } from '../contexts/GameCaroModalContext';
 
 const ModifyDialog = styled(Dialog)`
   //.css-1t1j96h-MuiPaper-root-MuiDialog-paper{
@@ -32,9 +32,8 @@ const ModifyDialog = styled(Dialog)`
 `
 
 
-const GameCaroFindingOpponentModal = props => {
-  // const {isShowModal, setIsShowModal, setPrepareShowOpponentListModal} = props
-  const showFindingOpponentModal = useContext(GameCaroModalContext).state.showFindingOpponentModal
+const GameCaroFindingOpponentModal = () => {
+  const show = useContext(GameCaroModalContext).state.showFindingOpponentModal
   const dispatchModalContext = useContext(GameCaroModalContext).dispatch
 
   const list = useSelector(onlineUserListSelector)
@@ -45,13 +44,12 @@ const GameCaroFindingOpponentModal = props => {
   const [closeTextModal, setCloseTextModal] = useState(false)
 
   useEffect(()=>{
-    if(showFindingOpponentModal) {
+    if(show) {
       setLoading(true)
       setCloseTextModal(false)
-      // setPrepareShowOpponentListModal(false)
       dispatchModalContext({type: 'PREPARE_SHOW_OPPONENT_LIST_MODAL', payload: false})
     }
-  }, [showFindingOpponentModal])
+  }, [show])
 
   useEffect(()=>{
     let runLoadingTimeout
@@ -75,8 +73,6 @@ const GameCaroFindingOpponentModal = props => {
     if(closeTextModal){
       closeModalTimeout = setTimeout(()=>{
         //sau khi có hiệu ứng transition đóng cái text ở giữa, thì đóng luôn cái modal đi
-        // setIsShowModal(false)
-        // setPrepareShowOpponentListModal(true)
         dispatchModalContext({type: 'SHOW_FINDING_OPPONENT_MODAL', payload: false})
         dispatchModalContext({type: 'PREPARE_SHOW_OPPONENT_LIST_MODAL', payload: true})
       }, 300)
@@ -87,8 +83,7 @@ const GameCaroFindingOpponentModal = props => {
 
   return (
     <ModifyDialog
-      open={showFindingOpponentModal}
-      // onClose={()=>setIsShowModal(false)}
+      open={show}
       onClose={()=>dispatchModalContext({type: 'SHOW_FINDING_OPPONENT_MODAL', payload: false})}
       closetext={closeTextModal ? 'true' : 'false'}
     >

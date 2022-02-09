@@ -7,9 +7,9 @@ import {
 } from '@mui/material';
 
 import { onlineUserListSelector } from 'src/selectors/onlineUserSelector';
-import { GameCaroModalContext } from './contexts/GameCaroModalContext';
+import { GameCaroModalContext } from '../contexts/GameCaroModalContext';
 
-import GameCaroOpponent from './GameCaroOpponent';
+import GameCaroOpponent from '../GameCaroOpponent';
 
 const ModifyDialog = styled(Dialog)`
   // .css-1t1j96h-MuiPaper-root-MuiDialog-paper{
@@ -26,8 +26,8 @@ const ModifyDialog = styled(Dialog)`
 
 
 const GameCaroOpponentListModal = props => {
-  // const {isShowModal, setIsShowModal, setPrepareShowOpponentListModal} = props
-  const showOpponentListModal = useContext(GameCaroModalContext).state.showOpponentListModal
+  const show = useContext(GameCaroModalContext).state.showOpponentListModal
+  const prepareShow = useContext(GameCaroModalContext).state.prepareShowOpponentListModal
   const dispatchModalContext = useContext(GameCaroModalContext).dispatch
 
   const list = useSelector(onlineUserListSelector)
@@ -36,7 +36,7 @@ const GameCaroOpponentListModal = props => {
 
   useEffect(()=>{
     let deplayScaleTimeout
-    if(showOpponentListModal){
+    if(show){
       deplayScaleTimeout = setTimeout(()=>{
         setShowScale(true)
       }, 300)
@@ -45,11 +45,22 @@ const GameCaroOpponentListModal = props => {
       setShowScale(false)
     }
     return () => clearTimeout(deplayScaleTimeout)
-  }, [showOpponentListModal])
+  }, [show])
+
+  useEffect(()=>{
+    if(prepareShow) {
+      dispatchModalContext({type: 'SHOW_OPPONENT_LIST_MODAL', payload: true})
+    }
+  }, [prepareShow])
+
+  useEffect(()=>{
+    if(list.length === 0) {
+      //when no user online, modal 'opponent list' will be close
+      dispatchModalContext({type: 'SHOW_OPPONENT_LIST_MODAL', payload: false})
+    }
+  }, [list])
 
   const onClose = () => {
-    // setIsShowModal(false);
-    // setPrepareShowOpponentListModal(false)
     dispatchModalContext({type: 'SHOW_OPPONENT_LIST_MODAL', payload: false})
     dispatchModalContext({type: 'PREPARE_SHOW_OPPONENT_LIST_MODAL', payload: false})
   }
@@ -63,8 +74,7 @@ const GameCaroOpponentListModal = props => {
 
   return (
     <ModifyDialog
-      // open={isShowModal}
-      open={showOpponentListModal}
+      open={show}
       onClose={onClose}
       showscale={showScale ? 'true' : 'false'}
     >

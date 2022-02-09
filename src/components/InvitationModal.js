@@ -13,7 +13,7 @@ import {
 import { socket } from 'src/App';
 import { invitationAction } from 'src/reducers/invitation/invitationSlice';
 import { invitationListSelector } from 'src/selectors/invitationSelector';
-import { fightingStatusSelector } from 'src/selectors/fightingSelector';
+import { fightingIsPlayOnlineSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
 
 import GameCaroOpponent from './gameCaro/GameCaroOpponent'
 
@@ -51,6 +51,7 @@ const InvitationModal = () => {
   const dispatch = useDispatch()
   const invitationList = useSelector(invitationListSelector)
   const fightingStatus = useSelector(fightingStatusSelector)
+  const isPlayOnline = useSelector(fightingIsPlayOnlineSelector)
 
   const [isShowModal, setIsShowModal] = useState(false)
   const [isShowNotify, setIsShowNotify] = useState(false)
@@ -110,7 +111,8 @@ const InvitationModal = () => {
 
 
   const onShowModal = () =>{
-    if(fightingStatus === 'waiting'){
+    if(fightingStatus === 'waiting' || isPlayOnline === false){
+      //when is in online fighting, modal invitation can not display
       setIsShowModal(true)
       setIsShowNotify(false)
     }

@@ -1,20 +1,34 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
+import { Navigate } from 'react-router-dom';
+
+import { fightingIsPlayOnlineSelector } from 'src/selectors/fightingSelector';
 
 import GameCaroFightingSetting from './GameCaroFightingSetting';
 import GameCaroBoard from './GameCaroBoard';
-import GameCaroFightingSettingStatus from './GameCaroFightingSettingStatus';
+import GameCaroFightingPrepareStatus from './GameCaroFightingPrepareStatus';
 import GameCaroCountTime from './GameCaroCountTime';
-import GameCaroFightingMessage from './GameCaroFightingMessage';
+import GameCaroFightingStopStatus from './GameCaroFightingStopStatus';
+import { fightingAction } from 'src/reducers/fighting/playSlice';
+
 
 
 function GameCaroPlayOnline() {
+  console.log('render GameCaroPlayOnline');
+  const dispatch = useDispatch()
+  const isPlayOnline = useSelector(fightingIsPlayOnlineSelector)
+
+  useEffect(()=>{
+    return () => dispatch(fightingAction.waiting())
+  }, [])
 
   return (
     <>
+      {isPlayOnline === false && <Navigate to="/game-caro"/>}
       <GameCaroFightingSetting/>
-      <GameCaroFightingSettingStatus/>
+      <GameCaroFightingPrepareStatus/>
       <GameCaroCountTime/>
-      <GameCaroFightingMessage/>
+      <GameCaroFightingStopStatus/>
       <GameCaroBoard/>
     </>
   );

@@ -10,14 +10,16 @@ import Slide from '@mui/material/Slide';
 import { fightingAction } from 'src/reducers/fighting/statusSlice';
 import { socket } from 'src/App';
 import { fightingStatusSelector, fightingResultSelector, fightingMessageSelector } from 'src/selectors/fightingSelector';
+import { GameCaroModalContext } from '../contexts/GameCaroModalContext';
 
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const GameCaroLeaveFightingModal = (props) =>{
-  const {isShowModal, setIsShowModal} = props
+const GameCaroLeaveFightingModal = () =>{
+  const show = React.useContext(GameCaroModalContext).state.showLeaveFightingModal
+  const dispatchModalContext = React.useContext(GameCaroModalContext).dispatch
 
   const dispatch = useDispatch()
   const status = useSelector(fightingStatusSelector)
@@ -30,15 +32,16 @@ const GameCaroLeaveFightingModal = (props) =>{
     }
     socket.emit('leaveFighting')
     dispatch(fightingAction.waiting())
+    dispatchModalContext({type: 'SHOW_LEAVE_FIGHTING_MODAL', payload: false})
   }
 
 
   return (
     <Dialog
-      open={isShowModal}
+      open={show}
       TransitionComponent={Transition}
       keepMounted
-      onClose={()=>setIsShowModal(false)}
+      onClose={()=>dispatchModalContext({type: 'SHOW_LEAVE_FIGHTING_MODAL', payload: false})}
     >
       <DialogTitle>
         {status === 'stop' ? (
@@ -52,7 +55,7 @@ const GameCaroLeaveFightingModal = (props) =>{
         <Button
           variant="contained"
           color='success'
-          onClick={()=>setIsShowModal(false)}
+          onClick={()=>dispatchModalContext({type: 'SHOW_LEAVE_FIGHTING_MODAL', payload: false})}
         >{status === 'stop' ? 'Review board': 'Stay'}
         </Button>
         <Button

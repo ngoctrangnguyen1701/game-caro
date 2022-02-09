@@ -54,10 +54,11 @@ const GameCaroCountTime = () => {
 
   return (
     <>
-      {(status === 'start' || status === 'stop') && 
+      {(status === 'start' || status === 'stop' || status === 'suggestReplay' || status === 'disagreeReplay') && 
         <h4 className='text-center'>
           <i className="fas fa-stopwatch"></i> {time}
-        </h4>}
+        </h4>
+      }
     </>
   );
 };

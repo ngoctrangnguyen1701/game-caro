@@ -8,6 +8,11 @@ const Page404 = React.lazy(() => import ('./components/page404/Page404'))
 
 const routers = [
   {
+    path: '*',
+    // exact: false,
+    element: <Page404/>,
+  },
+  {
     path: '/',
     // exact: true,
     element: <HomePage/>,
@@ -27,11 +32,11 @@ const routers = [
     // exact: false,
     element: <GameCaroPage/>,
   },
-  {
-    path: '*',
-    // exact: false,
-    element: <Page404/>,
-  },
+  // {
+  //   path: '*',
+  //   // exact: false,
+  //   element: <Page404/>,
+  // },
 ]
 
 export default routers

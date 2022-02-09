@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 
 import { AuthContext } from 'src/contexts/AuthContextProvider';
 import { socket } from 'src/App';
-import { fightingIsPlayYourselfSelector, fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
+import { fightingIsPlayOnlineSelector, fightingIsPlayYourselfSelector, fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
 import { fightingAction } from 'src/reducers/fighting/statusSlice';
 import { fightingAction as fightingPlayAction} from 'src/reducers/fighting/playSlice';
 import createBoardFunc from './functions/createBoardFunc';
@@ -19,7 +19,7 @@ const StatusText = styled.div`
   text-align: center;
 `
 
-const GameCaroFightingSettingStatus = () => {
+const GameCaroFightingPrepareStatus = () => {
   const {user} = useContext(AuthContext)
   const isPlayer1 = user.isPlayer1
 
@@ -27,6 +27,7 @@ const GameCaroFightingSettingStatus = () => {
   const status = useSelector(fightingStatusSelector)
   const {height, width, fightingTime} = useSelector(fightingSettingSelector)
   const isPlayYourself = useSelector(fightingIsPlayYourselfSelector)
+  const isPlayOnline = useSelector(fightingIsPlayOnlineSelector)
 
   const handleComplete = () => {
     socket.emit('fightingSettingComplete', {width, height, fightingTime})
@@ -41,26 +42,23 @@ const GameCaroFightingSettingStatus = () => {
   }
 
   const handleStartPlayYourself = () => {
-    dispatch(fightingAction.settingComplete({width, height, fightingTime}))
     dispatch(fightingPlayAction.createBoard({board: createBoardFunc(width, height)}))
     dispatch(fightingAction.start())
   }
 
   return (
     <>
-      {isPlayYourself ? (
-        <>
-          {status === 'setting' && 
-            <Button
-              color='success' variant='contained'
-              className="d-block mx-auto my-2"
-              onClick={handleStartPlayYourself}
-            >
-              Start
-            </Button>
-          }
-        </>
-      ) : (
+      {isPlayYourself && status === 'setting' && 
+        <Button
+          color='success' variant='contained'
+          className="d-block mx-auto my-2"
+          onClick={handleStartPlayYourself}
+        >
+          Start
+        </Button>
+      }
+      
+      {isPlayOnline &&
         <>
           {status === 'setting' && isPlayer1 && 
             <Button
@@ -104,22 +102,10 @@ const GameCaroFightingSettingStatus = () => {
               </Button>
             </div>
           }
-
-          {status === 'suggestReplay' && 
-            <StatusText> 
-              Waiting agree replay fighting
-              <LoadingThreeDots/>
-            </StatusText>
-          }
-          {status === 'disagreeReplay' &&
-            <StatusText>
-              Player has already disagree replay fighting
-            </StatusText>
-          }
         </>
-      )}
+      }
     </>
   )
 }
 
-export default React.memo(GameCaroFightingSettingStatus)
+export default React.memo(GameCaroFightingPrepareStatus)

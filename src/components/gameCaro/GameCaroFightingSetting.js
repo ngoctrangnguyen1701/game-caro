@@ -11,16 +11,17 @@ import {
   Select,
   Grid,
   Button,
+  Box,
 } from '@mui/material'
 
 import { AuthContext } from 'src/contexts/AuthContextProvider';
 import { socket } from 'src/App';
-import { fightingIsPlayYourselfSelector, fightingResultSelector, fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
+import { fightingIsPlayOnlineSelector, fightingIsPlayYourselfSelector, fightingResultSelector, fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
 import { fightingAction } from 'src/reducers/fighting/statusSlice';
-import { fightingAction as fightingPlayOnlineAction} from 'src/reducers/fighting/playSlice';
+import { fightingAction as fightingPlayAction} from 'src/reducers/fighting/playSlice';
 
-import GameCaroLeaveFightingModal from './GameCaroLeaveFightingModal'
 import createBoardFunc from './functions/createBoardFunc';
+import { GameCaroModalContext } from './contexts/GameCaroModalContext';
 
 const isDisabledInputSelect = ({isPlayYourself, isPlayer1, status}) => {
   if(status === 'setting'){
@@ -38,9 +39,9 @@ const GameCaroFightingSetting = () => {
   const result = useSelector(fightingResultSelector)
   const {height, width, fightingTime, player1, player2} = useSelector(fightingSettingSelector)
   const isPlayYourself = useSelector(fightingIsPlayYourselfSelector)
+  const isPlayOnline = useSelector(fightingIsPlayOnlineSelector)
 
-  const [isShowLeaveFightingModal, setIsShowLeaveFightingModal] = useState(false)
-  // const [isDisabledInputSelect, setIsDisabledInputSelect] = useState(false)
+  const dispatchModalContext = useContext(GameCaroModalContext).dispatch
 
   useEffect(()=>{
     if(user.username === player1?.username){
@@ -52,54 +53,58 @@ const GameCaroFightingSetting = () => {
   }, [player1, player2])
 
   useEffect(()=>{
-    if(isPlayer1){
-      socket.on('receiveDisagreeFightingSetting', () => {
-        // console.log('receiveDisagreeFightingSetting')
-        dispatch(fightingAction.resetSetting())
-        toast.error(`${player2?.username} has already disagree fighting setting`)
+    if(isPlayOnline){
+      if(isPlayer1){
+        socket.on('receiveDisagreeFightingSetting', () => {
+          // console.log('receiveDisagreeFightingSetting')
+          dispatch(fightingAction.resetSetting())
+          toast.error(`${player2?.username} has already disagree fighting setting`)
+        })
+      }
+      else{
+        //only player2 listen event 'receiveFightingSetting'
+        socket.on('receiveFightingSetting', data => {
+          // console.log('receiveFightingSetting: ', data)
+          dispatch(fightingAction.settingComplete(data.receiveFightingSetting))
+          const {width, height} = data.receiveFightingSetting
+          dispatch(fightingPlayAction.createBoard({board: createBoardFunc(width, height)}))
+        })
+      }
+      socket.on('startFighting', () => {
+        console.log('startFighting')
+        dispatch(fightingAction.start())
       })
-    }
-    else{
-      //only player2 listen event 'receiveFightingSetting'
-      socket.on('receiveFightingSetting', data => {
-        // console.log('receiveFightingSetting: ', data)
-        dispatch(fightingAction.settingComplete(data.receiveFightingSetting))
-        dispatch(fightingPlayOnlineAction.createBoardPlayOnline({board: createBoardFunc(width, height)}))
-      })
-    }
 
-    socket.on('startFighting', () => {
-      console.log('startFighting')
-      dispatch(fightingAction.start())
-    })
-
-    return () => {
-      socket.off('receiveFightingSetting')
-      socket.off('receiveDisagreeFightingSetting')
-      socket.off('startFighting')
+      return () => {
+        socket.off('receiveFightingSetting')
+        socket.off('receiveDisagreeFightingSetting')
+        socket.off('startFighting')
+      }
     }
     //if don't off listen event when this component unmount
     //every this component render, one function listen on will be created
-  }, [isPlayer1])
+  }, [isPlayer1, isPlayOnline])
 
   useEffect(()=>{
-    if(status === 'stop'){
-      socket.emit('stopFighting', {fightingResult: result})
-      socket.on('opponentLeaveFighting', data => {
-        toast.info(data.message)
-        dispatch(fightingPlayOnlineAction.opponentLeave())
-      })
+    if(isPlayOnline){
+      if(status === 'stop'){
+        socket.emit('stopFighting', {fightingResult: result})
+        socket.on('opponentLeaveFighting', data => {
+          toast.info(data.message)
+          dispatch(fightingPlayAction.opponentLeave())
+        })
+      }
+      else{
+        //when player leave, but fighting still be stop yet, that player will be lose and another player will win
+        socket.on('opponentLeaveFighting', data => {
+          dispatch(fightingPlayAction.opponentLeave())
+          dispatch(fightingAction.stop({result: 'win', message: data.message, winner: user.username}))
+          dispatchModalContext({type: 'SHOW_LEAVE_FIGHTING_MODAL', payload: true})
+        })
+      }
+      return () => socket.off('opponentLeaveFighting')
     }
-    else{
-      //when player leave, but fighting still be stop yet, that player will be lose and another player will win
-      socket.on('opponentLeaveFighting', data => {
-        dispatch(fightingPlayOnlineAction.opponentLeave())
-        dispatch(fightingAction.stop({result: 'win', message: data.message, winner: user.username}))
-        setIsShowLeaveFightingModal(true)
-      })
-    }
-    return () => socket.off('opponentLeaveFighting')
-  }, [status])
+  }, [status, isPlayOnline])
 
 
   //-------------------------------------------
@@ -123,7 +128,11 @@ const GameCaroFightingSetting = () => {
               error={player1.username === user.username}
               disabled={player1.username !== user.username}
               label="Player1"
-              value={player1.username}
+              value={player1.username || ''} 
+              //do khi play yourself 'player1.username' sẽ là undefined,
+              //và khi chuyển qua play online, 'player1.username' sẽ có giá trị
+              //value của thẻ <input> chuyển từ undefined -> sang có giá trị sẽ bị báo lỗi
+              //nên thêm giá trị rỗng khi play yourself để chuyển sang play online (value của thẻ <input> từ '' --> sang 'có giá trị' sẽ không bị báo lỗi)
             />
             <Avatar
               alt={player1.username}
@@ -137,7 +146,7 @@ const GameCaroFightingSetting = () => {
               error={player2.username === user.username}
               disabled={player2.username !== user.username}
               label="Player2"
-              value={player2.username}
+              value={player2.username || ''}
             />
             <Avatar
               alt={player2.username}
@@ -147,28 +156,35 @@ const GameCaroFightingSetting = () => {
             <h3>O</h3>
           </div>
         </div>
-        <div className='text-center'>
+        <Box className='d-flex justify-content-center align-items-center'>
           <label>Width of board (min: 15, max: 30)</label>
-          <input
+          <TextField
+            color="error"
+            size='small'
+            hiddenLabel
+            variant="filled"
             type="number"
-            min="15"
-            max="30"
             value={width}
+            sx={{width: 60, marginLeft: 1}}
             onChange={e=> handleChangeSize({width: parseInt(e.target.value)})}
             disabled={isDisabledInputSelect({isPlayYourself, isPlayer1, status})}
           />
-        </div>
-        <div className='text-center mt-2'>
+        </Box>
+        <Box className='d-flex justify-content-center align-items-center mt-2'>
           <label>Height of board (min: 15, max: 30)</label>
-          <input
+          <TextField
+            color="error"
+            size='small'
+            hiddenLabel
+            variant="filled"
             type="number"
-            min="15"
-            max="30"
             value={height}
+            sx={{width: 60, marginLeft: 1}}
             onChange={e=> handleChangeSize({height: parseInt(e.target.value)})}
             disabled={isDisabledInputSelect({isPlayYourself, isPlayer1, status})}
           />
-        </div>
+        </Box>
+        
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <FormControl sx={{ m: 1, minWidth: 140 }}>
@@ -185,12 +201,12 @@ const GameCaroFightingSetting = () => {
               </Select>
             </FormControl>
           </Grid>
-          {!isPlayYourself && 
+          {isPlayOnline && 
             <Grid item xs={6} className='d-flex justify-content-end align-items-center'>
               <Button
                 variant="contained"
                 color="error"
-                onClick={()=>(setIsShowLeaveFightingModal(true))}
+                onClick={()=>dispatchModalContext({type: 'SHOW_LEAVE_FIGHTING_MODAL', payload: true})}
               >
                 Leave fighting
               </Button>
@@ -198,12 +214,6 @@ const GameCaroFightingSetting = () => {
           }
         </Grid>
       </div>
-
-      {/* MODAL */}
-      <GameCaroLeaveFightingModal
-        isShowModal={isShowLeaveFightingModal}
-        setIsShowModal={setIsShowLeaveFightingModal}
-      />
     </>
   )
 }

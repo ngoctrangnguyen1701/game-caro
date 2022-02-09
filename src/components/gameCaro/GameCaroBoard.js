@@ -55,14 +55,14 @@ const GameCaroBoard = () =>{
       if(isPlayYourself){
         const winner = winValue === 'X' ? 'player1' : 'player2'
         dispatch(fightingAction.stop({result: 'win', winner}))
+        return
       }
-      else{
-        const winner = winValue === 'X' ? player1.username : player2.username
-        console.log({winner});
-        if(winner === user.username){
-          dispatch(fightingAction.stop({result: 'win', winner, message: `You have won`}))
-          socket.emit('playerHasWon', {winner, message: `${winner} has won`})
-        }
+
+      const winner = winValue === 'X' ? player1.username : player2.username
+      console.log({winner});
+      if(winner === user.username){
+        dispatch(fightingAction.stop({result: 'win', winner, message: `You have won`}))
+        socket.emit('playerHasWon', {winner, message: `${winner} has won`})
       }
     }
   }, [board, isPlayYourself])
@@ -82,7 +82,7 @@ const GameCaroBoard = () =>{
 
   return (
     <div className="mt-3">
-      {(status === 'start' || status === 'stop') && elementRow}
+      {(status === 'start' || status === 'stop' || status === 'suggestReplay' || status === 'disagreeReplay') && elementRow}
     </div>
   );
 }

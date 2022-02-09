@@ -9,7 +9,7 @@ const initialState = {
   message: '',
   isOpponentLeave: false,
   status: '',
-  isPlayYourself: true,
+  type: '',
 }
 
 const mySlice = createSlice({
@@ -40,6 +40,18 @@ const mySlice = createSlice({
     waiting(state, action){
       return initialState
     },
+    // clear(state, action){
+    //   return {
+    //     ...state,
+    //     board: [],
+    //     xIsNext: true,
+    //     winner: null,
+    //     result: '',
+    //     message: '',
+    //     isOpponentLeave: false,
+    //     status: '',
+    //   }
+    // },
     setting(state, action){
       state.status = ''
     },
@@ -53,6 +65,12 @@ const mySlice = createSlice({
       state.isOpponentLeave = true
     },
     playYourself(state, action){
+      return {
+        ...initialState,
+        type: 'playYourself'
+      }
+    },
+    changeTurnPlayYourself(state, action){
       if(state.status !== 'stop'){
         const value = state.xIsNext ? 'X' : 'O'
         state.board[action.payload.index].value = value
@@ -60,7 +78,11 @@ const mySlice = createSlice({
       }
     },
     playOnline(state, action){
-      state.isPlayYourself = false
+      // state.type = 'playOnline'
+      return {
+        ...initialState,
+        type: 'playOnline'
+      }
     }
   }
 })

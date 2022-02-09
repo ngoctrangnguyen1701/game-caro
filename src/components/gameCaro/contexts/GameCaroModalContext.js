@@ -7,6 +7,9 @@ const initialState = {
   showFindingOpponentModal: false,
   prepareShowOpponentListModal: false,
   showOpponentListModal: false,
+  showReplayFightingModal: false,
+  messageReplayFightingModal: '',
+  showLeaveFightingModal: false,
 }
 
 const reducer = (state, action) => {
@@ -25,6 +28,21 @@ const reducer = (state, action) => {
       return {
         ...state,
         showOpponentListModal: action.payload
+      }
+    case 'SHOW_REPLAY_FIGHTING_MODAL':
+      return {
+        ...state,
+        showReplayFightingModal: action.payload,
+      }
+    case 'MESSAGE_REPLAY_FIGHTING_MODAL':
+      return {
+        ...state,
+        messageReplayFightingModal: action.payload,
+      }
+    case 'SHOW_LEAVE_FIGHTING_MODAL':
+      return {
+        ...state,
+        showLeaveFightingModal: action.payload,
       }
     default:
       return state

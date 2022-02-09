@@ -1,29 +1,30 @@
 import React, { useEffect } from 'react';
 import { useDispatch, } from 'react-redux';
 
-import { fightingAction } from 'src/reducers/fighting/statusSlice';
+import { fightingAction } from 'src/reducers/fighting/playSlice';
 
 import GameCaroFightingSetting from './GameCaroFightingSetting';
-import GameCaroFightingSettingStatus from './GameCaroFightingSettingStatus';
+import GameCaroFightingPrepareStatus from './GameCaroFightingPrepareStatus';
 import GameCaroCountTime from './GameCaroCountTime';
 import GameCaroBoard from './GameCaroBoard';
-import GameCaroFightingMessage from './GameCaroFightingMessage';
+import GameCaroFightingStopStatus from './GameCaroFightingStopStatus';
 
 
 const GameCaroPlayYourself = () => {
+  console.log('render GameCaroPlayYourself');
   const dispatch = useDispatch()
 
   useEffect(() => {
     dispatch(fightingAction.setting())
-    return () => dispatch(fightingAction.waiting())
+    dispatch(fightingAction.playYourself())
   }, [])
 
   return (
     <>
       <GameCaroFightingSetting/>
-      <GameCaroFightingSettingStatus/>
+      <GameCaroFightingPrepareStatus/>
       <GameCaroCountTime/>
-      <GameCaroFightingMessage/>
+      <GameCaroFightingStopStatus/>
       <GameCaroBoard/>
     </>
   );

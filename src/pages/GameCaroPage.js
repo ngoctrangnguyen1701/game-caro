@@ -7,6 +7,7 @@ import {AuthContext} from '../contexts/AuthContextProvider'
 import GameCaroModalContextProvider from 'src/components/gameCaro/contexts/GameCaroModalContext';
 // import GameCaro from '../components/gameCaro/GameCaro';
 import GameCaroHeader from 'src/components/gameCaro/GameCaroHeader';
+import GameCaroModal from 'src/components/gameCaro/modals/GameCaroModal'
 
 const GameCaroPlayYourself = React.lazy(() => import ('../components/gameCaro/GameCaroPlayYourself'))
 const GameCaroPlayOnline = React.lazy(() => import ('../components/gameCaro/GameCaroPlayOnline'))
@@ -33,6 +34,7 @@ const GameCaroPage = props => {
       {/* <GameCaro/> */}
       <GameCaroModalContextProvider>
         <GameCaroHeader/>
+        <GameCaroModal/>
         <Suspense fallback={elementLoading}>
           <Routes>
             <Route

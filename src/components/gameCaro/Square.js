@@ -33,11 +33,11 @@ const Square = ({index, value}) => {
     if(value === null){
       //không đánh trùng với ô đã có giá trị
       if(isPlayYourself){
-        dispatch(fightingAction.playYourself({index}))
+        dispatch(fightingAction.changeTurnPlayYourself({index}))
+        return
       }
-      else{
-        dispatch(fightingAction.ownTurn({isPlayer1, index}))
-      }
+      //when play online
+      dispatch(fightingAction.ownTurn({isPlayer1, index}))
     }
   }
 
