@@ -104,10 +104,10 @@ const InvitationModal = () => {
   }, [isShowNotify])
 
   useEffect(()=>{
-    if(fightingStatus === 'setting'){
+    if(fightingStatus === 'setting' || isPlayOnline === true){
       setIsShowModal(false)
     }
-  }, [fightingStatus])
+  }, [fightingStatus, isPlayOnline])
 
 
   const onShowModal = () =>{

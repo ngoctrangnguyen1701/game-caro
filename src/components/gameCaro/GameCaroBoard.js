@@ -50,7 +50,7 @@ const GameCaroBoard = () =>{
 
   useEffect(()=>{
     const {winValue, winFiveCells} = whoIsWinner(board, width, height)
-    console.log({winValue, winFiveCells})
+    // console.log({winValue, winFiveCells})
     if(winValue){
       if(isPlayYourself){
         const winner = winValue === 'X' ? 'player1' : 'player2'

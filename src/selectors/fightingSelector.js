@@ -6,6 +6,8 @@ export const fightingPlayer2Selector = state => fightingSelector(state).setting.
 export const fightingTimeSelector = state => fightingSelector(state).setting.fightingTime
 export const fightingWidthSelector = state => fightingSelector(state).setting.width
 export const fightingHeightSelector = state => fightingSelector(state).setting.height
+export const fightingPlayer1Shape = state => fightingSelector(state).setting.player1Shape
+export const fightingPlayer2Shape = state => fightingSelector(state).setting.player2Shape
 
 export const fightingStatusSelector = state => fightingSelector(state).status
 
@@ -18,9 +20,6 @@ export const fightingIsOpponentLeaveSelector = state => fightingSelector(state).
 export const fightingWinFiveCellsSelector = state => fightingSelector(state).play.winFiveCells
 
 const fightingTypeSelector = state => fightingSelector(state).play.type
-
-export const fightingPlayer1Shape = state => fightingSelector(state).chessShape.player1Shape
-export const fightingPlayer2Shape = state => fightingSelector(state).chessShape.player2Shape
 
 export const fightingRowSelector = state => {
   const board = fightingBoardSelector(state)

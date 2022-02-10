@@ -7,7 +7,6 @@ import {
   InputLabel,
   MenuItem,
   FormControl,
-  Avatar,
   Select,
   Grid,
   Button,
@@ -27,10 +26,11 @@ import {
 } from 'src/selectors/fightingSelector';
 import { fightingAction } from 'src/reducers/fighting/statusSlice';
 import { fightingAction as fightingPlayAction} from 'src/reducers/fighting/playSlice';
-import { fightingAction as fightingChessShapeAction } from 'src/reducers/fighting/chessShape';
+import { fightingAction as fightingSettingAction } from 'src/reducers/fighting/settingSlice';
 
 import createBoardFunc from './functions/createBoardFunc';
 import { GameCaroModalContext } from './contexts/GameCaroModalContext';
+import GameCaroPlayer from './GameCaroPlayer';
 
 const isDisabledInputSelect = ({isPlayYourself, isPlayer1, status}) => {
   if(status === 'setting'){
@@ -38,14 +38,6 @@ const isDisabledInputSelect = ({isPlayYourself, isPlayer1, status}) => {
   } 
   return true
 }
-
-const chessShapeArr = [
-  'https://product.hstatic.net/200000415025/product/155_3794_s_twllnnwzgxkjb3xt6m53whxat3oi_cfb8a9188b6a43b5818d019501f5ef63_large.jpg',
-  'https://product.hstatic.net/1000231532/product/pokemon_plamo_pikachu_sun_moon_766a9a00c59d4eb282ec539002d9dda8_grande_e1d3cdfc79ed44bfad25b7e28ac5a4a9_large.jpg',
-  'https://www.multcopets.org/sites/default/files/styles/medium/public/2020-11/Tiger%201.jpg',
-  'https://product.hstatic.net/1000231532/product/pokemon_shop_ban_gengar_pokemon_plamo_collection_451a4325648943b58984033558556796_large.jpg',
-  'https://i.servimg.com/u/f39/18/83/96/52/tm/03-sam10.jpg'
-]
 
 
 const GameCaroFightingSetting = () => {
@@ -76,7 +68,6 @@ const GameCaroFightingSetting = () => {
     if(isPlayOnline){
       if(isPlayer1){
         socket.on('receiveDisagreeFightingSetting', () => {
-          // console.log('receiveDisagreeFightingSetting')
           dispatch(fightingAction.resetSetting())
           toast.error(`${player2?.username} has already disagree fighting setting`)
         })
@@ -84,12 +75,16 @@ const GameCaroFightingSetting = () => {
       else{
         //only player2 listen event 'receiveFightingSetting'
         socket.on('receiveFightingSetting', data => {
-          // console.log('receiveFightingSetting: ', data)
           dispatch(fightingAction.settingComplete(data.receiveFightingSetting))
           const {width, height} = data.receiveFightingSetting
           dispatch(fightingPlayAction.createBoard({board: createBoardFunc(width, height)}))
         })
       }
+
+      socket.on('opponentChangeChessShape', data => {
+        dispatch(fightingSettingAction.changeShape(data))
+      })
+
       socket.on('startFighting', () => {
         console.log('startFighting')
         dispatch(fightingAction.start())
@@ -98,6 +93,7 @@ const GameCaroFightingSetting = () => {
       return () => {
         socket.off('receiveFightingSetting')
         socket.off('receiveDisagreeFightingSetting')
+        socket.off('opponentChangeChessShape')
         socket.off('startFighting')
       }
     }
@@ -144,79 +140,40 @@ const GameCaroFightingSetting = () => {
         toast.error(`Please choose shape of chess that diffrent with oppnent's one`)
         return
       }
-      dispatch(fightingChessShapeAction.changeShape(obj))
+      if(isPlayOnline){
+        socket.emit('changeChessShape', obj)
+      }
+      dispatch(fightingSettingAction.changeShape(obj))
     }
   }
 
-  const elementChessShape = chessShapeArr.map((item, index) => (
-    <MenuItem value={item} key={index}>
-      <div className='mx-auto'>
-        <img src={item} alt={item} style={{width: '50px'}}/>
-      </div>
-    </MenuItem>
-  ))
-    
 
   return (
     <>
       <div className="container mt-5">
         <div className="row justify-content-between">
-          <div className="col-4 text-center">
-            <TextField
-              error={player1.username === user.username}
-              disabled={player1.username !== user.username}
-              label="Player1"
-              value={player1.username || ''} 
-              //do khi play yourself 'player1.username' sẽ là undefined,
-              //và khi chuyển qua play online, 'player1.username' sẽ có giá trị
-              //value của thẻ <input> chuyển từ undefined -> sang có giá trị sẽ bị báo lỗi
-              //nên thêm giá trị rỗng khi play yourself để chuyển sang play online (value của thẻ <input> từ '' --> sang 'có giá trị' sẽ không bị báo lỗi)
-            />
-            <Avatar
-              alt={player1.username}
-              src={player1.avatar || "/static/images/avatar/1.jpg"}
-              sx={{ width: 80, height: 80, margin: '10px auto' }}
-            />
-            <FormControl sx={{ m: 1, minWidth: 140 }}>
-              <InputLabel>Shape chess</InputLabel>
-              <Select
-                color='success'
-                value={player1Shape}
-                onChange={e => handleChangeShape({player1Shape: e.target.value})}
-              >
-                <MenuItem value='X'>
-                  <div className='mx-auto'>X</div>
-                </MenuItem>
-                {elementChessShape}
-              </Select>
-            </FormControl>
-          </div>
-          <div className="col-4 text-center">
-            <TextField
-              error={player2.username === user.username}
-              disabled={player2.username !== user.username}
-              label="Player2"
-              value={player2.username || ''}
-            />
-            <Avatar
-              alt={player2.username}
-              src={player2.avatar || "/static/images/avatar/1.jpg"}
-              sx={{ width: 80, height: 80, margin: '10px auto' }}
-            />
-            <FormControl sx={{ m: 1, minWidth: 140 }}>
-              <InputLabel>Shape chess</InputLabel>
-              <Select
-                color='success'
-                value={player2Shape}
-                onChange={e => handleChangeShape({player2Shape: e.target.value})}
-              >
-                <MenuItem value='O'>
-                  <div className='mx-auto'>O</div>
-                </MenuItem>
-                {elementChessShape}
-              </Select>
-            </FormControl>
-          </div>
+          <GameCaroPlayer
+            label='Player1'
+            player={player1}
+            user={user}
+            onChangeShape={value => handleChangeShape({player1Shape: value})}
+            defaultChessShape='X'
+            chessShape={player1Shape}
+            disabledChangeShape={isPlayOnline ? isPlayer1 ? false : true : false}
+            //when play online, player1 can not change shape of chess of player2
+            //if not play online, no disable
+          />
+          <GameCaroPlayer
+            label='Player2'
+            player={player2}
+            user={user}
+            onChangeShape={value => handleChangeShape({player2Shape: value})}
+            defaultChessShape='O'
+            chessShape={player2Shape}
+            disabledChangeShape={isPlayOnline ? isPlayer1 ? true : false : false}
+            //when play online, player2 can not change shape of chess of player1
+            //if not play online, no disable
+          />
         </div>
         <Box className='d-flex justify-content-center align-items-center'>
           <label>Width of board (min: 15, max: 30)</label>
