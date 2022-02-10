@@ -95,7 +95,7 @@ function App() {
   }, [])
   
   return (
-    <div className='pb-4'>
+    <div className='pb-5'>
       <Router>
         <NavBarMain/>
         <ToastContainer/>

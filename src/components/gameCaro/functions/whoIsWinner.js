@@ -11,6 +11,7 @@ const whoIsWinner = (arr, width, height) =>{
 
         //Xét theo hàng ngang
         const consecutiveRowCells = []
+        const consecutiveRowIndexs = []
         /* vd: a = 0 -> index chính nó
                a = 1 -> index + 1
                a = 2 -> index + 2
@@ -24,6 +25,7 @@ const whoIsWinner = (arr, width, height) =>{
             const obj = arr[i + a]
             if(obj && obj.y === sameRow && obj.value === currentValue){
               consecutiveRowCells.push(obj)
+              consecutiveRowIndexs.push(i + a)  //i + a --> index of cell consecutive row
             }
           }
           console.log('consecutiveRowCells: ', consecutiveRowCells)
@@ -55,7 +57,8 @@ const whoIsWinner = (arr, width, height) =>{
                 //X O O O O O O   --> not win (6 ô liên tiếp cũng không thắng)
               }
               else{
-                return currentValue
+                // return currentValue
+                return {winValue: currentValue, winFiveCells: consecutiveRowIndexs}
               }
             }
           }
@@ -64,6 +67,7 @@ const whoIsWinner = (arr, width, height) =>{
         
         //Xét theo hàng dọc
         const consecutiveColumnCells = []
+        const consecutiveColumnIndexs = []
         /* vd: width = 10
         index + 10 qua moi vong for
         j = 0 -> index chính nó
@@ -81,6 +85,7 @@ const whoIsWinner = (arr, width, height) =>{
             const obj = arr[i + width*j]
             if(obj && obj.x === sameColumn && obj.value === currentValue){
               consecutiveColumnCells.push(obj)
+              consecutiveColumnIndexs.push(i + width*j) //i + width*j --> index of cell consecutive column
             }
           }
           console.log('consecutiveColumnCells: ', consecutiveColumnCells)
@@ -93,7 +98,8 @@ const whoIsWinner = (arr, width, height) =>{
               if(headStopCell.value === currentValue || footStopCell.value === currentValue){
               }
               else{
-                return currentValue
+                // return currentValue
+                return {winValue: currentValue, winFiveCells: consecutiveColumnIndexs}
               }
             }
           }
@@ -102,6 +108,7 @@ const whoIsWinner = (arr, width, height) =>{
 
         //Xét theo hàng chéo bên phải
         const consecutiveCrossRightCells = []
+        const consecutiveCrossRightIndexs = []
         /* vd: width: 15, tọa độ {x: 1, y: 2} -> index 31
         chéo xuống bên phải, ô tiếp theo thứ nhất là {x: 2, y: 3}  -> index 47 = 31 + 16 -> cách cái width cộng thêm 1 đơn vị
         chéo xuống bên phải, ô tiếp theo thứ hai là {x: 3, y: 4}   -> index 63 = 31 + 16*2
@@ -116,6 +123,7 @@ const whoIsWinner = (arr, width, height) =>{
             const objRight = arr[i + (width + 1)*z]
             if(objRight && objRight.value === currentValue){
               consecutiveCrossRightCells.push(objRight)
+              consecutiveCrossRightIndexs.push(i + (width + 1)*z) //index of cell consecutive cross right
             }
           }
           console.log('consecutiveCrossRightCells: ', consecutiveCrossRightCells)
@@ -140,7 +148,8 @@ const whoIsWinner = (arr, width, height) =>{
               if(headStopCell.value === currentValue || footStopCell.value === currentValue){
               }
               else{
-                return currentValue
+                // return currentValue
+                return {winValue: currentValue, winFiveCells: consecutiveCrossRightIndexs}
               }
             }
           }
@@ -149,6 +158,7 @@ const whoIsWinner = (arr, width, height) =>{
         
         //Xét theo hàng chéo bên trái
         const consecutiveCrossLeftCells = []
+        const consecutiveCrossLeftIndexs = []
         /* vd: width: 15, tọa độ {x: 1, y: 2} -> index 31
         chéo xuống bên trái, ô tiếp theo thứ nhất là {x: 1, y: 4}  -> index 45 = 31 + 14 -> cách cái width cộng thêm 1 đơn vị
         do xét theo chéo xuống bên trái nên xét chính xác được bắt đầu từ ô của cột 5 trở đi (tương đương x >= 4)
@@ -161,6 +171,7 @@ const whoIsWinner = (arr, width, height) =>{
             const objLeft = arr[i + (width - 1)*b]
             if(objLeft && objLeft.value === currentValue){
               consecutiveCrossLeftCells.push(objLeft)
+              consecutiveCrossLeftIndexs.push(i + (width - 1)*b) //index of cell consecutive cross left
             }
           }
           console.log('consecutiveCrossLeftCells: ', consecutiveCrossLeftCells)
@@ -186,7 +197,8 @@ const whoIsWinner = (arr, width, height) =>{
               if(headStopCell.value === currentValue || footStopCell.value === currentValue){
               }
               else{
-                return currentValue
+                // return currentValue
+                return {winValue: currentValue, winFiveCells: consecutiveCrossLeftIndexs}
               }
             }
           }
@@ -194,7 +206,8 @@ const whoIsWinner = (arr, width, height) =>{
       }
     }
   }
-  return null
+  // return null
+  return {winValue: null, winFiveCells: []}
 }
 
 export default whoIsWinner

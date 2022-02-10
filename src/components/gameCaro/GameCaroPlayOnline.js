@@ -8,7 +8,7 @@ import GameCaroFightingSetting from './GameCaroFightingSetting';
 import GameCaroBoard from './GameCaroBoard';
 import GameCaroFightingPrepareStatus from './GameCaroFightingPrepareStatus';
 import GameCaroCountTime from './GameCaroCountTime';
-import GameCaroFightingStopStatus from './GameCaroFightingStopStatus';
+import GameCaroFightingStartStopStatus from './GameCaroFightingStartStopStatus';
 import { fightingAction } from 'src/reducers/fighting/playSlice';
 
 
@@ -28,7 +28,7 @@ function GameCaroPlayOnline() {
       <GameCaroFightingSetting/>
       <GameCaroFightingPrepareStatus/>
       <GameCaroCountTime/>
-      <GameCaroFightingStopStatus/>
+      <GameCaroFightingStartStopStatus/>
       <GameCaroBoard/>
     </>
   );

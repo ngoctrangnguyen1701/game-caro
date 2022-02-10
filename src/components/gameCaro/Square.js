@@ -3,7 +3,8 @@ import { useDispatch, useSelector} from 'react-redux';
 
 import { AuthContext } from "src/contexts/AuthContextProvider";
 import { fightingAction } from 'src/reducers/fighting/playSlice';
-import { fightingIsPlayYourselfSelector } from "src/selectors/fightingSelector";
+import { fightingIsPlayYourselfSelector, fightingPlayer1Shape, fightingPlayer2Shape } from "src/selectors/fightingSelector";
+import chessEffectFunc from "./functions/chessEffectFunc";
 
 const style = {
   width: '30px', 
@@ -12,21 +13,18 @@ const style = {
   display: 'inline-block',
   fontWeight: 'bold',
   fontSize: '18px',
-}
-
-const effect = ['animate__jackInTheBox', 'animate__rubberBand', 'animate__bounce', 'animate__headShake', 'animate__heartBeat', 'animate__flipInX', 'animate__flipInY', 'animate__lightSpeedInRight', 'animate__zoomIn', 'animate__slideInDown']
-const randomEffect = () => {
-  const index = Math.floor(Math.random()*10)
-  return `animate__animated ${effect[index]} animate__faster`
+  padding: '0',  
 }
 
 
 let i = 1
-const Square = ({index, value}) => {
+const Square = ({index, value, isWinCell}) => {
   console.log(`Square ${index} render ${i++}`);
   const {user} = useContext(AuthContext)
   const dispatch = useDispatch()
   const isPlayYourself = useSelector(fightingIsPlayYourselfSelector)
+  const player1Shape = useSelector(fightingPlayer1Shape)
+  const player2Shape = useSelector(fightingPlayer2Shape)
 
   const handleClick = () => {
     const {isPlayer1} = user
@@ -41,13 +39,19 @@ const Square = ({index, value}) => {
     }
   }
 
+
   return (
     <button 
       onClick={()=>handleClick()}
       style={style}
-      className={value === 'X' ? 'text-danger' : 'text-primary'}
+      // className={value === 'X' ? 'text-danger' : 'text-primary'}
     >
-      <div className={value && randomEffect()}>{value}</div>
+      <div className={chessEffectFunc(value, isWinCell)}>
+        {value === 'X' && player1Shape.includes('http') && <img style={{width: '100%'}} src={player1Shape}/>}
+        {value === 'X' && !player1Shape.includes('http') && value}
+        {value === 'O' && player2Shape.includes('http') && <img style={{width: '100%'}} src={player2Shape}/>}
+        {value === 'O' && !player2Shape.includes('http') && value}
+      </div>
     </button>
   );
 }

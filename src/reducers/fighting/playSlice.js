@@ -10,6 +10,7 @@ const initialState = {
   isOpponentLeave: false,
   status: '',
   type: '',
+  winFiveCells: [],
 }
 
 const mySlice = createSlice({
@@ -40,25 +41,15 @@ const mySlice = createSlice({
     waiting(state, action){
       return initialState
     },
-    // clear(state, action){
-    //   return {
-    //     ...state,
-    //     board: [],
-    //     xIsNext: true,
-    //     winner: null,
-    //     result: '',
-    //     message: '',
-    //     isOpponentLeave: false,
-    //     status: '',
-    //   }
-    // },
     setting(state, action){
       state.status = ''
+      state.winFiveCells = []
     },
     stop(state, action){
       state.result = action.payload?.result
       state.message = action.payload?.message
       state.winner = action.payload?.winner
+      state.winFiveCells = action.payload?.winFiveCells
       state.status = 'stop'
     },
     opponentLeave(state, action){
@@ -78,7 +69,6 @@ const mySlice = createSlice({
       }
     },
     playOnline(state, action){
-      // state.type = 'playOnline'
       return {
         ...initialState,
         type: 'playOnline'

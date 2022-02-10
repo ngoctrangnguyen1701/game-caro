@@ -15,9 +15,12 @@ export const fightingXIsNextSelector = state => fightingSelector(state).play.xIs
 export const fightingResultSelector = state => fightingSelector(state).play.result
 export const fightingMessageSelector = state => fightingSelector(state).play.message
 export const fightingIsOpponentLeaveSelector = state => fightingSelector(state).play.isOpponentLeave
+export const fightingWinFiveCellsSelector = state => fightingSelector(state).play.winFiveCells
 
-// export const fightingIsPlayYourselfSelector = state => fightingSelector(state).play.isPlayYourself
 const fightingTypeSelector = state => fightingSelector(state).play.type
+
+export const fightingPlayer1Shape = state => fightingSelector(state).chessShape.player1Shape
+export const fightingPlayer2Shape = state => fightingSelector(state).chessShape.player2Shape
 
 export const fightingRowSelector = state => {
   const board = fightingBoardSelector(state)

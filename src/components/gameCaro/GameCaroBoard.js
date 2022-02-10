@@ -49,20 +49,21 @@ const GameCaroBoard = () =>{
   }, [])
 
   useEffect(()=>{
-    const winValue = whoIsWinner(board, width, height)
-    console.log({winValue});
+    const {winValue, winFiveCells} = whoIsWinner(board, width, height)
+    console.log({winValue, winFiveCells})
     if(winValue){
       if(isPlayYourself){
         const winner = winValue === 'X' ? 'player1' : 'player2'
-        dispatch(fightingAction.stop({result: 'win', winner}))
+        dispatch(fightingAction.stop({result: 'win', winner, winFiveCells}))
         return
       }
 
+      //when play online
       const winner = winValue === 'X' ? player1.username : player2.username
       console.log({winner});
       if(winner === user.username){
-        dispatch(fightingAction.stop({result: 'win', winner, message: `You have won`}))
-        socket.emit('playerHasWon', {winner, message: `${winner} has won`})
+        dispatch(fightingAction.stop({result: 'win', winner, message: `You have won`, winFiveCells}))
+        socket.emit('playerHasWon', {winner, message: `${winner} has won`, winFiveCells})
       }
     }
   }, [board, isPlayYourself])

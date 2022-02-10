@@ -7,7 +7,7 @@ import GameCaroFightingSetting from './GameCaroFightingSetting';
 import GameCaroFightingPrepareStatus from './GameCaroFightingPrepareStatus';
 import GameCaroCountTime from './GameCaroCountTime';
 import GameCaroBoard from './GameCaroBoard';
-import GameCaroFightingStopStatus from './GameCaroFightingStopStatus';
+import GameCaroFightingStartStopStatus from './GameCaroFightingStartStopStatus';
 
 
 const GameCaroPlayYourself = () => {
@@ -24,7 +24,7 @@ const GameCaroPlayYourself = () => {
       <GameCaroFightingSetting/>
       <GameCaroFightingPrepareStatus/>
       <GameCaroCountTime/>
-      <GameCaroFightingStopStatus/>
+      <GameCaroFightingStartStopStatus/>
       <GameCaroBoard/>
     </>
   );

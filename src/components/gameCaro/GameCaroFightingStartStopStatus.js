@@ -4,11 +4,20 @@ import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
 import { fightingAction } from 'src/reducers/fighting/statusSlice';
-import { fightingStatusSelector, fightingWinnerSelector, fightingXIsNextSelector, fightingIsOpponentLeaveSelector, fightingIsPlayYourselfSelector,  } from 'src/selectors/fightingSelector';
+import {
+  fightingStatusSelector,
+  fightingWinnerSelector,
+  fightingXIsNextSelector,
+  fightingIsOpponentLeaveSelector,
+  fightingIsPlayYourselfSelector,
+  fightingPlayer1Shape,
+  fightingPlayer2Shape,
+} from 'src/selectors/fightingSelector';
 import { socket } from 'src/App';
 import { GameCaroModalContext } from './contexts/GameCaroModalContext';
 
-import { Button } from '@mui/material';
+import { Button, Grid } from '@mui/material';
+import { Slider, Rail, CircleLine, Ball } from './styles/GameCaroSliderStyle';
 
 import LoadingThreeDots from './LoadingThreeDots';
 
@@ -18,13 +27,16 @@ const StatusText = styled.div`
   text-align: center;
 `
 
-const GameCaroFightingStopStatus = () => {
+const GameCaroFightingStartStopStatus = () => {
   const dispatch = useDispatch()
   const status = useSelector(fightingStatusSelector)
   const xIsNext = useSelector(fightingXIsNextSelector)
   const winner = useSelector(fightingWinnerSelector)
   const isOpponentLeave = useSelector(fightingIsOpponentLeaveSelector)
   const isPlayYourself = useSelector(fightingIsPlayYourselfSelector)
+  const player1Shape = useSelector(fightingPlayer1Shape)
+  const player2Shape = useSelector(fightingPlayer2Shape)
+
   const dispatchModalContext = useContext(GameCaroModalContext).dispatch
 
   useEffect(()=>{
@@ -79,11 +91,16 @@ const GameCaroFightingStopStatus = () => {
 
   return (
     <>
-      {status === 'start' && 
-        <h5
-          className={xIsNext ? 'text-danger text-center' : 'text-primary text-center'}
-        >Next player: {xIsNext ? 'X' : 'O'}</h5>
-      }
+      {(status === 'start' || status === 'stop' || status === 'suggestReplay' || status === 'disagreeReplay') && 
+        <Grid item xs={6} style={{margin: '24px auto'}}>
+          <Slider>
+            <Rail/>
+            <CircleLine className={xIsNext ? 'left' : 'right'}>
+              <Ball>Turn</Ball>
+            </CircleLine>
+          </Slider>
+        </Grid>
+      } 
       {(status === 'stop' || status === 'suggestReplay' || status === 'disagreeReplay') &&
         <h5 className='text-success text-center'>
           {winner ? `Winner: ${winner}` : 'Draw'}
@@ -114,4 +131,4 @@ const GameCaroFightingStopStatus = () => {
   );
 };
 
-export default React.memo(GameCaroFightingStopStatus)
+export default React.memo(GameCaroFightingStartStopStatus)

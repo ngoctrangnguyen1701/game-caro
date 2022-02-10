@@ -16,9 +16,18 @@ import {
 
 import { AuthContext } from 'src/contexts/AuthContextProvider';
 import { socket } from 'src/App';
-import { fightingIsPlayOnlineSelector, fightingIsPlayYourselfSelector, fightingResultSelector, fightingSettingSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
+import {
+  fightingIsPlayOnlineSelector,
+  fightingIsPlayYourselfSelector,
+  fightingPlayer1Shape,
+  fightingResultSelector,
+  fightingSettingSelector,
+  fightingStatusSelector,
+  fightingPlayer2Shape,
+} from 'src/selectors/fightingSelector';
 import { fightingAction } from 'src/reducers/fighting/statusSlice';
 import { fightingAction as fightingPlayAction} from 'src/reducers/fighting/playSlice';
+import { fightingAction as fightingChessShapeAction } from 'src/reducers/fighting/chessShape';
 
 import createBoardFunc from './functions/createBoardFunc';
 import { GameCaroModalContext } from './contexts/GameCaroModalContext';
@@ -30,6 +39,15 @@ const isDisabledInputSelect = ({isPlayYourself, isPlayer1, status}) => {
   return true
 }
 
+const chessShapeArr = [
+  'https://product.hstatic.net/200000415025/product/155_3794_s_twllnnwzgxkjb3xt6m53whxat3oi_cfb8a9188b6a43b5818d019501f5ef63_large.jpg',
+  'https://product.hstatic.net/1000231532/product/pokemon_plamo_pikachu_sun_moon_766a9a00c59d4eb282ec539002d9dda8_grande_e1d3cdfc79ed44bfad25b7e28ac5a4a9_large.jpg',
+  'https://www.multcopets.org/sites/default/files/styles/medium/public/2020-11/Tiger%201.jpg',
+  'https://product.hstatic.net/1000231532/product/pokemon_shop_ban_gengar_pokemon_plamo_collection_451a4325648943b58984033558556796_large.jpg',
+  'https://i.servimg.com/u/f39/18/83/96/52/tm/03-sam10.jpg'
+]
+
+
 const GameCaroFightingSetting = () => {
   const {user, setUser} = useContext(AuthContext)
   const isPlayer1 = user.isPlayer1
@@ -40,6 +58,8 @@ const GameCaroFightingSetting = () => {
   const {height, width, fightingTime, player1, player2} = useSelector(fightingSettingSelector)
   const isPlayYourself = useSelector(fightingIsPlayYourselfSelector)
   const isPlayOnline = useSelector(fightingIsPlayOnlineSelector)
+  const player1Shape = useSelector(fightingPlayer1Shape)
+  const player2Shape = useSelector(fightingPlayer2Shape)
 
   const dispatchModalContext = useContext(GameCaroModalContext).dispatch
 
@@ -118,6 +138,24 @@ const GameCaroFightingSetting = () => {
     }
   }
 
+  const handleChangeShape = obj => {
+    if(status === 'setting'){
+      if(player1Shape === obj.player2Shape || player2Shape === obj.player1Shape){
+        toast.error(`Please choose shape of chess that diffrent with oppnent's one`)
+        return
+      }
+      dispatch(fightingChessShapeAction.changeShape(obj))
+    }
+  }
+
+  const elementChessShape = chessShapeArr.map((item, index) => (
+    <MenuItem value={item} key={index}>
+      <div className='mx-auto'>
+        <img src={item} alt={item} style={{width: '50px'}}/>
+      </div>
+    </MenuItem>
+  ))
+    
 
   return (
     <>
@@ -139,7 +177,19 @@ const GameCaroFightingSetting = () => {
               src={player1.avatar || "/static/images/avatar/1.jpg"}
               sx={{ width: 80, height: 80, margin: '10px auto' }}
             />
-            <h3>X</h3>
+            <FormControl sx={{ m: 1, minWidth: 140 }}>
+              <InputLabel>Shape chess</InputLabel>
+              <Select
+                color='success'
+                value={player1Shape}
+                onChange={e => handleChangeShape({player1Shape: e.target.value})}
+              >
+                <MenuItem value='X'>
+                  <div className='mx-auto'>X</div>
+                </MenuItem>
+                {elementChessShape}
+              </Select>
+            </FormControl>
           </div>
           <div className="col-4 text-center">
             <TextField
@@ -153,7 +203,19 @@ const GameCaroFightingSetting = () => {
               src={player2.avatar || "/static/images/avatar/1.jpg"}
               sx={{ width: 80, height: 80, margin: '10px auto' }}
             />
-            <h3>O</h3>
+            <FormControl sx={{ m: 1, minWidth: 140 }}>
+              <InputLabel>Shape chess</InputLabel>
+              <Select
+                color='success'
+                value={player2Shape}
+                onChange={e => handleChangeShape({player2Shape: e.target.value})}
+              >
+                <MenuItem value='O'>
+                  <div className='mx-auto'>O</div>
+                </MenuItem>
+                {elementChessShape}
+              </Select>
+            </FormControl>
           </div>
         </div>
         <Box className='d-flex justify-content-center align-items-center'>
