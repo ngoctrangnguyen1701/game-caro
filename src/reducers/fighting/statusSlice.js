@@ -7,28 +7,28 @@ const mySlice = createSlice({
   name: 'fighting',
   initialState,
   reducers: {
-    setting(state, action){
+    setting(){
       return 'setting'
     },
-    settingComplete(state, action){
+    settingComplete(){
       return 'settingComplete'
     },
-    resetSetting(state, action){
+    resetSetting(){
       return 'setting'
     },
-    start(state, action){
+    start(){
       return 'start'
     },
-    stop(state, action){
+    stop(){
       return 'stop'
     },
-    waiting(state, action){
+    waiting(){
       return initialState
     },
-    suggestReplay(state, aciton){
+    suggestReplay(){
       return 'suggestReplay'
     },
-    disagreeReplay(state, action){
+    disagreeReplay(){
       return 'disagreeReplay'
     },
   }

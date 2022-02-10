@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import {  useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -7,9 +8,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 
-import { fightingAction } from 'src/reducers/fighting/statusSlice';
 import { socket } from 'src/App';
-import { fightingStatusSelector, fightingResultSelector, fightingMessageSelector } from 'src/selectors/fightingSelector';
+import { fightingStatusSelector, fightingResultSelector, fightingMessageSelector, fightingIsFightingStop } from 'src/selectors/fightingSelector';
 import { GameCaroModalContext } from '../contexts/GameCaroModalContext';
 
 
@@ -18,21 +18,28 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const GameCaroLeaveFightingModal = () =>{
+  const navigate = useNavigate()
+
   const show = React.useContext(GameCaroModalContext).state.showLeaveFightingModal
   const dispatchModalContext = React.useContext(GameCaroModalContext).dispatch
 
-  const dispatch = useDispatch()
   const status = useSelector(fightingStatusSelector)
   const message = useSelector(fightingMessageSelector)
   const result = useSelector(fightingResultSelector)
+  const isFightingStop = useSelector(fightingIsFightingStop)
 
-  const handleLeaveFighting = () =>{
-    if(status !== 'stop'){
+
+  const handleLeaveFighting = () => {
+    console.log({isFightingStop})
+    if(isFightingStop === false){
+      //when fighting still no stop yet, leave will be losed
+      console.log(`socket.emit('stopFighting', {fightingResult: 'lose'})`)
       socket.emit('stopFighting', {fightingResult: 'lose'})
     }
-    socket.emit('leaveFighting')
-    dispatch(fightingAction.waiting())
+    socket.emit('leaveFighting', {isFightingStop})
     dispatchModalContext({type: 'SHOW_LEAVE_FIGHTING_MODAL', payload: false})
+    console.log(`navigate('/game-caro')`)
+    navigate('/game-caro')
   }
 
 
@@ -44,7 +51,7 @@ const GameCaroLeaveFightingModal = () =>{
       onClose={()=>dispatchModalContext({type: 'SHOW_LEAVE_FIGHTING_MODAL', payload: false})}
     >
       <DialogTitle>
-        {status === 'stop' ? (
+        {(status === 'stop' || status === 'suggestReplay' || status === 'disagreeReplay') ? (
           <div className='text-center text-danger'>
             YOU {result.toUpperCase()}
             <span className="text-secondary d-block" style={{fontSize: '14px'}}>{message}</span>

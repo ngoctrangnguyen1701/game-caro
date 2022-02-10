@@ -90,11 +90,25 @@ const GameCaroFightingSetting = () => {
         dispatch(fightingAction.start())
       })
 
+      socket.on('opponentLeaveFighting', data => {
+        toast.info(data.message)
+        dispatch(fightingPlayAction.opponentLeave())
+      })
+
+      socket.on('opponentLeaveBeforeFightingStop', data => {
+        //when player leave, but fighting still be stop yet, that player will be lose and another player will win
+        dispatch(fightingPlayAction.opponentLeave())
+        dispatch(fightingAction.stop({result: 'win', message: data.message, winner: user.username}))
+        dispatchModalContext({type: 'SHOW_LEAVE_FIGHTING_MODAL', payload: true})
+      })
+
       return () => {
         socket.off('receiveFightingSetting')
         socket.off('receiveDisagreeFightingSetting')
         socket.off('opponentChangeChessShape')
         socket.off('startFighting')
+        socket.off('opponentLeaveFighting')
+        socket.off('opponentLeaveBeforeFightingStop')
       }
     }
     //if don't off listen event when this component unmount
@@ -102,25 +116,11 @@ const GameCaroFightingSetting = () => {
   }, [isPlayer1, isPlayOnline])
 
   useEffect(()=>{
-    if(isPlayOnline){
-      if(status === 'stop'){
-        socket.emit('stopFighting', {fightingResult: result})
-        socket.on('opponentLeaveFighting', data => {
-          toast.info(data.message)
-          dispatch(fightingPlayAction.opponentLeave())
-        })
-      }
-      else{
-        //when player leave, but fighting still be stop yet, that player will be lose and another player will win
-        socket.on('opponentLeaveFighting', data => {
-          dispatch(fightingPlayAction.opponentLeave())
-          dispatch(fightingAction.stop({result: 'win', message: data.message, winner: user.username}))
-          dispatchModalContext({type: 'SHOW_LEAVE_FIGHTING_MODAL', payload: true})
-        })
-      }
-      return () => socket.off('opponentLeaveFighting')
+    if(status === 'stop') {
+      console.log(`socket.emit('stopFighting', {fightingResult: result})`)
+      socket.emit('stopFighting', {fightingResult: result})
     }
-  }, [status, isPlayOnline])
+  }, [status])
 
 
   //-------------------------------------------

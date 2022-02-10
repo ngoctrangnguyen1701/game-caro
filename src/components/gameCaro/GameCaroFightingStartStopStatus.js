@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
@@ -10,8 +10,6 @@ import {
   fightingXIsNextSelector,
   fightingIsOpponentLeaveSelector,
   fightingIsPlayYourselfSelector,
-  fightingPlayer1Shape,
-  fightingPlayer2Shape,
 } from 'src/selectors/fightingSelector';
 import { socket } from 'src/App';
 import { GameCaroModalContext } from './contexts/GameCaroModalContext';
@@ -34,8 +32,6 @@ const GameCaroFightingStartStopStatus = () => {
   const winner = useSelector(fightingWinnerSelector)
   const isOpponentLeave = useSelector(fightingIsOpponentLeaveSelector)
   const isPlayYourself = useSelector(fightingIsPlayYourselfSelector)
-  const player1Shape = useSelector(fightingPlayer1Shape)
-  const player2Shape = useSelector(fightingPlayer2Shape)
 
   const dispatchModalContext = useContext(GameCaroModalContext).dispatch
 
@@ -116,10 +112,15 @@ const GameCaroFightingStartStopStatus = () => {
           Replay
         </Button>
       }
-      {status === 'suggestReplay' && 
+      {status === 'suggestReplay' && !isOpponentLeave &&
         <StatusText> 
           Waiting agree replay fighting
           <LoadingThreeDots/>
+        </StatusText>
+      }
+      {status === 'suggestReplay' && isOpponentLeave &&
+        <StatusText> 
+          Player has already leave fighting
         </StatusText>
       }
       {status === 'disagreeReplay' &&

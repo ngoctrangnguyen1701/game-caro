@@ -17,9 +17,9 @@ const style = {
 }
 
 
-let i = 1
+// let i = 1
 const Square = ({index, value, isWinCell}) => {
-  console.log(`Square ${index} render ${i++}`);
+  // console.log(`Square ${index} render ${i++}`);
   const {user} = useContext(AuthContext)
   const dispatch = useDispatch()
   const isPlayYourself = useSelector(fightingIsPlayYourselfSelector)

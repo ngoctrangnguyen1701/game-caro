@@ -41,3 +41,11 @@ export const fightingIsPlayYourselfSelector = state => {
 export const fightingIsPlayOnlineSelector = state => {
   return fightingTypeSelector(state) === 'playOnline' ? true : false
 }
+
+export const fightingIsFightingStop = state => {
+  const status = fightingStatusSelector(state)
+  if(status === 'stop' || status === 'suggestReplay' || status === 'disagreeReplay'){
+    return true
+  }
+  return false
+}
