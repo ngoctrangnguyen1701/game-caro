@@ -5,7 +5,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import {AuthContext} from '../contexts/AuthContextProvider'
 import GameCaroModalContextProvider from 'src/components/gameCaro/contexts/GameCaroModalContext';
-// import GameCaro from '../components/gameCaro/GameCaro';
 import GameCaroHeader from 'src/components/gameCaro/GameCaroHeader';
 import GameCaroModal from 'src/components/gameCaro/modals/GameCaroModal'
 
@@ -29,9 +28,8 @@ const GameCaroPage = props => {
 
   
   return (
-    <>
+    <div className='pb-5'>
       {!username && <Navigate to='/login'/>}
-      {/* <GameCaro/> */}
       <GameCaroModalContextProvider>
         <GameCaroHeader/>
         <GameCaroModal/>
@@ -48,7 +46,7 @@ const GameCaroPage = props => {
           </Routes>
         </Suspense>
       </GameCaroModalContextProvider>
-    </>
+    </div>
   );
 };
 

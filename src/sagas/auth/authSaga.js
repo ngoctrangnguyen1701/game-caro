@@ -3,7 +3,6 @@ import authApi from '../../api/authApi'
 import { signUpAction } from '../../reducers/auth/signUpSlice'
 import { logInAction } from '../../reducers/auth/logInSlice'
 
-// import {doc, setDoc} from 'firebase/firestore'
 import { db } from 'src/firebase/firebaseConfig'
 import { collection, addDoc } from "firebase/firestore"; 
 

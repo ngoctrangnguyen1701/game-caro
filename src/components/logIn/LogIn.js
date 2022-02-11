@@ -28,7 +28,7 @@ const LogIn = props => {
   }, [])
 
   useEffect(()=>{
-    if(username) navigate('/game-caro')
+    if(username) navigate('/')
   }, [username])
 
 
@@ -48,7 +48,6 @@ const LogIn = props => {
         isRememberLogIn: Yup.boolean()
     }),
     onSubmit: values => {
-      // console.log(values);
       localStorage.clear()
       dispatch(logInAction.clear())
       dispatch(logInAction.submit(values))

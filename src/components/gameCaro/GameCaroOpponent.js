@@ -42,7 +42,6 @@ const GameCaroOpponent = props => {
 
   const dispatch = useDispatch()
   const {user} = useContext(AuthContext)
-  // console.log(user);
 
   const [addLoading, setAddLoading] = useState(addLoadingFromRedux)
 
