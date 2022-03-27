@@ -137,7 +137,7 @@ const GameCaroFightingSetting = () => {
   const handleChangeShape = obj => {
     if(status === 'setting'){
       if(player1Shape === obj.player2Shape || player2Shape === obj.player1Shape){
-        toast.error(`Please choose shape of chess that diffrent with oppnent's one`)
+        toast.error(`Please choose shape of chess that different with oppnent's one`)
         return
       }
       if(isPlayOnline){
@@ -163,6 +163,54 @@ const GameCaroFightingSetting = () => {
             //when play online, player1 can not change shape of chess of player2
             //if not play online, no disable
           />
+
+          <div className='col-4'>
+            <Box className='d-flex justify-content-center align-items-center'>
+              <label>Width of board (min: 15, max: 30)</label>
+              <TextField
+                color="error"
+                size='small'
+                hiddenLabel
+                variant="filled"
+                type="number"
+                value={width}
+                sx={{width: 60, marginLeft: 1}}
+                onChange={e=> handleChangeSize({width: parseInt(e.target.value)})}
+                disabled={isDisabledInputSelect({isPlayYourself, isPlayer1, status})}
+              />
+            </Box>
+            <Box className='d-flex justify-content-center align-items-center mt-2'>
+              <label>Height of board (min: 15, max: 30)</label>
+              <TextField
+                color="error"
+                size='small'
+                hiddenLabel
+                variant="filled"
+                type="number"
+                value={height}
+                sx={{width: 60, marginLeft: 1}}
+                onChange={e=> handleChangeSize({height: parseInt(e.target.value)})}
+                disabled={isDisabledInputSelect({isPlayYourself, isPlayer1, status})}
+              />
+            </Box>
+
+            <div className="mt-4 d-flex justify-content-center">
+              <FormControl sx={{ m: 1, minWidth: 140 }}>
+                <InputLabel>Fighting time</InputLabel>
+                <Select
+                  value={fightingTime}
+                  onChange={e=>dispatch(fightingAction.setting({fightingTime: e.target.value}))}
+                  disabled={isDisabledInputSelect({isPlayYourself, isPlayer1, status})}
+                  color='success'
+                >
+                  <MenuItem value={5}>5 minutes</MenuItem>
+                  <MenuItem value={10}>10 minutes</MenuItem>
+                  <MenuItem value={15}>15 minutes</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+          </div>
+
           <GameCaroPlayer
             label='Player2'
             player={player2}
@@ -175,53 +223,10 @@ const GameCaroFightingSetting = () => {
             //if not play online, no disable
           />
         </div>
-        <Box className='d-flex justify-content-center align-items-center'>
-          <label>Width of board (min: 15, max: 30)</label>
-          <TextField
-            color="error"
-            size='small'
-            hiddenLabel
-            variant="filled"
-            type="number"
-            value={width}
-            sx={{width: 60, marginLeft: 1}}
-            onChange={e=> handleChangeSize({width: parseInt(e.target.value)})}
-            disabled={isDisabledInputSelect({isPlayYourself, isPlayer1, status})}
-          />
-        </Box>
-        <Box className='d-flex justify-content-center align-items-center mt-2'>
-          <label>Height of board (min: 15, max: 30)</label>
-          <TextField
-            color="error"
-            size='small'
-            hiddenLabel
-            variant="filled"
-            type="number"
-            value={height}
-            sx={{width: 60, marginLeft: 1}}
-            onChange={e=> handleChangeSize({height: parseInt(e.target.value)})}
-            disabled={isDisabledInputSelect({isPlayYourself, isPlayer1, status})}
-          />
-        </Box>
         
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <FormControl sx={{ m: 1, minWidth: 140 }}>
-              <InputLabel>Fighting time</InputLabel>
-              <Select
-                value={fightingTime}
-                onChange={e=>dispatch(fightingAction.setting({fightingTime: e.target.value}))}
-                disabled={isDisabledInputSelect({isPlayYourself, isPlayer1, status})}
-                color='success'
-              >
-                <MenuItem value={5}>5 minutes</MenuItem>
-                <MenuItem value={10}>10 minutes</MenuItem>
-                <MenuItem value={15}>15 minutes</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
+        <Grid container>
           {isPlayOnline && 
-            <Grid item xs={6} className='d-flex justify-content-end align-items-center'>
+            <Grid item className='d-flex mx-auto mb-2'>
               <Button
                 variant="contained"
                 color="error"

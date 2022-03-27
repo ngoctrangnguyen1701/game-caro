@@ -23,7 +23,7 @@ function Home() {
           sx={{display: 'block' , margin: '15px auto 0'}}
         >
           <i className="fas fa-comments"></i>
-          <span className='d-inline-block ms-2'>CHAT ROOM</span>
+          <span className='d-inline-block ms-2'>CHAT ROOM (developing...)</span>
         </Button>
       </Link>
     </>
