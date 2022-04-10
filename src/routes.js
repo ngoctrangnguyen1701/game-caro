@@ -5,6 +5,7 @@ const GameCaroPage = React.lazy(() => import ('./pages/GameCaroPage'))
 const LogInPage = React.lazy(() => import ('./pages/LogInPage'))
 const SignUpPage = React.lazy(() => import ('./pages/SignUpPage'))
 const ChatRoomPage = React.lazy(() => import ('./pages/ChatRoomPage'))
+const LearnBlockchainPage = React.lazy(() => import ('./pages/LearnBlockchainPage'))
 const Page404 = React.lazy(() => import ('./components/page404/Page404'))
 
 const routes = [
@@ -36,6 +37,10 @@ const routes = [
   {
     path: '/chat-room/*',
     element: <ChatRoomPage/>,
+  },
+  {
+    path: '/learn-blockchain',
+    element: <LearnBlockchainPage/>,
   },
 ]
 

@@ -3,6 +3,9 @@ import {Link} from 'react-router-dom'
 import {Button} from '@mui/material'
 
 function Home() {
+  const hiddenLearnBlockchain = () => {
+    return process.env.NODE_ENV === 'production' ? true : false
+  }
 
   return (
     <>
@@ -26,6 +29,19 @@ function Home() {
           <span className='d-inline-block ms-2'>CHAT ROOM (developing...)</span>
         </Button>
       </Link>
+      {
+        !hiddenLearnBlockchain() &&
+        <Link to='/learn-blockchain'>
+          <Button
+            color='primary'
+            variant='contained'
+            sx={{display: 'block' , margin: '15px auto 0'}}
+          >
+            <i className="fas fa-block"></i>
+            <span className='d-inline-block ms-2'>LEARN BLOCKCHAIN (developing...)</span>
+          </Button>
+        </Link>
+      }
     </>
   )
 }
