@@ -3,27 +3,12 @@ import { Button, Container } from '@mui/material';
 import { toast } from 'react-toastify';
 import './scss/learnBlockchainStyle.scss'
 import Web3 from 'web3'
+import { AuthContext } from 'src/contexts/AuthContextProvider';
+import { useDispatch, useSelector } from 'react-redux';
+import { boxAction } from 'src/reducers/box/boxSlice';
+import { amountOfBoxesSelector } from 'src/selectors/boxSelector';
 
 const abi = [
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_address",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "_id",
-        "type": "string"
-      }
-    ],
-    "name": "BuyBox_Data",
-    "type": "event"
-  },
   {
     "inputs": [],
     "name": "owner",
@@ -47,9 +32,28 @@ const abi = [
       }
     ],
     "name": "BuyBox",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "address_wallet",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "id",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct OpenBox.Receipt",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function",
+    "payable": true
   }
 ]
 
@@ -58,14 +62,14 @@ const addressContract = '0x73a226dD5FC3f7811F5883d24AEFb9288947cbD5'
 const LearnBlockChain = () => {
   const [account, setAccount] = React.useState('')
   const [isOpenBox, setIsOpenBox] = React.useState(false)
-  const [times, setTimes] = React.useState(0)
   const [web3, setWeb3] = React.useState(null)
   const [contract, setContract] = React.useState(null)
 
+  const {user} = React.useContext(AuthContext)
+  const dispatch = useDispatch()
+  const amountOfBoxes = useSelector(amountOfBoxesSelector)
+
   React.useEffect(() => {
-    if (window.ethereum) {
-      return () => window.ethereum.removeListener('accountsChanged', handleAccountsChanged)
-    }
     async function connect() {
       const connectWeb3 = new Web3('HTTP://127.0.0.1:7545')
       setWeb3(connectWeb3)
@@ -73,6 +77,13 @@ const LearnBlockChain = () => {
       setContract(connectContract)
     }
     connect()
+
+    //call api getbox
+    dispatch(boxAction.getBox())
+
+    if (window.ethereum) {
+      return () => window.ethereum.removeListener('accountsChanged', handleAccountsChanged)
+    }
   }, [])
 
 
@@ -99,17 +110,35 @@ const LearnBlockChain = () => {
     if (!account) {
       toast.error('Please login Metamask!')
     }
-    else if (times === 0) {
+    else if (amountOfBoxes === 0) {
       toast.error('Please buy more box!')
     }
     // setIsOpenBox(true)
   }
 
-  const onBuyBox = () => {
+  const onBuyBox = async() => {
     if (window.confirm('Do you want to buy one box?')) {
-      console.log('buy box');
+      try {
+        //1 box = 1 ETH
+        const result = await contract.methods.BuyBox(user.id).send({
+          from: account,
+          // value: 0, //hàm BuyBox trên contract hiện giờ là nonpayable(tức là không cần tốn phí)
+          value: web3.utils.toWei('1', 'ether')
+        })
+        console.log(result);
+        const obj = {
+          buyBox: 1,
+          transactionHash: result.transactionHash
+        }
+        dispatch(boxAction.buyBox(obj))
+        toast.success('Buy box success')
+      } catch (error) {
+        console.log(error);
+        toast.error('Buy box failed')
+      }
     }
   }
+
 
   return (
     <Container className="learn-blockchain">
@@ -128,7 +157,7 @@ const LearnBlockChain = () => {
           <div className='d-flex mt-3'>
             <div className='times bg-warning me-3'>
               <p className='mb-0 text-white'>Times to open box: </p>
-              <div>{times}</div>
+              <div>{amountOfBoxes}</div>
             </div>
             <Button variant="contained" color="error" onClick={onBuyBox}>
               Buy box
