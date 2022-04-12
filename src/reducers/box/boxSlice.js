@@ -14,6 +14,10 @@ const mySlice = createSlice({
     },
     buyBox(state, action){
     },
+    openBox(state, action){
+    },
+    receiveAward(state, action){
+    },
     setAmount(state, action) {
       state.amountOfBoxes = action.payload.amountOfBoxes
     }
