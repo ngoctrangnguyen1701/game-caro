@@ -57,11 +57,13 @@ const LearnBlockChain = () => {
   const [account, setAccount] = React.useState('')
   const [web3, setWeb3] = React.useState(null)
   const [contract, setContract] = React.useState(null)
+  const [balance, setBalance] = React.useState(0)
 
   const [isOpenBoxRed, setIsOpenBoxRed] = React.useState(false)
   const [isOpenBoxViolet, setIsOpenBoxViolet] = React.useState(false)
   const [moneyBoxRed, setMoneyBoxRed] = React.useState(0)
   const [moneyBoxViolet, setMoneyBoxViolet] = React.useState(0)
+  const [isCanOpenBox, setIsCanOpenBox] = React.useState(true)
   
 
   const { user } = React.useContext(AuthContext)
@@ -81,14 +83,33 @@ const LearnBlockChain = () => {
     dispatch(boxAction.getBox())
 
     if (window.ethereum) {
+      //remove listen event when componnent unmount
       return () => window.ethereum.removeListener('accountsChanged', handleAccountsChanged)
     }
   }, [])
 
+  React.useEffect(() => {
+    let timeoutOpenBox
+    if(!isCanOpenBox) {
+      timeoutOpenBox = setTimeout(() => {
+        setIsCanOpenBox(true)
+        closeBox()
+      }, 3000)
+    }
+    return () => clearTimeout(timeoutOpenBox) //clear Timeout when component unmount
+  }, [isCanOpenBox])
+
+  const getBalance = async(account) => {
+    const balanceWei = await web3.eth.getBalance(account)
+    const balanceETH = await web3.utils.fromWei(balanceWei, 'ether')
+    //balance nhận được là wei, format từ wei sang ether để hiển thị ra
+    setBalance(parseFloat(balanceETH).toFixed(2))
+  }
 
   const handleAccountsChanged = async () => {
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
     setAccount(accounts[0])
+    getBalance(accounts[0])
   }
 
   const connectMetamask = async () => {
@@ -97,8 +118,10 @@ const LearnBlockChain = () => {
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
       // console.log({ accounts })
       setAccount(accounts[0])
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      getBalance(accounts[0])
 
+      //listen event when user change account on metamask
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
     }
     else {
       toast.error('Please connect Metamask!')
@@ -114,14 +137,21 @@ const LearnBlockChain = () => {
       return toast.error('Please buy more box!')
     }
 
+    if(isCanOpenBox === false) {
+      return toast.error('Please wait 3 seconds!')
+    }
+
     const random = Math.floor(Math.random() * 101)
     console.log(random);
+
+    //** Trong trường hợp nhận được tiền thưởng, mà lỗi mạng hay contract có vấn đề gì đó
+    //mà không nhận được tiền từ contract thì cũng không trừ số box của user
+    //--> gọi api openBox khi nhận được tiền từ contract
+
     if(color === 'red') {
       setIsOpenBoxRed(true)
-      dispatch(boxAction.openBox())
 
-      if(random < 61) {
-        // const value = random < 61 ? 2 : 0
+      if(random < 41) { //bên ngoài để tỉ lệ 60%, nhưng bên trong sẽ là 40%
         setMoneyBoxRed(2)
         try {
           const amount = web3.utils.toWei('2', 'ether')
@@ -132,29 +162,60 @@ const LearnBlockChain = () => {
           console.log(result);
           const obj = {transactionHash: result.transactionHash}
           dispatch(boxAction.receiveAward(obj))
+          dispatch(boxAction.openBox()) //--> gọi đến api mở box để trừ số box
+          getBalance(account) //--> cập nhật lại balance
           toast.success(`Congratulation! You have received 2 ETH`)
         } catch (error) {
           console.log(error);
-          toast.error('Sorry! You can not received award')
+          toast.error('Sorry! You can not receive award')
         }
       }
       else {
         setMoneyBoxRed(0)
+        toast.info('Unlucky! Please try again')
+        dispatch(boxAction.openBox()) //--> gọi đến api mở box để trừ số box
       }
     }
     else {
       setIsOpenBoxViolet(true)
-      const value = random < 41 ? 3 : 0
-      setMoneyBoxViolet(value)
+
+      if(random < 21) { //bên ngoài để tỉ lệ 40%, nhưng bên trong sẽ là 20%
+        setMoneyBoxViolet(3)
+        try {
+          const amount = web3.utils.toWei('3', 'ether')
+          const result = await contract.methods.ReceiveAward(account, amount).send({
+            from: account,
+            value: 0
+          })
+          console.log(result);
+          const obj = {transactionHash: result.transactionHash}
+          dispatch(boxAction.receiveAward(obj))
+          dispatch(boxAction.openBox()) //--> gọi đến api mở box để trừ số box
+          getBalance(account) //--> cập nhật lại balance
+          toast.success(`Congratulation! You have received 3 ETH`)
+        } catch (error) {
+          console.log(error);
+          toast.error('Sorry! You can not receive award')
+        }
+      }
+      else {
+        setMoneyBoxViolet(0)
+        toast.info('Unlucky! Please try again')
+        dispatch(boxAction.openBox()) //--> gọi đến api mở box để trừ số box
+      }
     }
-    // setIsOpenBox(true)
+    setIsCanOpenBox(false)
   }
 
-  const onBuyBox = async () => {
+  const closeBox = () => {
     setIsOpenBoxRed(false)
     setIsOpenBoxViolet(false)
     setMoneyBoxRed(0)
     setMoneyBoxViolet(0)
+  }
+
+  const onBuyBox = async () => {
+    closeBox()
 
     if (!account) {
       return toast.error('Please login Metamask!')
@@ -174,6 +235,7 @@ const LearnBlockChain = () => {
         }
         dispatch(boxAction.buyBox(obj))
         toast.success('Buy box success')
+        getBalance(account)
       } catch (error) {
         console.log(error);
         toast.error('Buy box failed')
@@ -191,9 +253,16 @@ const LearnBlockChain = () => {
       >Connect Metamask</Button>
       {!account && <h5 className='text-danger'>You don't login Metamask yet</h5>}
       {account &&
-        <h5 className='mb-0'>Your wallet:
-          <span className='text-danger d-inline-block ms-2'>{account}</span>
-        </h5>}
+        <>
+          <h5 className='mb-0'>Your wallet:
+            <span className='text-danger d-inline-block ms-2'>{account}</span>
+          </h5>
+          <h6 className='mb-0'>Balance:
+            <span className='text-danger d-inline-block ms-2 me-1'>{balance}</span>
+            ETH
+          </h6>
+        </>
+      }
 
       <div className='d-flex mt-3'>
         <div className='times bg-warning me-3'>
