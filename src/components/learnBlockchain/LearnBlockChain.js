@@ -223,18 +223,46 @@ const LearnBlockChain = () => {
     if (window.confirm('Do you want to buy one box?')) {
       try {
         //1 box = 1 ETH
-        const result = await contract.methods.BuyBox().send({
+        // const result = await contract.methods.BuyBox().send({
+        //   from: account,
+        //   // value: 0, //hàm BuyBox trên contract hiện giờ là nonpayable(tức là không cần tốn phí)
+        //   value: web3.utils.toWei('1', 'ether')
+        // })
+        // console.log(result);
+        // const obj = {
+        //   buyBox: 1,
+        //   transactionHash: result.transactionHash
+        // }
+        // dispatch(boxAction.buyBox(obj))
+
+        const gasPrice = await web3.eth.getGasPrice() //giá trị của 1 gas tương ứng bao nhiêu eth trong mạng lưới
+        // console.log({gasPrice});
+        const gas = await contract.methods.BuyBox().estimateGas(
+          {
+            gas: 5000000,
+            from: account,
+            value: web3.utils.toWei('1', 'ether')
+          }
+        )
+        // console.log(web3.utils.toHex(gas));
+        // console.log(web3.utils.toHex(web3.utils.toWei('1', 'ether')));
+        const data = await contract.methods.BuyBox().encodeABI()
+        console.log(data);
+
+        const txHash = await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          gasPrice: web3.utils.toHex(gasPrice),
+          gas: web3.utils.toHex(gas),
+          to: addressContract,
           from: account,
-          // value: 0, //hàm BuyBox trên contract hiện giờ là nonpayable(tức là không cần tốn phí)
-          value: web3.utils.toWei('1', 'ether')
+          value: web3.utils.toHex(web3.utils.toWei('1', 'ether')),
+          data,
         })
-        console.log(result);
-        const obj = {
-          buyBox: 1,
-          transactionHash: result.transactionHash
-        }
-        dispatch(boxAction.buyBox(obj))
-        toast.success('Buy box success')
+
+        console.log(txHash);
+
+
+        // toast.success('Buy box success')
         getBalance(account)
       } catch (error) {
         console.log(error);
