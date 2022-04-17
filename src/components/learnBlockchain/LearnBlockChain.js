@@ -64,7 +64,7 @@ const LearnBlockChain = () => {
   const [moneyBoxRed, setMoneyBoxRed] = React.useState(0)
   const [moneyBoxViolet, setMoneyBoxViolet] = React.useState(0)
   const [isCanOpenBox, setIsCanOpenBox] = React.useState(true)
-  
+
 
   const { user } = React.useContext(AuthContext)
   const dispatch = useDispatch()
@@ -90,7 +90,7 @@ const LearnBlockChain = () => {
 
   React.useEffect(() => {
     let timeoutOpenBox
-    if(!isCanOpenBox) {
+    if (!isCanOpenBox) {
       timeoutOpenBox = setTimeout(() => {
         setIsCanOpenBox(true)
         closeBox()
@@ -99,7 +99,7 @@ const LearnBlockChain = () => {
     return () => clearTimeout(timeoutOpenBox) //clear Timeout when component unmount
   }, [isCanOpenBox])
 
-  const getBalance = async(account) => {
+  const getBalance = async (account) => {
     const balanceWei = await web3.eth.getBalance(account)
     const balanceETH = await web3.utils.fromWei(balanceWei, 'ether')
     //balance nhận được là wei, format từ wei sang ether để hiển thị ra
@@ -128,7 +128,7 @@ const LearnBlockChain = () => {
     }
   }
 
-  const onOpenBox = async(color) => {
+  const onOpenBox = async (color) => {
     if (!account) {
       return toast.error('Please connect Metamask!')
     }
@@ -137,7 +137,7 @@ const LearnBlockChain = () => {
       return toast.error('Please buy more box!')
     }
 
-    if(isCanOpenBox === false) {
+    if (isCanOpenBox === false) {
       return toast.error('Please wait 3 seconds!')
     }
 
@@ -148,19 +148,43 @@ const LearnBlockChain = () => {
     //mà không nhận được tiền từ contract thì cũng không trừ số box của user
     //--> gọi api openBox khi nhận được tiền từ contract
 
-    if(color === 'red') {
+    if (color === 'red') {
       setIsOpenBoxRed(true)
 
-      if(random < 41) { //bên ngoài để tỉ lệ 60%, nhưng bên trong sẽ là 40%
+      if (random < 41) { //bên ngoài để tỉ lệ 60%, nhưng bên trong sẽ là 40%
         setMoneyBoxRed(2)
         try {
+          // const amount = web3.utils.toWei('2', 'ether')
+          // const result = await contract.methods.ReceiveAward(account, amount).send({
+          //   from: account,
+          //   value: 0
+          // })
+          // console.log(result);
+          // const obj = {transactionHash: result.transactionHash}
+
+          //--------------------GỬI TỚI CONTRACT THÔNG QUA METAMASK--------------------
           const amount = web3.utils.toWei('2', 'ether')
-          const result = await contract.methods.ReceiveAward(account, amount).send({
+          const gasPrice = await web3.eth.getGasPrice()
+          const gas = await contract.methods.ReceiveAward(account, amount).estimateGas({
+            gas: 500000,
             from: account,
-            value: 0
+            value: '0'
           })
-          console.log(result);
-          const obj = {transactionHash: result.transactionHash}
+          const data = await contract.methods.ReceiveAward(account, amount).encodeABI()
+          const txHash = await window.ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [{
+              gasPrice: web3.utils.toHex(gasPrice),
+              gas: web3.utils.toHex(gas),
+              to: addressContract,
+              from: account,
+              value: '0',
+              data,
+            }]
+          })
+          console.log(txHash);
+          const obj = { transactionHash: txHash }
+
           dispatch(boxAction.receiveAward(obj))
           dispatch(boxAction.openBox()) //--> gọi đến api mở box để trừ số box
           getBalance(account) //--> cập nhật lại balance
@@ -179,16 +203,40 @@ const LearnBlockChain = () => {
     else {
       setIsOpenBoxViolet(true)
 
-      if(random < 21) { //bên ngoài để tỉ lệ 40%, nhưng bên trong sẽ là 20%
+      if (random < 21) { //bên ngoài để tỉ lệ 40%, nhưng bên trong sẽ là 20%
         setMoneyBoxViolet(3)
         try {
+          // const amount = web3.utils.toWei('3', 'ether')
+          // const result = await contract.methods.ReceiveAward(account, amount).send({
+          //   from: account,
+          //   value: 0
+          // })
+          // console.log(result);
+          // const obj = {transactionHash: result.transactionHash}
+
+          //--------------------GỬI TỚI CONTRACT THÔNG QUA METAMASK--------------------
           const amount = web3.utils.toWei('3', 'ether')
-          const result = await contract.methods.ReceiveAward(account, amount).send({
+          const gasPrice = await web3.eth.getGasPrice()
+          const gas = await contract.methods.ReceiveAward(account, amount).estimateGas({
+            gas: 500000,
             from: account,
-            value: 0
+            value: '0'
           })
-          console.log(result);
-          const obj = {transactionHash: result.transactionHash}
+          const data = await contract.methods.ReceiveAward(account, amount).encodeABI()
+          const txHash = await window.ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [{
+              gasPrice: web3.utils.toHex(gasPrice),
+              gas: web3.utils.toHex(gas),
+              to: addressContract,
+              from: account,
+              value: '0',
+              data,
+            }]
+          })
+          console.log(txHash);
+          const obj = { transactionHash: txHash }
+
           dispatch(boxAction.receiveAward(obj))
           dispatch(boxAction.openBox()) //--> gọi đến api mở box để trừ số box
           getBalance(account) //--> cập nhật lại balance
@@ -223,6 +271,7 @@ const LearnBlockChain = () => {
     if (window.confirm('Do you want to buy one box?')) {
       try {
         //1 box = 1 ETH
+        //cái này là cách gửi thẳng trực tiếp tới contract luôn, không có thông qua metamask
         // const result = await contract.methods.BuyBox().send({
         //   from: account,
         //   // value: 0, //hàm BuyBox trên contract hiện giờ là nonpayable(tức là không cần tốn phí)
@@ -235,34 +284,48 @@ const LearnBlockChain = () => {
         // }
         // dispatch(boxAction.buyBox(obj))
 
+        //--------------------GỬI TỚI CONTRACT THÔNG QUA METAMASK--------------------
+        // https://docs.metamask.io/guide/sending-transactions.html?
         const gasPrice = await web3.eth.getGasPrice() //giá trị của 1 gas tương ứng bao nhiêu eth trong mạng lưới
         // console.log({gasPrice});
+
+        // https://web3js.readthedocs.io/en/v1.2.11/web3-eth-contract.html#contract-estimategas
         const gas = await contract.methods.BuyBox().estimateGas(
           {
             gas: 5000000,
             from: account,
             value: web3.utils.toWei('1', 'ether')
           }
-        )
+        ) //--> ước tính gas cho cái methods
         // console.log(web3.utils.toHex(gas));
         // console.log(web3.utils.toHex(web3.utils.toWei('1', 'ether')));
         const data = await contract.methods.BuyBox().encodeABI()
-        console.log(data);
+        //trả về 1 chuỗi byte code tương đương với việc sử dụng hàm toHex của web3
+        // console.log(data); 
+        // console.log(web3.utils.toHex(data));
+        //2 console.log trên sẽ cho ra kết quả giống nhau
 
+        //những tham số gasPrice, gas, value, data sẽ phải chuyển thành chuỗi Hex hoặc encodeABI
         const txHash = await window.ethereum.request({
           method: 'eth_sendTransaction',
-          gasPrice: web3.utils.toHex(gasPrice),
-          gas: web3.utils.toHex(gas),
-          to: addressContract,
-          from: account,
-          value: web3.utils.toHex(web3.utils.toWei('1', 'ether')),
-          data,
+          params: [{
+            gasPrice: web3.utils.toHex(gasPrice),
+            gas: web3.utils.toHex(gas),
+            to: addressContract,
+            from: account,
+            value: web3.utils.toHex(web3.utils.toWei('1', 'ether')),
+            data,
+          }]
         })
 
-        console.log(txHash);
+        // console.log(txHash);
+        const obj = {
+          buyBox: 2, // mua được 2 box
+          transactionHash: txHash
+        }
+        dispatch(boxAction.buyBox(obj))
 
-
-        // toast.success('Buy box success')
+        toast.success('Buy box success')
         getBalance(account)
       } catch (error) {
         console.log(error);
@@ -317,9 +380,9 @@ const LearnBlockChain = () => {
                 variant="contained"
                 className="px-5 d-block mx-auto"
                 size="large"
-                onClick={()=>onOpenBox('red')}
+                onClick={() => onOpenBox('red')}
               >Open box</Button>
-              <h6 className='text-center' style={{color: '#cc231e'}}>60% you can get 2 ETH</h6>
+              <h6 className='text-center' style={{ color: '#cc231e' }}>60% you can get 2 ETH</h6>
             </div>
           </div>
           <div className="box box-violet">
@@ -335,9 +398,9 @@ const LearnBlockChain = () => {
                 variant="contained"
                 className="px-5 d-block mx-auto"
                 size="large"
-                onClick={()=>onOpenBox('violet')}
+                onClick={() => onOpenBox('violet')}
               >Open box</Button>
-              <h6 className='text-center' style={{color: '#3103ff'}}>40% you can get 3 ETH</h6>
+              <h6 className='text-center' style={{ color: '#3103ff' }}>40% you can get 3 ETH</h6>
             </div>
           </div>
         </div>
