@@ -1,12 +1,13 @@
 import React from 'react'
 
+const Page404 = React.lazy(() => import ('./components/page404/Page404'))
 const HomePage = React.lazy(() => import ('./pages/HomePage'))
 const GameCaroPage = React.lazy(() => import ('./pages/GameCaroPage'))
 const LogInPage = React.lazy(() => import ('./pages/LogInPage'))
 const SignUpPage = React.lazy(() => import ('./pages/SignUpPage'))
 const ChatRoomPage = React.lazy(() => import ('./pages/ChatRoomPage'))
 const LearnBlockchainPage = React.lazy(() => import ('./pages/LearnBlockchainPage'))
-const Page404 = React.lazy(() => import ('./components/page404/Page404'))
+const BuyPGCPage = React.lazy(() => import ('./pages/BuyPGCPage'))
 
 const routes = [
   {
@@ -41,6 +42,10 @@ const routes = [
   {
     path: '/learn-blockchain',
     element: <LearnBlockchainPage/>,
+  },
+  {
+    path: '/buy-pgc',
+    element: <BuyPGCPage/>,
   },
 ]
 

@@ -1,3 +1,4 @@
 1. create token that called 'Play game coin' (PGC), 
 use BEP20 of Binance Smart Chain (testnet)
 
+2. buy token PGC to play game, 1BNB = 10.000 PGC --> 1 token PGC = 0.0001 BNB

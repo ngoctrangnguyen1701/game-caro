@@ -1,8 +1,8 @@
-import React, {useContext, useEffect} from 'react';
-import {Link, useNavigate} from 'react-router-dom'
+import React, { useContext, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 
-import {AuthContext} from '../contexts/AuthContextProvider'
+import { AuthContext } from '../contexts/AuthContextProvider'
 import { socket } from 'src/App'
 
 import {
@@ -14,6 +14,7 @@ import {
   Avatar,
   Grid,
   Tooltip,
+  Button,
 } from '@mui/material'
 
 import { fightingIsPlayOnlineSelector, fightingStatusSelector } from 'src/selectors/fightingSelector'
@@ -21,32 +22,32 @@ import { fightingAction } from 'src/reducers/fighting/playSlice';
 
 
 const NavBarMain = () => {
-  const {user, setUser} = useContext(AuthContext)
-  const {username, avatar, } = user
+  const { user, setUser } = useContext(AuthContext)
+  const { username, avatar, } = user
   const navigate = useNavigate()
 
   const dispatch = useDispatch()
   const status = useSelector(fightingStatusSelector)
   const isPlayOnline = useSelector(fightingIsPlayOnlineSelector)
 
-  useEffect(()=>{
-    if(status === 'setting' && isPlayOnline) {
+  useEffect(() => {
+    if (status === 'setting' && isPlayOnline) {
       console.log(`navigate('/game-caro/play-online')`)
       navigate('/game-caro/play-online')
     }
   }, [status, isPlayOnline])
 
-  const handleLogOut = () =>{
+  const handleLogOut = () => {
     localStorage.clear()
     sessionStorage.clear()
     navigate('/')
     setUser({}) //--> set empty object for authContext of setUser
-    socket.emit('offline', {username, socketId: socket.id})
+    socket.emit('offline', { username, socketId: socket.id })
     dispatch(fightingAction.waiting())
   }
 
   return (
-    <AppBar position="static" style={{backgroundColor: '#121212'}}>
+    <AppBar position="static" style={{ backgroundColor: '#121212' }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters className="d-flex">
           <Grid item xs={6}>
@@ -61,9 +62,14 @@ const NavBarMain = () => {
               </Typography>
             </Link>
           </Grid>
-          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end'}}>
+          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
             {username ? (
               <div className='d-flex align-items-center'>
+                <Link to="/buy-pgc">
+                  <Button variant="outlined" color="error" className='me-2'>
+                    Buy PGC
+                  </Button>
+                </Link>
                 <Tooltip title="Edit profile">
                   <Link to='/profile' className='d-inline-block me-2'>
                     <div className='d-flex align-items-center'>
@@ -77,8 +83,8 @@ const NavBarMain = () => {
                 </Tooltip>
                 <h5
                   className='d-inline-block mb-0 text-primary'
-                  style={{cursor: 'pointer'}}
-                  onClick={()=>handleLogOut()}
+                  style={{ cursor: 'pointer' }}
+                  onClick={handleLogOut}
                 >Log out</h5>
               </div>
             ) : (

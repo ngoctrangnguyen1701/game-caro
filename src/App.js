@@ -92,6 +92,8 @@ function App() {
     })
     //don't need to off event of socket, cause when component App unmount, 
     //it's mean exsit to this webapp
+
+    dispatch({type: 'web3/connect'})
   }, [])
   
   return (
