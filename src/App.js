@@ -93,7 +93,7 @@ function App() {
     //don't need to off event of socket, cause when component App unmount, 
     //it's mean exsit to this webapp
 
-    dispatch({type: 'web3/connect'})
+    // dispatch({type: 'web3/connect'})
   }, [])
   
   return (
@@ -105,7 +105,7 @@ function App() {
         <Suspense fallback={elementLoading}>
           <Routes>
             {routes && routes.length > 0 && (
-              routes.map((item, index) => <Route key={index} path={item.path} /* exact={item.exact} */ element={item.element}/>)
+              routes.map((item, index) => <Route key={index} path={item.path} element={item.element}/>)
             )}
           </Routes>
         </Suspense>

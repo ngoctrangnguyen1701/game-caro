@@ -1,7 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit"
-import Web3 from "web3"
+// import Web3 from "web3"
 
-const initialState = {provider: {}}
+const initialState = {
+  provider: null,
+  account: null,
+  balance: 0,
+}
 
 //createSlice của redux toolkit là kết hợp actionCreator và reducer
 const mySlice = createSlice({
@@ -9,12 +13,17 @@ const mySlice = createSlice({
   initialState,
   reducers: {
     connect(state, action) {
-      state.provider = new Web3('https://data-seed-prebsc-1-s1.binance.org:8545/')
-      // state = action.payload.provider
-    }
+      // state.provider = new Web3('https://data-seed-prebsc-1-s1.binance.org:8545/')
+    },
+    connectSuccess(state, action) {
+      state.provider = action.payload.provider
+    },
+    connectFailed(state, action) {
+      state.provider = null
+    },
   }
 })
 
-// export const boxAction = mySlice.actions 
+export const web3Action = mySlice.actions 
 export default mySlice.reducer
 //cái này cú pháp để lấy ra những cái action nằm trong key 'reducer'

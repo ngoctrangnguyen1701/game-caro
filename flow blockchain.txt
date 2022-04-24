@@ -2,3 +2,6 @@
 use BEP20 of Binance Smart Chain (testnet)
 
 2. buy token PGC to play game, 1BNB = 10.000 PGC --> 1 token PGC = 0.0001 BNB
++ before buy PGC, check balance of BNB must be greater than amount of BNB that wil pay
++ limit buy PGC 100 - 10.000 PGC/time
++ when buy PGC success, submit transaction hash to serve
