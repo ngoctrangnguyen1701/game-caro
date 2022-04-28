@@ -27,10 +27,10 @@ import InvitationModal from './components/InvitationModal';
 // connect socket to server and export socket to another component will can use
 export const socket = io(linkServer)
 socket.on('connect', () => {
-  console.log('socket connected: ', socket.id);
+  // console.log('socket connected: ', socket.id);
 })
 socket.on('disconnect', ()=>{
-  console.log('socket disconnected', socket.id);
+  // console.log('socket disconnected', socket.id);
 })
 
 const style = {

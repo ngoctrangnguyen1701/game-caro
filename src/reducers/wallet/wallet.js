@@ -1,21 +1,25 @@
 import { createSlice } from "@reduxjs/toolkit"
-import Web3 from "web3"
 
 const initialState = {
-  provider: null
+  account: null,
+  balance: 0,
+  token: 0,
 }
 
 //createSlice của redux toolkit là kết hợp actionCreator và reducer
 const mySlice = createSlice({
-  name:'web3',
+  name:'wallet',
   initialState,
   reducers: {
-    connect(state) {
-      state.provider = new Web3('https://data-seed-prebsc-1-s1.binance.org:8545/')
+    setAccount(state, action) {
+      const {account, balance, token} = action.payload
+      state.account = account
+      state.balance = balance
+      state.token = token
     }
   }
 })
 
-export const web3Action = mySlice.actions 
+export const walletAction = mySlice.actions 
 export default mySlice.reducer
 //cái này cú pháp để lấy ra những cái action nằm trong key 'reducer'

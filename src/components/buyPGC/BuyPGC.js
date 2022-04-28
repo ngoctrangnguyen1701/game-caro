@@ -1,7 +1,5 @@
 import React from 'react';
-import Web3 from 'web3';
 import {
-  Frame,
   SmallFrame,
   Input,
   Unit,
@@ -9,478 +7,23 @@ import {
 import { Button } from '@mui/material';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
+import { walletAction } from 'src/reducers/wallet/wallet';
+import { pgcAction } from 'src/reducers/contract/pgcSlice';
+import { ContractContext } from 'src/contexts/ContractContextProvider';
 
 
 const BuyPGC = () => {
   const dispatch = useDispatch()
-  // const web3 = useSelector(state => state.web3.provider)
-  // const pgc = useSelector(state => state.contract.pgc)
+  const web3 = useSelector(state => state.web3.provider)
+  const {account, balance, token} = useSelector(state => state.wallet)
+  const pgc = useSelector(state => state.contract.pgc)
+
+  const {address: addressContract, abi} = React.useContext(ContractContext).pgc
+
 
   const [amountPGC, setAmountPGC] = React.useState(0)
   const [amountBNB, setAmountBNB] = React.useState(0)
-  const [account, setAccount] = React.useState('')
-  const [balance, setBalance] = React.useState(0)
-  const [token, setToken] = React.useState(0)
   const [isConnentMetamask, setIsConnentMetamask] = React.useState(false)
-  const [web3, setWeb3] = React.useState(null)
-  const [pgc, setPGC] = React.useState({
-    contract: {},
-    address: '0xDb155F03982Ed455Aa88892E573357509F13394f',
-    abi: [
-      {
-        inputs: [],
-        payable: false,
-        stateMutability: "nonpayable",
-        type: "constructor"
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: "address",
-            name: "owner",
-            type: "address"
-          },
-          {
-            indexed: true,
-            internalType: "address",
-            name: "spender",
-            type: "address"
-          },
-          {
-            indexed: false,
-            internalType: "uint256",
-            name: "value",
-            type: "uint256"
-          }
-        ],
-        name: "Approval",
-        type: "event"
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: "address",
-            name: "previousOwner",
-            type: "address"
-          },
-          {
-            indexed: true,
-            internalType: "address",
-            name: "newOwner",
-            type: "address"
-          }
-        ],
-        name: "OwnershipTransferred",
-        type: "event"
-      },
-      {
-        anonymous: false,
-        inputs: [
-          {
-            indexed: true,
-            internalType: "address",
-            name: "from",
-            type: "address"
-          },
-          {
-            indexed: true,
-            internalType: "address",
-            name: "to",
-            type: "address"
-          },
-          {
-            indexed: false,
-            internalType: "uint256",
-            name: "value",
-            type: "uint256"
-          }
-        ],
-        name: "Transfer",
-        type: "event"
-      },
-      {
-        constant: true,
-        inputs: [
-          {
-            internalType: "address",
-            name: "owner",
-            type: "address"
-          },
-          {
-            internalType: "address",
-            name: "spender",
-            type: "address"
-          }
-        ],
-        name: "allowance",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256"
-          }
-        ],
-        payable: false,
-        stateMutability: "view",
-        type: "function"
-      },
-      {
-        constant: false,
-        inputs: [
-          {
-            internalType: "address",
-            name: "spender",
-            type: "address"
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256"
-          }
-        ],
-        name: "approve",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool"
-          }
-        ],
-        payable: false,
-        stateMutability: "nonpayable",
-        type: "function"
-      },
-      {
-        constant: true,
-        inputs: [],
-        name: "balanceBNB",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256"
-          }
-        ],
-        payable: false,
-        stateMutability: "view",
-        type: "function"
-      },
-      {
-        constant: true,
-        inputs: [
-          {
-            internalType: "address",
-            name: "account",
-            type: "address"
-          }
-        ],
-        name: "balanceOf",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256"
-          }
-        ],
-        payable: false,
-        stateMutability: "view",
-        type: "function"
-      },
-      {
-        constant: true,
-        inputs: [],
-        name: "decimals",
-        outputs: [
-          {
-            internalType: "uint8",
-            name: "",
-            type: "uint8"
-          }
-        ],
-        payable: false,
-        stateMutability: "view",
-        type: "function"
-      },
-      {
-        constant: false,
-        inputs: [
-          {
-            internalType: "address",
-            name: "spender",
-            type: "address"
-          },
-          {
-            internalType: "uint256",
-            name: "subtractedValue",
-            type: "uint256"
-          }
-        ],
-        name: "decreaseAllowance",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool"
-          }
-        ],
-        payable: false,
-        stateMutability: "nonpayable",
-        type: "function"
-      },
-      {
-        constant: true,
-        inputs: [],
-        name: "getOwner",
-        outputs: [
-          {
-            internalType: "address",
-            name: "",
-            type: "address"
-          }
-        ],
-        payable: false,
-        stateMutability: "view",
-        type: "function"
-      },
-      {
-        constant: false,
-        inputs: [
-          {
-            internalType: "address",
-            name: "spender",
-            type: "address"
-          },
-          {
-            internalType: "uint256",
-            name: "addedValue",
-            type: "uint256"
-          }
-        ],
-        name: "increaseAllowance",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool"
-          }
-        ],
-        payable: false,
-        stateMutability: "nonpayable",
-        type: "function"
-      },
-      {
-        constant: false,
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256"
-          }
-        ],
-        name: "mint",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool"
-          }
-        ],
-        payable: false,
-        stateMutability: "nonpayable",
-        type: "function"
-      },
-      {
-        constant: true,
-        inputs: [],
-        name: "name",
-        outputs: [
-          {
-            internalType: "string",
-            name: "",
-            type: "string"
-          }
-        ],
-        payable: false,
-        stateMutability: "view",
-        type: "function"
-      },
-      {
-        constant: true,
-        inputs: [],
-        name: "owner",
-        outputs: [
-          {
-            internalType: "address",
-            name: "",
-            type: "address"
-          }
-        ],
-        payable: false,
-        stateMutability: "view",
-        type: "function"
-      },
-      {
-        constant: false,
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256"
-          }
-        ],
-        name: "receiveToken",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool"
-          }
-        ],
-        payable: true,
-        stateMutability: "payable",
-        type: "function"
-      },
-      {
-        constant: false,
-        inputs: [],
-        name: "renounceOwnership",
-        outputs: [],
-        payable: false,
-        stateMutability: "nonpayable",
-        type: "function"
-      },
-      {
-        constant: true,
-        inputs: [],
-        name: "symbol",
-        outputs: [
-          {
-            internalType: "string",
-            name: "",
-            type: "string"
-          }
-        ],
-        payable: false,
-        stateMutability: "view",
-        type: "function"
-      },
-      {
-        constant: true,
-        inputs: [],
-        name: "totalSupply",
-        outputs: [
-          {
-            internalType: "uint256",
-            name: "",
-            type: "uint256"
-          }
-        ],
-        payable: false,
-        stateMutability: "view",
-        type: "function"
-      },
-      {
-        constant: false,
-        inputs: [
-          {
-            internalType: "address",
-            name: "recipient",
-            type: "address"
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256"
-          }
-        ],
-        name: "transfer",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool"
-          }
-        ],
-        payable: false,
-        stateMutability: "nonpayable",
-        type: "function"
-      },
-      {
-        constant: false,
-        inputs: [
-          {
-            internalType: "address",
-            name: "sender",
-            type: "address"
-          },
-          {
-            internalType: "address",
-            name: "recipient",
-            type: "address"
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256"
-          }
-        ],
-        name: "transferFrom",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool"
-          }
-        ],
-        payable: false,
-        stateMutability: "nonpayable",
-        type: "function"
-      },
-      {
-        constant: false,
-        inputs: [
-          {
-            internalType: "address",
-            name: "newOwner",
-            type: "address"
-          }
-        ],
-        name: "transferOwnership",
-        outputs: [],
-        payable: false,
-        stateMutability: "nonpayable",
-        type: "function"
-      },
-      {
-        constant: false,
-        inputs: [],
-        name: "withdrawAllMoney",
-        outputs: [],
-        payable: false,
-        stateMutability: "nonpayable",
-        type: "function"
-      },
-      {
-        constant: false,
-        inputs: [
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256"
-          }
-        ],
-        name: "withdrawAmount",
-        outputs: [],
-        payable: false,
-        stateMutability: "nonpayable",
-        type: "function"
-      }
-    ]
-  })
 
   const onConfirmValue = value => {
     const regex = /^[0-9]+$/
@@ -499,32 +42,30 @@ const BuyPGC = () => {
     }
     else {
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const account = accounts[0];
-      // console.log({ account });
-      setAccount(account)
-      
-      const connectWeb3 = new Web3('https://data-seed-prebsc-1-s1.binance.org:8545/')
-      setWeb3(connectWeb3)
+      const account = accounts[0]
 
-      const balanceWei = await connectWeb3.eth.getBalance(account)
-      const balanceBNB = await connectWeb3.utils.fromWei(balanceWei, 'ether')
-      // console.log({ balanceBNB });
-      setBalance(parseFloat(balanceBNB))
-      setIsConnentMetamask(true)
+      const balanceWei = await web3.eth.getBalance(account)
+      const balanceBNB = await web3.utils.fromWei(balanceWei)
 
-      const contract = await new connectWeb3.eth.Contract(pgc.abi, pgc.address)
-      setPGC({
-        ...pgc,
-        contract
-      })
+      const contract = await new web3.eth.Contract(abi, addressContract)
+      dispatch(pgcAction.interactContract({contract}))
+
+      const tokenWei = await contract.methods.balanceOf(account).call()
       //gọi methods balanceOf để biết được tài khoản đang có bao nhiêu token
       //***Lưu ý:
       //Những hàm tương tác với Smart Contract mà làm thay đổi Blockchain (vd: thực hiện 1 giao dịch) sẽ tốn 1 lượng phí gas
       // Còn những hàm dùng để tra cứu không làm thay đổi Blockchain(vd: xem số dư) sẽ không bị tốn phí gas
+      const tokenPGC = await web3.utils.fromWei(tokenWei)
 
-      const balanceWeiOfToken = await contract.methods.balanceOf(account).call()
-      const balanceToken = await connectWeb3.utils.fromWei(balanceWeiOfToken, 'ether')
-      setToken(balanceToken)
+      dispatch(walletAction.setAccount(
+        {
+          account,
+          balance: balanceBNB,
+          token: tokenPGC,
+        }
+      ))
+
+      setIsConnentMetamask(true)
     }
   }
 
@@ -566,7 +107,7 @@ const BuyPGC = () => {
         }]
       })
       console.log(txHash);
-      toast.success(`Buy ${amountPGC} success`)
+      toast.success(`Buy ${amountPGC} PGC success`)
 
       // setup lại các giá trị
       setAmountPGC(0)
@@ -586,15 +127,15 @@ const BuyPGC = () => {
           <h5 className='mb-0'>Balance: <span className='text-success'>{balance} BNB</span></h5>
           <h5 className='mb-0'>Token: <span className='text-secondary'>{token} PGC</span></h5>
         </div>
-        ) : (
-          <Button
-            color='primary'
-            variant='contained'
-            onClick={connectMetamask}
-          >Connect Metamask</Button>
-        )
+      ) : (
+        <Button
+          color='primary'
+          variant='contained'
+          onClick={connectMetamask}
+        >Connect Metamask</Button>
+      )
       }
-      
+
       <div className='bg-dark col-lg-6 mx-auto rounded mt-3' style={{ padding: '15px 10%' }}>
         <h3 className='text-white text-center text-danger mb-4'>BUY PGC</h3>
         <div>

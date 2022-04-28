@@ -4,8 +4,9 @@ import onlineUserList from './onlineUser/onlineUserListSlice'
 import invitation from './invitation/invitationSlice'
 import fighting from './fighting/fightingSlice'
 import box from './box/boxSlice'
-import contract from './contract/contractSlice'
 import web3 from './web3/web3'
+import wallet from './wallet/wallet'
+import contract from './contract/contractSlice'
 
 export default combineReducers({
   auth,
@@ -15,4 +16,5 @@ export default combineReducers({
   box,
   contract,
   web3,
+  wallet,
 })
