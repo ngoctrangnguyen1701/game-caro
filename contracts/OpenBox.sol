@@ -33,6 +33,7 @@ contract OpenBox {
   function ReceiveAward(address payable _receiver, uint _amount) public {
     require(GetBalance() >= _amount, 'Contract is not enough money'); //--> kiểm tra xem contract có đủ balance để transfer không
     _receiver.transfer(_amount);
+    //** hàm này đang bị lỗi, nếu người dùng lên mạng bsc thực hiện trực tiếp thì contract sẽ bị mất tiền */
   }
 
   //withdraw from contract
@@ -49,8 +50,8 @@ contract OpenBox {
   }
 
   //deposit to contract
-  function DepositAmount() public payable {
-    require(owner == msg.sender, 'Only owner of contract can widthdraw');
-    require(msg.value >= 1 ether, 'Please send minium 1ETH');
-  }
+  // function DepositAmount() public payable {
+  //   require(owner == msg.sender, 'Only owner of contract can widthdraw');
+  //   require(msg.value >= 1 ether, 'Please send minium 1ETH');
+  // }
 }

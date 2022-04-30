@@ -15,10 +15,26 @@ import {
   Grid,
   Tooltip,
   Button,
+  Modal,
 } from '@mui/material'
 
 import { fightingIsPlayOnlineSelector, fightingStatusSelector } from 'src/selectors/fightingSelector'
 import { fightingAction } from 'src/reducers/fighting/playSlice';
+import { toast } from 'react-toastify';
+import contractApi from 'src/api/contractApi'
+
+
+const modalStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 
 
 const NavBarMain = () => {
@@ -29,6 +45,9 @@ const NavBarMain = () => {
   const dispatch = useDispatch()
   const status = useSelector(fightingStatusSelector)
   const isPlayOnline = useSelector(fightingIsPlayOnlineSelector)
+
+  const [isShowModal, setIsShowModal] = React.useState(false)
+  const [address, setAddress] = React.useState('')
 
   useEffect(() => {
     if (status === 'setting' && isPlayOnline) {
@@ -45,6 +64,21 @@ const NavBarMain = () => {
     socket.emit('offline', { username, socketId: socket.id })
     dispatch(fightingAction.waiting())
   }
+
+  const onTakeBackMyToken = async() => {
+    if(address) {
+      contractApi.takeBackToken({address}).then(response => {
+        setIsShowModal(false)
+        setAddress('')
+        
+        toast.success(`Your request have submitted. You will have ${response.data.amountOfToken} PGC if your request is correct `)
+      }).catch(err => {console.log(err);})
+    }
+    else {
+      toast.error('Please input your address wallet')
+    }
+  }
+
 
   return (
     <AppBar position="static" style={{ backgroundColor: '#121212' }}>
@@ -65,6 +99,12 @@ const NavBarMain = () => {
           <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
             {username ? (
               <div className='d-flex align-items-center'>
+                <Button 
+                  color='secondary'
+                  variant='contained'
+                  onClick={()=>setIsShowModal(true)}
+                  className="me-2"
+                >Take back my token</Button>
                 <Link to="/buy-pgc">
                   <Button variant="outlined" color="error" className='me-2'>
                     Buy PGC
@@ -94,6 +134,33 @@ const NavBarMain = () => {
             )}
           </Box>
         </Toolbar>
+        <Modal
+          open={isShowModal}
+          onClose={() => setIsShowModal(false)}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={modalStyle}>
+            <Typography id="modal-modal-title" variant="h6" color="error">
+              Input you wallet
+            </Typography>
+            <div>
+              <input
+                className='form-control border-success'
+                value={address}
+                onChange={e => setAddress(e.target.value)}
+              />
+            </div>
+            <Button 
+              variant="contained"
+              color="success"
+              className="d-block mx-auto mt-3"
+              onClick={onTakeBackMyToken}
+            >
+              Submit
+            </Button>
+          </Box>
+        </Modal>
       </Container>
     </AppBar>
   );

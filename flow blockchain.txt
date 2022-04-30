@@ -9,8 +9,10 @@ use BEP20 of Binance Smart Chain (testnet)
 + before buy PGC, check balance of BNB must be greater than amount of BNB that wil pay
 + limit buy PGC 100 - 10.000 PGC/time
 + when buy PGC success, submit transaction hash to server
-
-
-** Feature change token PGC to BNB (write it in other contract)
-
 **Bug: chưa cập nhật lại token và balance khi transaction thành công
+
+4. take back token when contract be changed
+viet ham lay cai dia chi vi co giao dich voi contract cu de nap lai token cho vi do khi contract thay doi
++ client gui dia chi vi
++ serve lay cai dia chi vi, truy cap o contract cu lay cai balance cua token, sau do nap lai cho khach o contract moi
+** xet dieu kien o server, neu balance token  cua dia chi vi do o contract moi bang 0 va balance token o contarct cu lon hon 0 thi moi thuc hien 

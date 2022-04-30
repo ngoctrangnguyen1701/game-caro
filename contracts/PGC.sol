@@ -430,8 +430,11 @@ contract BEP20Token is Context, IBEP20, Ownable {
   function receiveToken(uint256 amount) external payable returns (bool) {
     //hàm transfer chỉnh sửa thành payable do sẽ gửi 1 lượng BNB tương ứng với việc mua token 
     require(owner() != msg.sender, 'You are owner of this contract');
+    require(amount >= 100 * 10 ** 18, 'Minimum buy PGC 100/time');
+    require(amount <= 10000 * 10 ** 18, 'Maximum buy PGC 10.000 PGC/time');
     //1PGC = 0.0001BNB
     require(msg.value * 10000 == amount, 'Please send compatible BNB');
+    // https://ethereum.stackexchange.com/questions/41616/assign-decimal-to-a-variable-in-solidity
     //do solidity không hỗ trợ số không phải là số nguyên
     //nên thay vì set điều kiện msg.value == amount * 0.0001
     //thì set điều kiện msg.value * 10000 == amount
@@ -440,20 +443,40 @@ contract BEP20Token is Context, IBEP20, Ownable {
     return true;
   }
 
-  //withdraw from contract
+  function exchangeToken(uint256 amountOfToken, uint256 amountOfBNB) external returns (bool) {
+    require(owner() != msg.sender, 'You are owner of this contract');
+    require(amountOfToken >= 100 * 10 ** 18, 'Minimum exchange PGC 100/time');
+    require(amountOfToken <= 10000 * 10 ** 18, 'Maximum exchange PGC 10.000 PGC/time');
+    require(amountOfBNB * 10000 == amountOfToken, 'Please send compatible token PGC');
+    require(balanceBNB() >= amountOfBNB, 'Contract is not enough money');
+    //do khi người dùng đổi token sẽ nhận được BNB tương ứng từ contract
+    //nên phải kiểm tra xem contract còn đủ BNB hay không
+    _transfer(msg.sender, owner(), amountOfToken);
+    //từ người nhận sẽ chuyển lượng token cho người sở hữu contract
+    // msg.sender.transfer(amountOfToken * 0.0001); //--> do solidity chỉ hỗ trợ số nguyên, mà mình cần đúng chuyển đúng số BNB nên phải yêu cầu người dùng bỏ thêm tham số BNB tương ứng
+    msg.sender.transfer(amountOfBNB);
+    //sau đó người nhận sẽ nhận được BNB
+    return true;
+  }
+
   function balanceBNB() public view returns (uint){
     return address(this).balance;
   }
-
-  function withdrawAllMoney() public {
+  //withdraw from contract
+  function withdrawAllMoney() external {
     require(owner() == msg.sender, 'Only owner of contract can widthdraw');
     msg.sender.transfer(balanceBNB());  //--> transfer hết toàn bộ balance cho 
   }
 
-  function withdrawAmount(uint amount) public {
+  function withdrawAmount(uint amount) external {
     require(owner() == msg.sender, 'Only owner of contract can widthdraw');
     require(balanceBNB() >= amount, 'Contract is not enough money');
     msg.sender.transfer(amount);
+  }
+
+  //deposit to contract
+  function deposit() external payable {
+    require(owner() == msg.sender, 'Only owner of contract can deposit');
   }
 
   /**
@@ -631,7 +654,5 @@ contract BEP20Token is Context, IBEP20, Ownable {
   function _burnFrom(address account, uint256 amount) internal {
     _burn(account, amount);
     _approve(account, _msgSender(), _allowances[account][_msgSender()].sub(amount, "BEP20: burn amount exceeds allowance"));
-  }
-
-  
+  } 
 }
