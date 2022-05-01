@@ -38,7 +38,7 @@ const BuyPGC = () => {
   const connectMetamask = async () => {
     //check connect Meatamask
     if (!window.ethereum) {
-      return toast.error(`You don't have Metamask`)
+      return toast.error('Please connect to Metamask')
     }
     else {
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });

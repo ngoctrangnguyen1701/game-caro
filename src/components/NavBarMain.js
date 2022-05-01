@@ -21,7 +21,9 @@ import {
 import { fightingIsPlayOnlineSelector, fightingStatusSelector } from 'src/selectors/fightingSelector'
 import { fightingAction } from 'src/reducers/fighting/playSlice';
 import { toast } from 'react-toastify';
-import contractApi from 'src/api/contractApi'
+import pgcApi from 'src/api/pgcApi'
+import { ADMIN_WALLET } from 'src/constants/constants';
+
 
 
 const modalStyle = {
@@ -48,6 +50,29 @@ const NavBarMain = () => {
 
   const [isShowModal, setIsShowModal] = React.useState(false)
   const [address, setAddress] = React.useState('')
+  const [isAdmin, setIsAdmin] = React.useState(false)
+
+  useEffect(() => {
+    //CONNECT METAMASK
+    const connectMetamask = async () => {
+      if (!window.ethereum) {
+        return toast.error('Please connect to Metamask')
+      }
+      else {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0]
+        if(account === ADMIN_WALLET.toLowerCase()) {
+          setIsAdmin(true)
+        }
+
+        window.ethereum.on('accountsChanged', () => {
+          //lắng nghe sự kiện khi có sự thay đổi account ở metamask, trang sẽ reload
+          window.location.reload()
+        })
+      }
+    }
+    connectMetamask()
+  }, [])
 
   useEffect(() => {
     if (status === 'setting' && isPlayOnline) {
@@ -65,14 +90,14 @@ const NavBarMain = () => {
     dispatch(fightingAction.waiting())
   }
 
-  const onTakeBackMyToken = async() => {
-    if(address) {
-      contractApi.takeBackToken({address}).then(response => {
+  const onTakeBackMyToken = async () => {
+    if (address) {
+      pgcApi.requestToken({ address }).then(response => {
         setIsShowModal(false)
         setAddress('')
-        
+
         toast.success(`Your request have submitted. You will have ${response.data.amountOfToken} PGC if your request is correct `)
-      }).catch(err => {console.log(err);})
+      }).catch(err => { console.log(err); })
     }
     else {
       toast.error('Please input your address wallet')
@@ -84,25 +109,35 @@ const NavBarMain = () => {
     <AppBar position="static" style={{ backgroundColor: '#121212' }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters className="d-flex">
-          <Grid item xs={6}>
-            <Link to='/'>
+          <Grid item xs={6} className="d-flex align-items-center">
+            <Link to='/' className='d-block'>
               <Typography
                 variant="h6"
                 noWrap
                 component="div"
-                sx={{ mr: 2, display: { xs: '6', md: 'flex' } }}
+                sx={{ mr: 2, display: 'inline-block' }}
               >
                 HOME
               </Typography>
             </Link>
+            {isAdmin &&
+              <Link to="/admin" className='d-block'>
+                <Button
+                  color='warning'
+                  variant='outlined'
+                  className="me-2"
+                >Dashboard</Button>
+              </Link>
+            }
+
           </Grid>
           <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
             {username ? (
               <div className='d-flex align-items-center'>
-                <Button 
+                <Button
                   color='secondary'
                   variant='contained'
-                  onClick={()=>setIsShowModal(true)}
+                  onClick={() => setIsShowModal(true)}
                   className="me-2"
                 >Take back my token</Button>
                 <Link to="/buy-pgc">
@@ -151,7 +186,7 @@ const NavBarMain = () => {
                 onChange={e => setAddress(e.target.value)}
               />
             </div>
-            <Button 
+            <Button
               variant="contained"
               color="success"
               className="d-block mx-auto mt-3"

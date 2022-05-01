@@ -12,27 +12,26 @@ const BuyPGCPage = React.lazy(() => import ('./pages/BuyPGCPage'))
 const routes = [
   {
     path: '*',
-    // exact: false,
     element: <Page404/>,
   },
   {
     path: '/',
-    // exact: true,
+    element: <HomePage/>,
+  },
+  {
+    path: '/admin',
     element: <HomePage/>,
   },
   {
     path: '/login',
-    // exact: false,
     element: <LogInPage/>,
   },
   {
     path: 'signup',
-    // exact: false,
     element: <SignUpPage/>,
   },
   {
     path: '/game-caro/*',
-    // exact: false,
     element: <GameCaroPage/>,
   },
   {
