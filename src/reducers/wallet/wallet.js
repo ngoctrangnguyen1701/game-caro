@@ -4,6 +4,7 @@ const initialState = {
   account: null,
   balance: 0,
   token: 0,
+  isAdmin: false,
 }
 
 //createSlice của redux toolkit là kết hợp actionCreator và reducer
@@ -16,6 +17,9 @@ const mySlice = createSlice({
       state.account = account
       state.balance = balance
       state.token = token
+    },
+    isAdmin(state, action) {
+      state.isAdmin = action.payload
     }
   }
 })

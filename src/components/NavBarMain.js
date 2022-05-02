@@ -15,7 +15,8 @@ import {
   Grid,
   Tooltip,
   Button,
-  Modal,
+  Dialog,
+  DialogContent,
 } from '@mui/material'
 
 import { fightingIsPlayOnlineSelector, fightingStatusSelector } from 'src/selectors/fightingSelector'
@@ -23,23 +24,12 @@ import { fightingAction } from 'src/reducers/fighting/playSlice';
 import { toast } from 'react-toastify';
 import pgcApi from 'src/api/pgcApi'
 import { ADMIN_WALLET } from 'src/constants/constants';
-
-
-
-const modalStyle = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-};
+import { walletAction } from 'src/reducers/wallet/wallet'
+import { ContractContext } from 'src/contexts/ContractContextProvider';
 
 
 const NavBarMain = () => {
+  const { exPGC } = useContext(ContractContext)
   const { user, setUser } = useContext(AuthContext)
   const { username, avatar, } = user
   const navigate = useNavigate()
@@ -47,32 +37,42 @@ const NavBarMain = () => {
   const dispatch = useDispatch()
   const status = useSelector(fightingStatusSelector)
   const isPlayOnline = useSelector(fightingIsPlayOnlineSelector)
+  const isAdmin = useSelector(state => state.wallet.isAdmin)
+  const web3 = useSelector(state => state.web3.provider)
 
   const [isShowModal, setIsShowModal] = React.useState(false)
-  const [address, setAddress] = React.useState('')
-  const [isAdmin, setIsAdmin] = React.useState(false)
+  const [account, setAccount] = React.useState('')
+  const [paybackToken, setPaybackToken] = React.useState('')
 
   useEffect(() => {
-    //CONNECT METAMASK
-    const connectMetamask = async () => {
-      if (!window.ethereum) {
-        return toast.error('Please connect to Metamask')
-      }
-      else {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const account = accounts[0]
-        if(account === ADMIN_WALLET.toLowerCase()) {
-          setIsAdmin(true)
+    if (web3) {
+      //CONNECT METAMASK
+      const connectMetamask = async () => {
+        if (!window.ethereum) {
+          return toast.error('Please connect to Metamask')
         }
+        else {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          // const account = accounts[0]
+          setAccount(accounts[0])
 
-        window.ethereum.on('accountsChanged', () => {
-          //lắng nghe sự kiện khi có sự thay đổi account ở metamask, trang sẽ reload
-          window.location.reload()
-        })
+          const exContract = await new web3.eth.Contract(exPGC.abi, exPGC.address)
+          const balanceWei = await exContract.methods.balanceOf(accounts[0]).call()
+          const balanceToken = await web3.utils.fromWei(balanceWei)
+          setPaybackToken(balanceToken)
+          if (accounts[0] === ADMIN_WALLET.toLowerCase()) {
+            dispatch(walletAction.isAdmin(true))
+          }
+
+          window.ethereum.on('accountsChanged', () => {
+            //lắng nghe sự kiện khi có sự thay đổi account ở metamask, trang sẽ reload
+            window.location.reload()
+          })
+        }
       }
+      connectMetamask()
     }
-    connectMetamask()
-  }, [])
+  }, [web3])
 
   useEffect(() => {
     if (status === 'setting' && isPlayOnline) {
@@ -91,16 +91,18 @@ const NavBarMain = () => {
   }
 
   const onTakeBackMyToken = async () => {
-    if (address) {
-      pgcApi.requestToken({ address }).then(response => {
+    if (paybackToken > 0) {
+      const payload = {
+        address: account,
+        requestTime: new Date().getTime(),
+      }
+      pgcApi.requestToken(payload).then(response => {
+        toast.success(`You will have ${paybackToken} PGC if your request is correct `)
         setIsShowModal(false)
-        setAddress('')
-
-        toast.success(`Your request have submitted. You will have ${response.data.amountOfToken} PGC if your request is correct `)
       }).catch(err => { console.log(err); })
     }
     else {
-      toast.error('Please input your address wallet')
+      toast.error('Token equal 0 that can be received payback')
     }
   }
 
@@ -134,17 +136,22 @@ const NavBarMain = () => {
           <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
             {username ? (
               <div className='d-flex align-items-center'>
-                <Button
-                  color='secondary'
-                  variant='contained'
-                  onClick={() => setIsShowModal(true)}
-                  className="me-2"
-                >Take back my token</Button>
-                <Link to="/buy-pgc">
-                  <Button variant="outlined" color="error" className='me-2'>
-                    Buy PGC
-                  </Button>
-                </Link>
+                {!isAdmin &&
+                  <>
+                    <Button
+                      color='secondary'
+                      variant='contained'
+                      onClick={() => setIsShowModal(true)}
+                      className="me-2"
+                    >Take back my token</Button>
+                    <Link to="/buy-pgc">
+                      <Button variant="outlined" color="error" className='me-2'>
+                        Buy PGC
+                      </Button>
+                    </Link>
+                  </>
+                }
+
                 <Tooltip title="Edit profile">
                   <Link to='/profile' className='d-inline-block me-2'>
                     <div className='d-flex align-items-center'>
@@ -169,23 +176,18 @@ const NavBarMain = () => {
             )}
           </Box>
         </Toolbar>
-        <Modal
+        <Dialog
           open={isShowModal}
           onClose={() => setIsShowModal(false)}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
         >
-          <Box sx={modalStyle}>
-            <Typography id="modal-modal-title" variant="h6" color="error">
-              Input you wallet
+          <DialogContent>
+            <Typography id="modal-modal-title" variant="h6" color="error" className='mb-3'>
+              Request Information
             </Typography>
-            <div>
-              <input
-                className='form-control border-success'
-                value={address}
-                onChange={e => setAddress(e.target.value)}
-              />
-            </div>
+            <p className='mb-0'>Address: <span style={{ fontWeight: 'bold' }}>{account}</span></p>
+            <p className='mb-0'>Payback token: <span style={{ fontWeight: 'bold' }}> {paybackToken} PGC</span></p>
             <Button
               variant="contained"
               color="success"
@@ -194,8 +196,8 @@ const NavBarMain = () => {
             >
               Submit
             </Button>
-          </Box>
-        </Modal>
+          </DialogContent>
+        </Dialog>
       </Container>
     </AppBar>
   );

@@ -12,13 +12,9 @@ use BEP20 of Binance Smart Chain (testnet)
 **Bug: chưa cập nhật lại token và balance khi transaction thành công
 
 4. take back token when contract be changed
-viet ham lay cai dia chi vi co giao dich voi contract cu de nap lai token cho vi do khi contract thay doi
-_Step 1:
-  + client gui dia chi vi
-  + server lay cai dia chi vi, truy cap o contract cu lay cai balance cua token, lưu trữ vào database (kèm theo field đánh dấu xem đã hoàn trả hay chưa)
-  ** xet dieu kien o server, neu balance token  cua dia chi vi do o contract moi bang 0 va balance token o contract cu lon hon 0 thi moi thuc hien
-_Step 2: 
-  + client, admin vào giao diện load danh sách token hoàn trả, thực hiện lệnh chuyển transfer token cho ví chưa hoàn trả, hoàn trả thành công của transaction hash cho phía server
-  + server, 
-    api trả về danh sách token hoàn trả
-    api được gọi khi giao dịch hoàn trả thành công, lưu transaction hash (kèm đánh dấu là đã hoàn trả rồi)
+_Step 1: client request
+  kiểm tra balance token ở contract cũ lớn 0 thì client gửi địa chỉ ví yêu cầu tới server
+_Step 2: excute payback
+  + client, admin vào giao diện load danh sách token hoàn trả
+  + thực hiện lệnh chuyển transfer token cho yêu cầu chưa hoàn trả
+  + hoàn trả thành công, gửi transaction hash cho phía server
