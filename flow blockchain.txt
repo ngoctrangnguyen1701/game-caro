@@ -16,5 +16,7 @@ _Step 1: client request
   kiểm tra balance token ở contract cũ lớn 0 thì client gửi địa chỉ ví yêu cầu tới server
 _Step 2: excute payback
   + client, admin vào giao diện load danh sách token hoàn trả
-  + thực hiện lệnh chuyển transfer token cho yêu cầu chưa hoàn trả
-  + hoàn trả thành công, gửi transaction hash cho phía server
+  + thực hiện lệnh chuyển transfer token cho yêu cầu chưa hoàn trả 
+    ++ check điều kiện token của request ở contact cũ
+      +++ nếu lớn hơn 0 --> thực hiện transfer, hoàn trả thành công gửi transaction hash cho phía server
+      +++ nếu bằng 0 --> gọi api xóa bỏ cái request kèm theo time kiểm tra balance bằng 0

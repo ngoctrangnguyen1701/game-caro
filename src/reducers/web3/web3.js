@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
 import Web3 from "web3"
+import { NETWORK_BLOCKCHAIN } from "src/constants/constants"
 
 const initialState = {
   provider: null
@@ -10,8 +11,8 @@ const mySlice = createSlice({
   name:'web3',
   initialState,
   reducers: {
-    connect(state) {
-      state.provider = new Web3('https://data-seed-prebsc-1-s1.binance.org:8545/')
+    connect(state, action) {
+      state.provider = new Web3(NETWORK_BLOCKCHAIN)
     }
   }
 })

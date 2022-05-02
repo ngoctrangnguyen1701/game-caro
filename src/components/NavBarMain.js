@@ -23,7 +23,6 @@ import { fightingIsPlayOnlineSelector, fightingStatusSelector } from 'src/select
 import { fightingAction } from 'src/reducers/fighting/playSlice';
 import { toast } from 'react-toastify';
 import pgcApi from 'src/api/pgcApi'
-import { ADMIN_WALLET } from 'src/constants/constants';
 import { walletAction } from 'src/reducers/wallet/wallet'
 import { ContractContext } from 'src/contexts/ContractContextProvider';
 
@@ -37,11 +36,12 @@ const NavBarMain = () => {
   const dispatch = useDispatch()
   const status = useSelector(fightingStatusSelector)
   const isPlayOnline = useSelector(fightingIsPlayOnlineSelector)
-  const isAdmin = useSelector(state => state.wallet.isAdmin)
+
   const web3 = useSelector(state => state.web3.provider)
+  const account = useSelector(state => state.wallet.account)
+  const isAdmin = useSelector(state => state.wallet.isAdmin)
 
   const [isShowModal, setIsShowModal] = React.useState(false)
-  const [account, setAccount] = React.useState('')
   const [paybackToken, setPaybackToken] = React.useState('')
 
   useEffect(() => {
@@ -53,16 +53,12 @@ const NavBarMain = () => {
         }
         else {
           const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          // const account = accounts[0]
-          setAccount(accounts[0])
 
           const exContract = await new web3.eth.Contract(exPGC.abi, exPGC.address)
           const balanceWei = await exContract.methods.balanceOf(accounts[0]).call()
           const balanceToken = await web3.utils.fromWei(balanceWei)
           setPaybackToken(balanceToken)
-          if (accounts[0] === ADMIN_WALLET.toLowerCase()) {
-            dispatch(walletAction.isAdmin(true))
-          }
+          dispatch(walletAction.setAccount({account: accounts[0]}))
 
           window.ethereum.on('accountsChanged', () => {
             //lắng nghe sự kiện khi có sự thay đổi account ở metamask, trang sẽ reload

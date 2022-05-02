@@ -1,4 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
+import { ADMIN_WALLET } from 'src/constants/constants';
+
 
 const initialState = {
   account: null,
@@ -12,14 +14,20 @@ const mySlice = createSlice({
   name:'wallet',
   initialState,
   reducers: {
+    // setAccount(state, action) {
+    //   const {account, balance, token} = action.payload
+    //   state.account = account
+    //   state.balance = balance
+    //   state.token = token
+    // },
+    // isAdmin(state, action) {
+    //   state.isAdmin = action.payload
+    // },
     setAccount(state, action) {
-      const {account, balance, token} = action.payload
+      const {account} = action.payload
       state.account = account
-      state.balance = balance
-      state.token = token
-    },
-    isAdmin(state, action) {
-      state.isAdmin = action.payload
+      state.isAdmin = account === ADMIN_WALLET.toLowerCase() ? true : false
+      
     }
   }
 })
