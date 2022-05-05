@@ -5,7 +5,10 @@ import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   Button,
+  Dialog,
+  DialogContent,
   Tooltip,
+  Typography,
 } from '@mui/material'
 
 import pgcApi from 'src/api/pgcApi';
@@ -62,6 +65,10 @@ const Dashboard = props => {
   const [id, setId] = React.useState('')
   const [address, setAddress] = React.useState('')
   const [paybackToken, setPaybackToken] = React.useState('')
+  const [weiToken, setWeiToken] = React.useState('')
+
+  const [exContract, setExContact] = React.useState('')
+  const [newContract, setNewContact] = React.useState('')
 
   React.useEffect(() => {
     if (isAdmin) {
@@ -76,6 +83,18 @@ const Dashboard = props => {
     }
   }, [isAdmin])
 
+  React.useEffect(() => {
+    if(web3) {
+      const connectContract = async() => {
+        const old = await new web3.eth.Contract(exPGC.abi, exPGC.address)
+        setExContact(old)
+        const current = await new web3.eth.Contract(newPGC.abi, newPGC.address)
+        setNewContact(current)
+      }
+      connectContract()
+    }
+  }, [web3])
+
   const showDetail = id => {
     let newArr = []
     if (listShowDetail.includes(id)) {
@@ -87,7 +106,67 @@ const Dashboard = props => {
     setListShowDetail(newArr)
   }
 
+  const showPaybackModal = async (address, id) => {
+    const balanceWei = await exContract.methods.balanceOf(address).call()
+    const balanceToken = await web3.utils.fromWei(balanceWei)
+    setWeiToken(balanceWei)
+    setPaybackToken(balanceToken)
+    setId(id)
+    setAddress(address)
+    setIsShowModal(true)
+  }
 
+  const onTransferToken = async() => {
+    try {
+      const gasPrice = await web3.eth.getGasPrice()
+      const gas = await newContract.methods.transfer(address, weiToken).estimateGas({
+        gas: 500000,
+        from: account,
+        value: '0'
+      })
+      const data = await newContract.methods.transfer(address, weiToken).encodeABI()
+      const txHash = await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [{
+          gasPrice: web3.utils.toHex(gasPrice),
+          gas: web3.utils.toHex(gas),
+          to: newPGC.address,
+          from: account,
+          value: '0',
+          data,
+        }]
+      })
+      // console.log(txHash);
+      const payload = {
+        id,
+        transactionHash: txHash,
+        paybackToken,
+        paybackTime: new Date().getTime(),
+      }
+      pgcApi.paybackToken(payload).then(response => {
+        toast.success(`Transfer token ${response.data.paybackToken} PGC successfully`)
+      }).catch(err => {
+        console.log(err);
+        toast.error('Can not save in database')
+      })
+    } catch (error) {
+      console.log(error);
+      toast.error('Can not transfer token')
+    }
+  }
+
+  const onCancelRequest = async() => {
+    const payload = {
+      id,
+      cancelTime: new Date.getTime()
+    }
+    pgcApi.cancelRequest(payload).then(response => {
+      toast.success('Cancel request successfully')
+    }).catch(error => {
+      console.log(error);
+      toast.error('Can not cancel request')
+    })
+  }
 
   const RequestItem = ({item}) => {
     return (
@@ -107,7 +186,11 @@ const Dashboard = props => {
             }
           </td>
           <td style={{ verticalAlign: 'middle' }}>
-            <Button variant='contained' color='success' onClick={() => showDetail(item._id)}>Detail</Button>
+            {item.isPayback ? 
+              <Button variant='contained' color='success' onClick={() => showDetail(item._id)}>Detail</Button>
+              :
+              <Button variant='contained' color='primary' onClick={() => showPaybackModal(item.address, item._id)}>Payback</Button>
+            }
           </td>
         </tr>
         <tr style={{ display: listShowDetail.includes(item._id) ? 'table-row' : 'none'}}>
@@ -160,6 +243,41 @@ const Dashboard = props => {
           }
         </tbody>
       </table>
+
+      <Dialog
+          open={isShowModal}
+          onClose={() => setIsShowModal(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <Typography id="modal-modal-title" variant="h6" className='py-2 text-center bg-dark text-white'>
+            CONFIRM
+          </Typography>
+          <DialogContent>
+            <p className='mb-0'>Id request: <span style={{ fontWeight: 'bold' }}>{id}</span></p>
+            <p className='mb-0'>Address: <span style={{ fontWeight: 'bold' }}>{address}</span></p>
+            <p className='mb-0'>Payback token: <span style={{ fontWeight: 'bold', color: 'red'}}> {paybackToken} PGC</span></p>
+            {parseFloat(paybackToken) > 0 ?
+              <Button
+                variant="contained"
+                color="success"
+                className="d-block mx-auto mt-3"
+                onClick={onTransferToken}
+              >
+                Transfer token
+              </Button>
+              :
+              <Button
+                variant="outlined"
+                color="error"
+                className="d-block mx-auto mt-3"
+                onClick={onCancelRequest}
+              >
+                Cancel request
+              </Button>
+            }
+          </DialogContent>
+        </Dialog>
     </div>
   );
 };

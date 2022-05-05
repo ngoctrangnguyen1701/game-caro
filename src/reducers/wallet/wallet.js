@@ -4,8 +4,8 @@ import { ADMIN_WALLET } from 'src/constants/constants';
 
 const initialState = {
   account: null,
-  balance: 0,
-  token: 0,
+  balance: 0, //--> balance BNB của ví
+  token: 0, //--> số lượng token của contract pgc hiện tại
   isAdmin: false,
 }
 
@@ -27,7 +27,12 @@ const mySlice = createSlice({
       const {account} = action.payload
       state.account = account
       state.isAdmin = account === ADMIN_WALLET.toLowerCase() ? true : false
-      
+    },
+    setBalance(state, action) {
+      state.balance = action.payload.balance
+    },
+    setToken(state, action) {
+      state.token = action.payload.token
     }
   }
 })
