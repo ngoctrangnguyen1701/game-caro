@@ -1,6 +1,10 @@
-pragma solidity ^0.8.0;
+pragma solidity ^0.6.0;
+//SPDX-License-Identifier: MIT
 
-import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol';
+// import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol';
+import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v3.0.0/contracts/token/ERC20/IERC20.sol';
+//import link bị sai, chỗ chữ 'master'(nhánh master của cái library trên github) sửa thành 'v3.0.0'(nhánh v3.0.0)
+
 // totalSupply()
 // balanceOf(account)
 // transfer(to, amount)
@@ -9,13 +13,13 @@ import 'https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contr
 // transferFrom(from, to, amount)
 
 contract TokenSwap {
-    ERC20 public exToken; //token PGC ở contact cũ
-    ERC20 public newToken; //token PGC ở contact mới
+    IERC20 public exToken; //token PGC ở contact cũ
+    IERC20 public newToken; //token PGC ở contact mới
     address public owner;
 
-    constructor(address _exToken, address _newToken) {
-        exToken = ERC20(_exToken); //--> exToken sẽ có các hàm của chuẩn ERC20 
-        newToken = ERC20(_newToken);
+    constructor(address _exToken, address _newToken) public {
+        exToken = IERC20(_exToken); //--> exToken sẽ có các hàm của chuẩn IERC20 
+        newToken = IERC20(_newToken);
         owner = msg.sender;
     }
 
