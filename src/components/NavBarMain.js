@@ -22,13 +22,14 @@ import {
 import { fightingIsPlayOnlineSelector, fightingStatusSelector } from 'src/selectors/fightingSelector'
 import { fightingAction } from 'src/reducers/fighting/playSlice';
 import { toast } from 'react-toastify';
-import pgcApi from 'src/api/pgcApi'
+// import pgcApi from 'src/api/pgcApi'
 import { walletAction } from 'src/reducers/wallet/wallet'
 import { ContractContext } from 'src/contexts/ContractContextProvider';
-
+import { contractAction } from 'src/reducers/contract/contractSlice';
 
 const NavBarMain = () => {
-  const { exPGC } = useContext(ContractContext)
+  // const { state: stateContract, interactContact } = useContext(ContractContext)
+  const { contractList, interactContact } = useContext(ContractContext)
   const { user, setUser } = useContext(AuthContext)
   const { username, avatar, } = user
   const navigate = useNavigate()
@@ -40,12 +41,14 @@ const NavBarMain = () => {
   const web3 = useSelector(state => state.web3.provider)
   const account = useSelector(state => state.wallet.account)
   const isAdmin = useSelector(state => state.wallet.isAdmin)
+  // const expContract = useSelector(state => state.contract.pgc)
 
   const [isShowModal, setIsShowModal] = React.useState(false)
   const [paybackToken, setPaybackToken] = React.useState('')
 
   useEffect(() => {
     if (web3) {
+      // let timeoutInteractContract
       //CONNECT METAMASK
       const connectMetamask = async () => {
         if (!window.ethereum) {
@@ -53,12 +56,8 @@ const NavBarMain = () => {
         }
         else {
           const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-          const exContract = await new web3.eth.Contract(exPGC.abi, exPGC.address)
-          const balanceWei = await exContract.methods.balanceOf(accounts[0]).call()
-          const balanceToken = await web3.utils.fromWei(balanceWei)
-          setPaybackToken(balanceToken)
           dispatch(walletAction.setAccount({account: accounts[0]}))
+          interactContact('exPGC')
 
           window.ethereum.on('accountsChanged', () => {
             //lắng nghe sự kiện khi có sự thay đổi account ở metamask, trang sẽ reload
@@ -67,8 +66,16 @@ const NavBarMain = () => {
         }
       }
       connectMetamask()
+      // return () => clearTimeout(timeoutInteractContract)
     }
   }, [web3])
+
+  useEffect(() => {
+    if(!contractList.tokenSwap.contract.methods) interactContact('tokenSwap')
+    //sau khi obj 'exPGC' đã có các methods của contract,
+    //mới gọi hàm interactContract để có thể lấy các methods của contract tiếp theo
+    //còn nếu gọi 2 cái liên tiếp thì nó lại lấy cái state cũ ở contract
+  }, [contractList])
 
   useEffect(() => {
     if (status === 'setting' && isPlayOnline) {
@@ -88,17 +95,19 @@ const NavBarMain = () => {
 
   const onTakeBackMyToken = async () => {
     if (paybackToken > 0) {
-      const payload = {
-        address: account,
-        requestTime: new Date().getTime(),
-      }
-      pgcApi.requestToken(payload).then(response => {
-        toast.success(`You will have ${paybackToken} PGC if your request is correct `)
-        setIsShowModal(false)
-      }).catch(err => { console.log(err); })
+      // const payload = {
+      //   address: account,
+      //   requestTime: new Date().getTime(),
+      // }
+      // pgcApi.requestToken(payload).then(response => {
+      //   toast.success(`You will have ${paybackToken} PGC if your request is correct `)
+      //   setIsShowModal(false)
+      // }).catch(err => { console.log(err); })
+
     }
     else {
       toast.error('Token equal 0 that can be received payback')
+      setIsShowModal(false)
     }
   }
 
@@ -180,7 +189,7 @@ const NavBarMain = () => {
         >
           <DialogContent>
             <Typography id="modal-modal-title" variant="h6" color="error" className='mb-3'>
-              Request Information
+              Please check information
             </Typography>
             <p className='mb-0'>Address: <span style={{ fontWeight: 'bold' }}>{account}</span></p>
             <p className='mb-0'>Payback token: <span style={{ fontWeight: 'bold' }}> {paybackToken} PGC</span></p>

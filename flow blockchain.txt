@@ -11,12 +11,10 @@ use BEP20 of Binance Smart Chain (testnet)
 + when buy PGC success, submit transaction hash to server
 **Bug: chưa cập nhật lại token và balance khi transaction thành công
 
-4. take back token when contract be changed
-_Step 1: client request
-  kiểm tra balance token ở contract cũ lớn 0 thì client gửi địa chỉ ví yêu cầu tới server
-_Step 2: excute payback
-  + client, admin vào giao diện load danh sách token hoàn trả
-  + thực hiện lệnh chuyển transfer token cho yêu cầu chưa hoàn trả 
-    ++ check điều kiện token của request ở contact cũ
-      +++ nếu lớn hơn 0 --> thực hiện transfer, hoàn trả thành công gửi transaction hash cho phía server
-      +++ nếu bằng 0 --> gọi api xóa bỏ cái request kèm theo time kiểm tra balance bằng 0
+4. take back your token
++ client, before swap token check balance token in old contract
+  ++ if balance > 0, next step
+    +++ approve all amount of token in balance for 'TokenSwap' contract
+    +++ approve success, call methods 'swap' of 'TokenSwap' contract
+    +++ swap success, submit to server (transactionHash, paybackToken, paybackTime, address)
+  ++ balance = 0, cancel swap token

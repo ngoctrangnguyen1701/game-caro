@@ -8,7 +8,7 @@ import { Button } from '@mui/material';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { walletAction } from 'src/reducers/wallet/wallet';
-import { pgcAction } from 'src/reducers/contract/pgcSlice';
+import { contractAction } from 'src/reducers/contract/contractSlice';
 import { ContractContext } from 'src/contexts/ContractContextProvider';
 
 
@@ -48,7 +48,7 @@ const BuyPGC = () => {
       const balanceBNB = await web3.utils.fromWei(balanceWei)
 
       const contract = await new web3.eth.Contract(abi, addressContract)
-      dispatch(pgcAction.interactContract({contract}))
+      dispatch(contractAction.interactContract({pgc: contract}))
 
       const tokenWei = await contract.methods.balanceOf(account).call()
       //gọi methods balanceOf để biết được tài khoản đang có bao nhiêu token
