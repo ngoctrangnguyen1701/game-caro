@@ -62,7 +62,7 @@ const Dashboard = props => {
   const { isAdmin, account } = useSelector(state => state.wallet)
   // const exContract = useSelector(state => state.contract.pgc.contract)
 
-  const { exPGC, pgc, tokenSwap } = React.useContext(ContractContext).contractList
+  const { pgc, tokenSwap } = React.useContext(ContractContext).contractList
 
   const [list, setList] = React.useState([])
   const [listShowDetail, setListShowDetail] = React.useState([])
@@ -73,10 +73,6 @@ const Dashboard = props => {
   // const [paybackToken, setPaybackToken] = React.useState('')
   const [approvalNewToken, setApprovalNewToken] = React.useState('')
   const [allowanceNewToken, setAllowanceNewToken] = React.useState('0')
-
-  const refAllowanceNewToken = React.useRef(allowanceNewToken)
-  console.log('refAllowanceNewToken.current', refAllowanceNewToken.current);
-  const refIntervalGetAllowance = React.useRef('')
 
   React.useEffect(() => {
     if (isAdmin) {
@@ -97,11 +93,6 @@ const Dashboard = props => {
     }
   }, [web3, pgc])
 
-  // React.useEffect(() => {
-  //   toast.success('Get allowance success')
-  //   clearInterval(refIntervalGetAllowance.current)
-
-  // }, [allowanceNewToken])
 
   const showDetail = id => {
     let newArr = []
@@ -125,29 +116,10 @@ const Dashboard = props => {
   const getAllowanceNewToken = async () => {
     const balanceWei = await pgc.contract.methods.allowance(account, tokenSwap.address).call()
     const balance = await web3.utils.fromWei(balanceWei)
-    console.log('getAllowanceNewToken', balance);
+    // console.log('getAllowanceNewToken', balance);
     setAllowanceNewToken(balance)
   }
 
-  // const getAllowanceNewToken = () => {
-  //   // let intervalGetAllowance
-  //   // intervalGetAllowance = setInterval(async () => {
-  //   refIntervalGetAllowance.current = setInterval(async () => {
-  //       i++
-  //       console.log('CALL ~~~~~~~~~~~~~~~~~~~~~', i);
-  //     const balanceWei = await pgc.contract.methods.allowance(account, tokenSwap.address).call()
-  //     const balance = await web3.utils.fromWei(balanceWei)
-  //     console.log('balance', balance);
-  //     console.log('refAllowanceNewToken.current: ', refAllowanceNewToken.current);
-  //     if (refAllowanceNewToken.current !== balance) {
-  //       refAllowanceNewToken.current = balance
-  //       setAllowanceNewToken(formatNumber(parseFloat(balance)))
-  //       toast.success('Get allowance success')
-  //       // clearInterval(intervalGetAllowance)
-  //       clearInterval(refIntervalGetAllowance.current)
-  //     }
-  //   }, [1000])
-  // }
 
   const onChangeAllowanceNewToken = async (type) => {
     if (parseFloat(approvalNewToken) > 0) {
@@ -188,12 +160,25 @@ const Dashboard = props => {
             data
           }]
         })
-        // console.log('call getAllowanceNewToken'.toUpperCase());
-        console.log(txHash);
-        // await txHash.wait();
-        const receipt = await web3.eth.getTransactionReceipt(txHash);
-        console.log(receipt);
-        getAllowanceNewToken()
+        // console.log(txHash);
+        let intervalGetReceipt
+        let receipt
+
+        //khi metamask gửi transaction sẽ trả về 1 cái hash
+        //nhưng mà cái transaction đó vẫn chưa được ghi vào blockchain(chưa được đào)
+        //nên khi gọi methods 'getTransactionReceipt' sẽ trả về null
+        //khi nào transaction đó được ghi nhận vào blockchain(đã được đào)
+        //thì nó sẽ trả về object
+        intervalGetReceipt = setInterval(async() => {
+          receipt = await web3.eth.getTransactionReceipt(txHash);
+          // console.log(receipt);
+          if(receipt) {
+            clearInterval(intervalGetReceipt)
+            getAllowanceNewToken()
+            toast.success('Change appoval new token successfully')
+          }
+        }, 1000)
+
       } catch (error) {
         toast.error(error.message)
       }
@@ -282,10 +267,10 @@ const Dashboard = props => {
           <div className='border border-success p-1'>
             <div className='border border-success p-3'>
               <Amount>
-                Allowance of new token: <span>{allowanceNewToken} PGC</span>
+                Allowance of new token: <span>{formatNumber(parseFloat(allowanceNewToken))} PGC</span>
               </Amount>
               <Amount>
-                {/* Total payback token: <span>{approvalNewToken} PGC</span> */}
+                {/* Total payback token: <span> PGC</span> */}
               </Amount>
             </div>
           </div>
