@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
 import Web3 from "web3"
-import { NETWORK_BLOCKCHAIN } from "src/constants/constants"
+import { NETWORK_BLOCKCHAIN } from "src/common/constants"
 
 const initialState = {
   provider: null

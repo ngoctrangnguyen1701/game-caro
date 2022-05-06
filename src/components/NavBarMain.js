@@ -26,6 +26,7 @@ import { toast } from 'react-toastify';
 import { walletAction } from 'src/reducers/wallet/wallet'
 import { ContractContext } from 'src/contexts/ContractContextProvider';
 import { contractAction } from 'src/reducers/contract/contractSlice';
+import pgcApi from 'src/api/pgcApi';
 
 const NavBarMain = () => {
   const navigate = useNavigate()
@@ -47,7 +48,6 @@ const NavBarMain = () => {
 
   useEffect(() => {
     if (web3) {
-      // let timeoutInteractContract
       //CONNECT METAMASK
       const connectMetamask = async () => {
         if (!window.ethereum) {
@@ -69,22 +69,6 @@ const NavBarMain = () => {
       // return () => clearTimeout(timeoutInteractContract)
     }
   }, [web3])
-
-  // useEffect(() => {
-  //   //khi nào đã có các methods của contract 'exPGC', 
-  //   //mới gọi để set up methods của contract 'tokenSwap'
-  //   //nếu gọi hàm 'interactContract' cùng lúc, thì nó không lấy được hết các methods bỏ vào tương ứng với contract (bi lấy cái sau cùng)
-  //   if(account && exPGC.contract.methods) {
-  //     interactContract('tokenSwap')
-  //     const getExToken = async() => {
-  //       //số token ở contract pgc cũ
-  //       const balanceWei = await exPGC.contract.methods.balanceOf(account).call()
-  //       const balanceExToken = await web3.utils.fromWei(balanceWei)
-  //       setPaybackToken(balanceExToken)
-  //     }
-  //     getExToken()
-  //   }
-  // }, [exPGC])
 
   useEffect(() => {
     if (account && pgc.contract.methods) {
@@ -138,22 +122,6 @@ const NavBarMain = () => {
     dispatch(fightingAction.waiting())
   }
 
-  // const onTakeBackMyToken = async () => {
-  //   if (paybackToken > 0) {
-  //     const payload = {
-  //       address: account,
-  //       requestTime: new Date().getTime(),
-  //     }
-  //     pgcApi.requestToken(payload).then(response => {
-  //       toast.success(`You will have ${paybackToken} PGC if your request is correct `)
-  //       setIsShowModal(false)
-  //     }).catch(err => { console.log(err); })
-  //   }
-  //   else {
-  //     toast.error('Token equal 0 that can be received payback')
-  //   }
-  // }
-
   const onTakeBackMyToken = async () => {
     try {
       const balanceWei = await web3.utils.toWei(paybackToken)
@@ -180,7 +148,18 @@ const NavBarMain = () => {
       })
       console.log('onTakeBackMyToken: ', txHash);
       
-      //call api
+      //CALL API
+      const payload = {
+        address: account,
+        paybackToken,
+        paybackTime: new Date().getTime(),
+        transactionHash: txHash
+      }
+      pgcApi.paybackToken(payload).then(
+        response => toast.success(`You have received ${paybackToken} PGC`)
+      ).catch(err => toast.error(err.message))
+
+      setIsShowModal(false)
     } catch (error) {
       console.log(error);
       toast.error(error.message)
@@ -215,7 +194,7 @@ const NavBarMain = () => {
         console.log('onApprove: ', txHash);
         onTakeBackMyToken()
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         toast.error(error.message)
       }
     }
@@ -224,8 +203,6 @@ const NavBarMain = () => {
       setIsShowModal(false)
     }
   }
-
-  
 
 
   return (

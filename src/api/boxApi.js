@@ -1,5 +1,5 @@
 import axios from "axios"
-import { linkServer } from "../constants/constants"
+import { linkServer } from "../common/constants"
 import setConfigApi from "./setConfigApi"
 
 const boxApi = {

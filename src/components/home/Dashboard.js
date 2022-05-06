@@ -12,6 +12,8 @@ import pgcApi from 'src/api/pgcApi';
 import { useSelector } from 'react-redux';
 import { ContractContext } from 'src/contexts/ContractContextProvider';
 import { toast } from 'react-toastify';
+import styled from 'styled-components';
+import formatNumber from 'src/common/formatNumber'
 
 const doneStyle = {
   width: '28px',
@@ -31,6 +33,13 @@ const noDoneStyle = {
   margin: '0 auto',
 }
 
+const Amount = styled.div`
+  font-size: 20px;
+  span {
+    font-weight: bold;
+  }
+`
+
 const formatDate = timestamp => {
   if (timestamp) {
     return moment(timestamp).format('YYYY-MM-DD, HH:MM:SS')
@@ -39,29 +48,35 @@ const formatDate = timestamp => {
 }
 
 const dotString = string => {
-  if(string) {
+  if (string) {
     const head = string.slice(0, 5)
     const foot = string.slice(string.length - 5)
     return `${head}...${foot}`
   }
 }
 
+let i = 0
 const Dashboard = props => {
-  const navigate = useNavigate() 
+  const navigate = useNavigate()
   const web3 = useSelector(state => state.web3.provider)
-  const isAdmin = useSelector(state => state.wallet.isAdmin)
-  const account = useSelector(state => state.wallet.account)
+  const { isAdmin, account } = useSelector(state => state.wallet)
   // const exContract = useSelector(state => state.contract.pgc.contract)
 
-  const {exPGC, newPGC} = React.useContext(ContractContext)
+  const { exPGC, pgc, tokenSwap } = React.useContext(ContractContext).contractList
 
   const [list, setList] = React.useState([])
   const [listShowDetail, setListShowDetail] = React.useState([])
 
-  const [isShowModal, setIsShowModal] = React.useState(false)
-  const [id, setId] = React.useState('')
-  const [address, setAddress] = React.useState('')
-  const [paybackToken, setPaybackToken] = React.useState('')
+  // const [isShowModal, setIsShowModal] = React.useState(false)
+  // const [id, setId] = React.useState('')
+  // const [address, setAddress] = React.useState('')
+  // const [paybackToken, setPaybackToken] = React.useState('')
+  const [approvalNewToken, setApprovalNewToken] = React.useState('')
+  const [allowanceNewToken, setAllowanceNewToken] = React.useState('0')
+
+  const refAllowanceNewToken = React.useRef(allowanceNewToken)
+  console.log('refAllowanceNewToken.current', refAllowanceNewToken.current);
+  const refIntervalGetAllowance = React.useRef('')
 
   React.useEffect(() => {
     if (isAdmin) {
@@ -76,6 +91,18 @@ const Dashboard = props => {
     }
   }, [isAdmin])
 
+  React.useEffect(() => {
+    if (web3 && pgc.contract.methods) {
+      getAllowanceNewToken()
+    }
+  }, [web3, pgc])
+
+  // React.useEffect(() => {
+  //   toast.success('Get allowance success')
+  //   clearInterval(refIntervalGetAllowance.current)
+
+  // }, [allowanceNewToken])
+
   const showDetail = id => {
     let newArr = []
     if (listShowDetail.includes(id)) {
@@ -87,9 +114,93 @@ const Dashboard = props => {
     setListShowDetail(newArr)
   }
 
+  const onConfirmValue = value => {
+    const regex = /^[0-9]+$/
+    //https://stackoverflow.com/questions/9011524/regex-to-check-whether-a-string-contains-only-numbers
+    //check a string contain only number
+    if (value && regex.test(value)) {
+      setApprovalNewToken(value)
+    }
+  }
+  const getAllowanceNewToken = async () => {
+    const balanceWei = await pgc.contract.methods.allowance(account, tokenSwap.address).call()
+    const balance = await web3.utils.fromWei(balanceWei)
+    console.log('getAllowanceNewToken', balance);
+    setAllowanceNewToken(balance)
+  }
 
+  // const getAllowanceNewToken = () => {
+  //   // let intervalGetAllowance
+  //   // intervalGetAllowance = setInterval(async () => {
+  //   refIntervalGetAllowance.current = setInterval(async () => {
+  //       i++
+  //       console.log('CALL ~~~~~~~~~~~~~~~~~~~~~', i);
+  //     const balanceWei = await pgc.contract.methods.allowance(account, tokenSwap.address).call()
+  //     const balance = await web3.utils.fromWei(balanceWei)
+  //     console.log('balance', balance);
+  //     console.log('refAllowanceNewToken.current: ', refAllowanceNewToken.current);
+  //     if (refAllowanceNewToken.current !== balance) {
+  //       refAllowanceNewToken.current = balance
+  //       setAllowanceNewToken(formatNumber(parseFloat(balance)))
+  //       toast.success('Get allowance success')
+  //       // clearInterval(intervalGetAllowance)
+  //       clearInterval(refIntervalGetAllowance.current)
+  //     }
+  //   }, [1000])
+  // }
 
-  const RequestItem = ({item}) => {
+  const onChangeAllowanceNewToken = async (type) => {
+    if (parseFloat(approvalNewToken) > 0) {
+      try {
+        const balanceWei = await web3.utils.toWei(approvalNewToken)
+
+        const gasPrice = await web3.eth.getGasPrice()
+        let gas
+        let data
+        if (type === 'increase') {
+          gas = await pgc.contract.methods.increaseAllowance(tokenSwap.address, balanceWei)
+            .estimateGas({
+              gas: 50000,
+              from: account,
+              value: '0'
+            })
+          data = await pgc.contract.methods.increaseAllowance(tokenSwap.address, balanceWei).encodeABI()
+          //encondeABI tương đương với việc chuyển đổi thành chuỗi Hex
+        }
+        else {
+          gas = await pgc.contract.methods.decreaseAllowance(tokenSwap.address, balanceWei)
+            .estimateGas({
+              gas: 50000,
+              from: account,
+              value: '0'
+            })
+          data = await pgc.contract.methods.decreaseAllowance(tokenSwap.address, balanceWei).encodeABI()
+        }
+
+        const txHash = await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [{
+            gasPrice: web3.utils.toHex(gasPrice),
+            gas: web3.utils.toHex(gas),
+            from: account,
+            to: pgc.address,
+            value: '0',
+            data
+          }]
+        })
+        // console.log('call getAllowanceNewToken'.toUpperCase());
+        console.log(txHash);
+        // await txHash.wait();
+        const receipt = await web3.eth.getTransactionReceipt(txHash);
+        console.log(receipt);
+        getAllowanceNewToken()
+      } catch (error) {
+        toast.error(error.message)
+      }
+      setApprovalNewToken('')
+    }
+  }
+  const RequestItem = ({ item }) => {
     return (
       <>
         <tr className='text-center'>
@@ -110,7 +221,7 @@ const Dashboard = props => {
             <Button variant='contained' color='success' onClick={() => showDetail(item._id)}>Detail</Button>
           </td>
         </tr>
-        <tr style={{ display: listShowDetail.includes(item._id) ? 'table-row' : 'none'}}>
+        <tr style={{ display: listShowDetail.includes(item._id) ? 'table-row' : 'none' }}>
           {/* <tr> */}
           <td colSpan={4}>
             <table className='table table-danger table-bordered'>
@@ -143,6 +254,45 @@ const Dashboard = props => {
 
   return (
     <div className='mt-5'>
+      <div className='frame-info-admin container'>
+        <p className='mb-0 text-danger'>Amount of approval new token</p>
+        <form className='mb-3'>
+          <input
+            className='form-control rounded-0'
+            value={approvalNewToken}
+            onChange={e => onConfirmValue(e.target.value)}
+            style={{ width: '300px' }}
+          />
+          <div className='mt-1'>
+            <Button
+              variant='contained'
+              color="primary"
+              className='rounded-0 me-2'
+              onClick={() => onChangeAllowanceNewToken('increase')}
+            >Increase </Button>
+            <Button
+              variant='contained'
+              color="primary"
+              className='rounded-0'
+              onClick={() => onChangeAllowanceNewToken('decrease')}
+            >Decrease </Button>
+          </div>
+        </form>
+        <div className='d-flex'>
+          <div className='border border-success p-1'>
+            <div className='border border-success p-3'>
+              <Amount>
+                Allowance of new token: <span>{allowanceNewToken} PGC</span>
+              </Amount>
+              <Amount>
+                {/* Total payback token: <span>{approvalNewToken} PGC</span> */}
+              </Amount>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
       <h3 className='text-center'>Request Token List</h3>
       <table className="table table-striped table-dark table-hover table-bordered">
         <thead>
@@ -155,8 +305,8 @@ const Dashboard = props => {
         </thead>
         <tbody>
           {list && list.length > 0 ?
-            list.map((item, index) => <RequestItem item={item} key={index}/>)
-             : <tr><td colSpan="4" className='text-center'>No Data</td></tr>
+            list.map((item, index) => <RequestItem item={item} key={index} />)
+            : <tr><td colSpan="4" className='text-center'>No Data</td></tr>
           }
         </tbody>
       </table>

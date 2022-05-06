@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit"
-import { ADMIN_WALLET } from 'src/constants/constants';
+import { ADMIN_WALLET } from 'src/common/constants';
 
 
 const initialState = {

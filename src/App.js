@@ -10,7 +10,7 @@ import io from 'socket.io-client'
 
 import CircularProgress from '@mui/material/CircularProgress';
 
-import { linkServer } from './constants/constants';
+import { linkServer } from './common/constants';
 import routes from './routes'
 import { onlineUserAction } from './reducers/onlineUser/onlineUserListSlice';
 import { fightingAction } from './reducers/fighting/settingSlice';

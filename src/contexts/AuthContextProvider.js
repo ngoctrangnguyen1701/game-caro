@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import {toast} from 'react-toastify'
 import axios from 'axios';
 
-import { linkServer } from '../constants/constants'
+import { linkServer } from '../common/constants'
 import {socket} from '../App'
 import { logInStatusSelector } from "src/selectors/logInSelector";
 

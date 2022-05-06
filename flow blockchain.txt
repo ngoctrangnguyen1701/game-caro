@@ -18,3 +18,9 @@ use BEP20 of Binance Smart Chain (testnet)
     +++ approve success, call methods 'swap' of 'TokenSwap' contract
     +++ swap success, submit to server (transactionHash, paybackToken, paybackTime, address)
   ++ balance = 0, cancel swap token
+
+5. Dashboard Screen
++ only Admin can access
++ btn Approve, approve new token for 'TokenSwap' contract
++ display allowance of amount of new token, total amount of payback token
++ list that address have take back ex token
