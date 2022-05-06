@@ -28,20 +28,19 @@ import { ContractContext } from 'src/contexts/ContractContextProvider';
 import { contractAction } from 'src/reducers/contract/contractSlice';
 
 const NavBarMain = () => {
-  // const { state: stateContract, interactContact } = useContext(ContractContext)
-  const { contractList, interactContact } = useContext(ContractContext)
+  const navigate = useNavigate()
   const { user, setUser } = useContext(AuthContext)
   const { username, avatar, } = user
-  const navigate = useNavigate()
+  const { contractList, interactContract } = useContext(ContractContext)
+  const { pgc, exPGC, tokenSwap } = contractList
 
   const dispatch = useDispatch()
   const status = useSelector(fightingStatusSelector)
   const isPlayOnline = useSelector(fightingIsPlayOnlineSelector)
 
   const web3 = useSelector(state => state.web3.provider)
-  const account = useSelector(state => state.wallet.account)
-  const isAdmin = useSelector(state => state.wallet.isAdmin)
-  // const expContract = useSelector(state => state.contract.pgc)
+  const { account, token, isAdmin } = useSelector(state => state.wallet)
+  // const isAdmin = useSelector(state => state.wallet.isAdmin)
 
   const [isShowModal, setIsShowModal] = React.useState(false)
   const [paybackToken, setPaybackToken] = React.useState('')
@@ -56,8 +55,9 @@ const NavBarMain = () => {
         }
         else {
           const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          dispatch(walletAction.setAccount({account: accounts[0]}))
-          interactContact('exPGC')
+          dispatch(walletAction.setAccount({ account: accounts[0] }))
+          interactContract('pgc')
+          // interactContract('tokenSwap')
 
           window.ethereum.on('accountsChanged', () => {
             //lắng nghe sự kiện khi có sự thay đổi account ở metamask, trang sẽ reload
@@ -70,8 +70,53 @@ const NavBarMain = () => {
     }
   }, [web3])
 
+  // useEffect(() => {
+  //   //khi nào đã có các methods của contract 'exPGC', 
+  //   //mới gọi để set up methods của contract 'tokenSwap'
+  //   //nếu gọi hàm 'interactContract' cùng lúc, thì nó không lấy được hết các methods bỏ vào tương ứng với contract (bi lấy cái sau cùng)
+  //   if(account && exPGC.contract.methods) {
+  //     interactContract('tokenSwap')
+  //     const getExToken = async() => {
+  //       //số token ở contract pgc cũ
+  //       const balanceWei = await exPGC.contract.methods.balanceOf(account).call()
+  //       const balanceExToken = await web3.utils.fromWei(balanceWei)
+  //       setPaybackToken(balanceExToken)
+  //     }
+  //     getExToken()
+  //   }
+  // }, [exPGC])
+
   useEffect(() => {
-    if(!contractList.tokenSwap.contract.methods) interactContact('tokenSwap')
+    if (account && pgc.contract.methods) {
+      //khi nào đã có các methods của contract 'pgc', 
+      //mới gọi để set up methods của contract 'tokenSwap'
+      //nếu gọi hàm 'interactContract' cùng lúc, thì nó không lấy được hết các methods bỏ vào tương ứng với contract (bi lấy cái sau cùng)
+      const getToken = async () => {
+        interactContract('exPGC')
+        //số token ở contact hiện tại
+        const balanceWei = await pgc.contract.methods.balanceOf(account).call()
+        const token = await web3.utils.fromWei(balanceWei)
+        dispatch(walletAction.setToken({ token }))
+      }
+      getToken()
+    }
+  }, [account, pgc])
+
+  useEffect(() => {
+    if (account && exPGC.contract.methods) {
+      interactContract('tokenSwap')
+      const getExToken = async () => {
+        //số token ở contract pgc cũ
+        const balanceWei = await exPGC.contract.methods.balanceOf(account).call()
+        const balanceExToken = await web3.utils.fromWei(balanceWei)
+        setPaybackToken(balanceExToken)
+      }
+      getExToken()
+    }
+  }, [account, exPGC])
+
+  useEffect(() => {
+    if(!contractList.tokenSwap.contract.methods) interactContract('tokenSwap')
     //sau khi obj 'exPGC' đã có các methods của contract,
     //mới gọi hàm interactContract để có thể lấy các methods của contract tiếp theo
     //còn nếu gọi 2 cái liên tiếp thì nó lại lấy cái state cũ ở contract
@@ -93,17 +138,86 @@ const NavBarMain = () => {
     dispatch(fightingAction.waiting())
   }
 
-  const onTakeBackMyToken = async () => {
-    if (paybackToken > 0) {
-      // const payload = {
-      //   address: account,
-      //   requestTime: new Date().getTime(),
-      // }
-      // pgcApi.requestToken(payload).then(response => {
-      //   toast.success(`You will have ${paybackToken} PGC if your request is correct `)
-      //   setIsShowModal(false)
-      // }).catch(err => { console.log(err); })
+  // const onTakeBackMyToken = async () => {
+  //   if (paybackToken > 0) {
+  //     const payload = {
+  //       address: account,
+  //       requestTime: new Date().getTime(),
+  //     }
+  //     pgcApi.requestToken(payload).then(response => {
+  //       toast.success(`You will have ${paybackToken} PGC if your request is correct `)
+  //       setIsShowModal(false)
+  //     }).catch(err => { console.log(err); })
+  //   }
+  //   else {
+  //     toast.error('Token equal 0 that can be received payback')
+  //   }
+  // }
 
+  const onTakeBackMyToken = async () => {
+    try {
+      const balanceWei = await web3.utils.toWei(paybackToken)
+  
+      const gasPrice = await web3.eth.getGasPrice()
+      const gas = await tokenSwap.contract.methods.swap(balanceWei)
+        .estimateGas({
+          gas: 500000,
+          from: account,
+          value: '0'
+        })
+      const data = await tokenSwap.contract.methods.swap(balanceWei).encodeABI()
+      //encondeABI tương đương với việc chuyển đổi thành chuỗi Hex
+      const txHash = await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [{
+          gasPrice: web3.utils.toHex(gasPrice),
+          gas: web3.utils.toHex(gas),
+          from: tokenSwap.address,
+          to: account,
+          value: '0',
+          data
+        }]
+      })
+      console.log('onTakeBackMyToken: ', txHash);
+      
+      //call api
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message)
+    }
+  }
+
+  const onApprove = async () => {
+    if (parseFloat(paybackToken) > 0) {
+      try {
+        const balanceWei = await web3.utils.toWei(paybackToken)
+
+        const gasPrice = await web3.eth.getGasPrice()
+        const gas = await exPGC.contract.methods.approve(tokenSwap.address, balanceWei)
+          .estimateGas({
+            gas: 500000,
+            from: account,
+            value: '0'
+          })
+        const data = await exPGC.contract.methods.approve(tokenSwap.address, balanceWei).encodeABI()
+        //encondeABI tương đương với việc chuyển đổi thành chuỗi Hex
+        const txHash = await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [{
+            gasPrice: web3.utils.toHex(gasPrice),
+            gas: web3.utils.toHex(gas),
+            from: account,
+            to: exPGC.address,
+            value: '0',
+            data
+          }]
+        })
+        console.log('onApprove: ', txHash);
+        onTakeBackMyToken()
+      } catch (error) {
+        console.log(error);
+        toast.error(error.message)
+      }
     }
     else {
       toast.error('Token equal 0 that can be received payback')
@@ -111,12 +225,14 @@ const NavBarMain = () => {
     }
   }
 
+  
+
 
   return (
     <AppBar position="static" style={{ backgroundColor: '#121212' }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters className="d-flex">
-          <Grid item xs={6} className="d-flex align-items-center">
+          <Grid item xs={3} className="d-flex align-items-center">
             <Link to='/' className='d-block'>
               <Typography
                 variant="h6"
@@ -149,9 +265,10 @@ const NavBarMain = () => {
                       onClick={() => setIsShowModal(true)}
                       className="me-2"
                     >Take back my token</Button>
+                    <span className='d-inline-block me-2'>{token} PGC</span>
                     <Link to="/buy-pgc">
                       <Button variant="outlined" color="error" className='me-2'>
-                        Buy PGC
+                        Buy more
                       </Button>
                     </Link>
                   </>
@@ -197,7 +314,7 @@ const NavBarMain = () => {
               variant="contained"
               color="success"
               className="d-block mx-auto mt-3"
-              onClick={onTakeBackMyToken}
+              onClick={onApprove}
             >
               Submit
             </Button>
