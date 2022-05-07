@@ -2,15 +2,9 @@ import { createSlice } from "@reduxjs/toolkit"
 
 
 const initialState = {
-  pgc: {
-    contract: {}
-  },
-  exPGC: {
-    contract: {}
-  },
-  tokenSwap: {
-    contract: {}
-  },
+  pgc: {},
+  exPGC: {},
+  tokenSwap: {},
 }
 
 //createSlice của redux toolkit là kết hợp actionCreator và reducer
@@ -18,15 +12,14 @@ const mySlice = createSlice({
   name: 'contract',
   initialState,
   reducers: {
-    connect(state, action){},
     pgc(state, action) {
-      state.pgc.contract = action.payload
+      state.pgc = action.payload
     },
     exPGC(state, action) {
-      state.exPGC.contract = action.payload
+      state.exPGC = action.payload
     },
     tokenSwap(state, action) {
-      state.tokenSwap.contract = action.payload
+      state.tokenSwap = action.payload
     },
   }
 })

@@ -27,6 +27,7 @@ import { walletAction } from 'src/reducers/wallet/wallet'
 import { ContractContext } from 'src/contexts/ContractContextProvider';
 // import { contractAction } from 'src/reducers/contract/contractSlice';
 import paybackTokenApi from 'src/api/paybackTokenApi';
+import { contractAction } from 'src/reducers/contract/contractSlice';
 
 const NavBarMain = () => {
   const navigate = useNavigate()
@@ -63,6 +64,9 @@ const NavBarMain = () => {
             //lắng nghe sự kiện khi có sự thay đổi account ở metamask, trang sẽ reload
             window.location.reload()
           })
+
+          //test saga
+          dispatch(contractAction.connect('pgc'))
         }
       }
       connectMetamask()
@@ -70,6 +74,7 @@ const NavBarMain = () => {
   }, [web3])
 
   useEffect(() => {
+    console.log('pgc effect');
     if (account && pgc.contract.methods) {
       //khi nào đã có các methods của contract 'pgc', 
       //mới gọi để set up methods của contract 'tokenSwap'
@@ -86,18 +91,19 @@ const NavBarMain = () => {
   }, [account, pgc])
 
   useEffect(() => {
+    console.log('exPGC effect');
     if (account && exPGC.contract.methods) {
       interactContract('tokenSwap')
       getExToken()
     }
   }, [account, exPGC])
 
-  useEffect(() => {
-    if(!contractList.tokenSwap.contract.methods) interactContract('tokenSwap')
-    //sau khi obj 'exPGC' đã có các methods của contract,
-    //mới gọi hàm interactContract để có thể lấy các methods của contract tiếp theo
-    //còn nếu gọi 2 cái liên tiếp thì nó lại lấy cái state cũ ở contract
-  }, [contractList])
+  // useEffect(() => {
+  //   if(!contractList.tokenSwap.contract.methods) interactContract('tokenSwap')
+  //   //sau khi obj 'exPGC' đã có các methods của contract,
+  //   //mới gọi hàm interactContract để có thể lấy các methods của contract tiếp theo
+  //   //còn nếu gọi 2 cái liên tiếp thì nó lại lấy cái state cũ ở contract
+  // }, [contractList])
 
   useEffect(() => {
     if (status === 'setting' && isPlayOnline) {
@@ -116,7 +122,6 @@ const NavBarMain = () => {
   }
 
   const getExToken = async () => {
-    interactContract('exPGC')
     //số token ở contract pgc cũ
     const balanceWei = await exPGC.contract.methods.balanceOf(account).call()
     const balanceExToken = await web3.utils.fromWei(balanceWei)
@@ -126,7 +131,7 @@ const NavBarMain = () => {
   const onTakeBackMyToken = async () => {
     try {
       const balanceWei = await web3.utils.toWei(paybackToken)
-  
+
       const gasPrice = await web3.eth.getGasPrice()
       const gas = await tokenSwap.contract.methods.swap(balanceWei)
         .estimateGas({
@@ -150,15 +155,15 @@ const NavBarMain = () => {
       // console.log('onTakeBackMyToken: ', txHash);
       let intervalGetReceipt
       let receipt
-      intervalGetReceipt = setInterval(async() => {
+      intervalGetReceipt = setInterval(async () => {
         receipt = await web3.eth.getTransactionReceipt(txHash)
-        if(receipt) {
+        if (receipt) {
           console.log(receipt);
           clearInterval(intervalGetReceipt)
 
           const blockNumber = await web3.eth.getBlock(receipt.blockNumber)
           console.log(blockNumber)
-          
+
           //CALL API
           const payload = {
             address: account,
@@ -176,7 +181,7 @@ const NavBarMain = () => {
           ).catch(err => toast.error(err.message))
         }
       }, 1000)
-      
+
       setIsShowModal(false)
     } catch (error) {
       toast.error(error.message)
@@ -249,9 +254,25 @@ const NavBarMain = () => {
 
           </Grid>
           <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
+            {!isAdmin &&
+              <>
+                <Button
+                  color='secondary'
+                  variant='contained'
+                  onClick={() => setIsShowModal(true)}
+                  className="me-2"
+                >Take back my token</Button>
+                <span className='d-inline-block me-2'>{token} PGC</span>
+                <Link to="/buy-pgc">
+                  <Button variant="outlined" color="error" className='me-2'>
+                    Buy more
+                  </Button>
+                </Link>
+              </>
+            }
             {username ? (
               <div className='d-flex align-items-center'>
-                {!isAdmin &&
+                {/* {!isAdmin &&
                   <>
                     <Button
                       color='secondary'
@@ -266,7 +287,7 @@ const NavBarMain = () => {
                       </Button>
                     </Link>
                   </>
-                }
+                } */}
 
                 <Tooltip title="Edit profile">
                   <Link to='/profile' className='d-inline-block me-2'>
