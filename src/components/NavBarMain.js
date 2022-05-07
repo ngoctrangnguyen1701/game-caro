@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
+import { toast } from 'react-toastify';
 
 import { AuthContext } from '../contexts/AuthContextProvider'
 import { socket } from 'src/App'
@@ -19,22 +20,28 @@ import {
   DialogContent,
 } from '@mui/material'
 
-import { fightingIsPlayOnlineSelector, fightingStatusSelector } from 'src/selectors/fightingSelector'
-import { fightingAction } from 'src/reducers/fighting/playSlice';
-import { toast } from 'react-toastify';
-// import pgcApi from 'src/api/pgcApi'
+import { fightingAction } from 'src/reducers/fighting/playSlice'
 import { walletAction } from 'src/reducers/wallet/wallet'
-import { ContractContext } from 'src/contexts/ContractContextProvider';
-// import { contractAction } from 'src/reducers/contract/contractSlice';
-import paybackTokenApi from 'src/api/paybackTokenApi';
-import { contractAction } from 'src/reducers/contract/contractSlice';
+import { contractAction } from 'src/reducers/contract/contractSlice'
+
+import { fightingIsPlayOnlineSelector, fightingStatusSelector } from 'src/selectors/fightingSelector'
+
+import paybackTokenApi from 'src/api/paybackTokenApi'
+
+import {
+  pgcSelector,
+  exPGCSelector,
+  tokenSwapSelector,
+} from 'src/selectors/contractSelector'
+
+import formatNumber from 'src/common/formatNumber'
+import intervalGetReceipt from 'src/common/intervalGetReceipt'
+import abi from 'src/common/abi'
 
 const NavBarMain = () => {
   const navigate = useNavigate()
   const { user, setUser } = useContext(AuthContext)
   const { username, avatar, } = user
-  const { contractList, interactContract } = useContext(ContractContext)
-  const { pgc, exPGC, tokenSwap } = contractList
 
   const dispatch = useDispatch()
   const status = useSelector(fightingStatusSelector)
@@ -42,7 +49,9 @@ const NavBarMain = () => {
 
   const web3 = useSelector(state => state.web3.provider)
   const { account, token, isAdmin } = useSelector(state => state.wallet)
-  // const isAdmin = useSelector(state => state.wallet.isAdmin)
+  const pgc = useSelector(pgcSelector)
+  const exPGC = useSelector(exPGCSelector)
+  const tokenSwap = useSelector(tokenSwapSelector)
 
   const [isShowModal, setIsShowModal] = React.useState(false)
   const [paybackToken, setPaybackToken] = React.useState('')
@@ -57,16 +66,16 @@ const NavBarMain = () => {
         else {
           const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
           dispatch(walletAction.setAccount({ account: accounts[0] }))
-          interactContract('pgc')
-          // interactContract('tokenSwap')
 
           window.ethereum.on('accountsChanged', () => {
             //lắng nghe sự kiện khi có sự thay đổi account ở metamask, trang sẽ reload
             window.location.reload()
           })
 
-          //test saga
+          //CONNECT CONTRACT VIA SAGA
           dispatch(contractAction.connect('pgc'))
+          dispatch(contractAction.connect('exPGC'))
+          dispatch(contractAction.connect('tokenSwap'))
         }
       }
       connectMetamask()
@@ -74,36 +83,13 @@ const NavBarMain = () => {
   }, [web3])
 
   useEffect(() => {
-    console.log('pgc effect');
-    if (account && pgc.contract.methods) {
-      //khi nào đã có các methods của contract 'pgc', 
-      //mới gọi để set up methods của contract 'tokenSwap'
-      //nếu gọi hàm 'interactContract' cùng lúc, thì nó không lấy được hết các methods bỏ vào tương ứng với contract (bi lấy cái sau cùng)
-      const getToken = async () => {
-        interactContract('exPGC')
-        //số token ở contact hiện tại
-        const balanceWei = await pgc.contract.methods.balanceOf(account).call()
-        const token = await web3.utils.fromWei(balanceWei)
-        dispatch(walletAction.setToken({ token }))
-      }
-      getToken()
-    }
-  }, [account, pgc])
+    if (pgc.methods) getToken()
+      //đã lấy được các methods của contract 'pgc'
+  }, [pgc])
 
   useEffect(() => {
-    console.log('exPGC effect');
-    if (account && exPGC.contract.methods) {
-      interactContract('tokenSwap')
-      getExToken()
-    }
-  }, [account, exPGC])
-
-  // useEffect(() => {
-  //   if(!contractList.tokenSwap.contract.methods) interactContract('tokenSwap')
-  //   //sau khi obj 'exPGC' đã có các methods của contract,
-  //   //mới gọi hàm interactContract để có thể lấy các methods của contract tiếp theo
-  //   //còn nếu gọi 2 cái liên tiếp thì nó lại lấy cái state cũ ở contract
-  // }, [contractList])
+    if (pgc.methods) getExToken()
+  }, [exPGC])
 
   useEffect(() => {
     if (status === 'setting' && isPlayOnline) {
@@ -123,9 +109,16 @@ const NavBarMain = () => {
 
   const getExToken = async () => {
     //số token ở contract pgc cũ
-    const balanceWei = await exPGC.contract.methods.balanceOf(account).call()
+    const balanceWei = await exPGC.methods.balanceOf(account).call()
     const balanceExToken = await web3.utils.fromWei(balanceWei)
     setPaybackToken(balanceExToken)
+  }
+
+  const getToken = async () => {
+    //số token ở contract pgc hiện tại
+    const balanceWei = await pgc.methods.balanceOf(account).call()
+    const balanceToken = await web3.utils.fromWei(balanceWei)
+    dispatch(walletAction.setToken({ token: balanceToken }))
   }
 
   const onTakeBackMyToken = async () => {
@@ -133,13 +126,13 @@ const NavBarMain = () => {
       const balanceWei = await web3.utils.toWei(paybackToken)
 
       const gasPrice = await web3.eth.getGasPrice()
-      const gas = await tokenSwap.contract.methods.swap(balanceWei)
+      const gas = await tokenSwap.methods.swap(balanceWei)
         .estimateGas({
           gas: 50000,
           from: account,
           value: '0'
         })
-      const data = await tokenSwap.contract.methods.swap(balanceWei).encodeABI()
+      const data = await tokenSwap.methods.swap(balanceWei).encodeABI()
       //encondeABI tương đương với việc chuyển đổi thành chuỗi Hex
       const txHash = await window.ethereum.request({
         method: 'eth_sendTransaction',
@@ -152,40 +145,58 @@ const NavBarMain = () => {
           data
         }]
       })
-      // console.log('onTakeBackMyToken: ', txHash);
-      let intervalGetReceipt
-      let receipt
-      intervalGetReceipt = setInterval(async () => {
-        receipt = await web3.eth.getTransactionReceipt(txHash)
-        if (receipt) {
-          console.log(receipt);
-          clearInterval(intervalGetReceipt)
+      console.log('onTakeBackMyToken', txHash);
+      const receipt = await intervalGetReceipt(txHash)
+      console.log('onTakeBackMyToken', receipt);
 
-          const blockNumber = await web3.eth.getBlock(receipt.blockNumber)
-          console.log(blockNumber)
-
-          //CALL API
-          const payload = {
-            address: account,
-            paybackToken,
-            // paybackTime: new Date().getTime(),
-            paybackTime: blockNumber.timestamp,
-            transactionHash: txHash
-          }
-          paybackTokenApi.submitReceipt(payload).then(
-            response => {
-              getExToken()
-              toast.success(`You have received ${paybackToken} PGC`)
-              setIsShowModal(false)
-            }
-          ).catch(err => toast.error(err.message))
+      const blockNumber = await web3.eth.getBlock(receipt.blockNumber)
+      // CALL API
+      const payload = {
+        address: account,
+        paybackToken,
+        paybackTime: blockNumber.timestamp,
+        transactionHash: txHash
+      }
+      paybackTokenApi.submitReceipt(payload).then(
+        response => {
+          getExToken()
+          toast.success(`You have received ${paybackToken} PGC`)
+          setIsShowModal(false)
         }
-      }, 1000)
+      ).catch(err => toast.error(err.message))
+      // console.log('onTakeBackMyToken: ', txHash);
+      // let intervalGetReceipt
+      // let receipt
+      // intervalGetReceipt = setInterval(async () => {
+      //   receipt = await web3.eth.getTransactionReceipt(txHash)
+      //   if (receipt) {
+      //     console.log(receipt);
+      //     clearInterval(intervalGetReceipt)
 
-      setIsShowModal(false)
+      //     const blockNumber = await web3.eth.getBlock(receipt.blockNumber)
+      //     console.log(blockNumber)
+
+      //     //CALL API
+      //     const payload = {
+      //       address: account,
+      //       paybackToken,
+      //       paybackTime: blockNumber.timestamp,
+      //       transactionHash: txHash
+      //     }
+      //     paybackTokenApi.submitReceipt(payload).then(
+      //       response => {
+      //         getExToken()
+      //         toast.success(`You have received ${paybackToken} PGC`)
+      //         setIsShowModal(false)
+      //       }
+      //     ).catch(err => toast.error(err.message))
+      //   }
+      // }, 1000)
+
     } catch (error) {
       toast.error(error.message)
     }
+    setIsShowModal(false)
   }
 
   const onApprove = async () => {
@@ -194,13 +205,13 @@ const NavBarMain = () => {
         const balanceWei = await web3.utils.toWei(paybackToken)
 
         const gasPrice = await web3.eth.getGasPrice()
-        const gas = await exPGC.contract.methods.approve(tokenSwap.address, balanceWei)
+        const gas = await exPGC.methods.approve(abi.tokenSwap.address, balanceWei)
           .estimateGas({
             gas: 50000,
             from: account,
             value: '0'
           })
-        const data = await exPGC.contract.methods.approve(tokenSwap.address, balanceWei).encodeABI()
+        const data = await exPGC.methods.approve(abi.tokenSwap.address, balanceWei).encodeABI()
         //encondeABI tương đương với việc chuyển đổi thành chuỗi Hex
         const txHash = await window.ethereum.request({
           method: 'eth_sendTransaction',
@@ -208,16 +219,18 @@ const NavBarMain = () => {
             gasPrice: web3.utils.toHex(gasPrice),
             gas: web3.utils.toHex(gas),
             from: account,
-            to: exPGC.address,
+            to: abi.exPGC.address,
             value: '0',
             data
           }]
         })
-        // console.log('onApprove: ', txHash);
+        console.log('onApprove: ', txHash);
+        const receipt = await intervalGetReceipt(txHash) //--> đợi cho cái interval có thể lấy được cái receipt
+        console.log('onApprove: ', receipt);
         onTakeBackMyToken()
       } catch (error) {
-        // console.log(error);
         toast.error(error.message)
+        setIsShowModal(false)
       }
     }
     else {
@@ -251,9 +264,8 @@ const NavBarMain = () => {
                 >Dashboard</Button>
               </Link>
             }
-
           </Grid>
-          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
+          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
             {!isAdmin &&
               <>
                 <Button
@@ -262,33 +274,24 @@ const NavBarMain = () => {
                   onClick={() => setIsShowModal(true)}
                   className="me-2"
                 >Take back my token</Button>
-                <span className='d-inline-block me-2'>{token} PGC</span>
-                <Link to="/buy-pgc">
-                  <Button variant="outlined" color="error" className='me-2'>
-                    Buy more
-                  </Button>
-                </Link>
               </>
+            }
+            <span className='d-inline-block me-2'>{formatNumber(token)} PGC</span>
+            {isAdmin ?
+              <Link to="/admin/mint">
+                <Button variant="outlined" color="error" className='me-2'>
+                  Mint
+                </Button>
+              </Link>
+              :
+              <Link to="/buy-pgc">
+                <Button variant="outlined" color="error" className='me-2'>
+                  Buy more
+                </Button>
+              </Link>
             }
             {username ? (
               <div className='d-flex align-items-center'>
-                {/* {!isAdmin &&
-                  <>
-                    <Button
-                      color='secondary'
-                      variant='contained'
-                      onClick={() => setIsShowModal(true)}
-                      className="me-2"
-                    >Take back my token</Button>
-                    <span className='d-inline-block me-2'>{token} PGC</span>
-                    <Link to="/buy-pgc">
-                      <Button variant="outlined" color="error" className='me-2'>
-                        Buy more
-                      </Button>
-                    </Link>
-                  </>
-                } */}
-
                 <Tooltip title="Edit profile">
                   <Link to='/profile' className='d-inline-block me-2'>
                     <div className='d-flex align-items-center'>
