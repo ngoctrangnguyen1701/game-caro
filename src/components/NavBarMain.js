@@ -138,7 +138,7 @@ const NavBarMain = () => {
         method: 'eth_sendTransaction',
         params: [{
           gasPrice: web3.utils.toHex(gasPrice),
-          gas: web3.utils.toHex(gas + 50000),
+          gas: web3.utils.toHex(gas),
           from: account,
           to: abi.tokenSwap.address,
           value: '0',

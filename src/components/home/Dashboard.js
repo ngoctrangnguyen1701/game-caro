@@ -1,38 +1,20 @@
-import React from 'react';
+import React from 'react'
 import moment from 'moment'
-import { useNavigate } from "react-router-dom";
-import DoneIcon from '@mui/icons-material/Done';
-import CloseIcon from '@mui/icons-material/Close';
+import { useNavigate } from "react-router-dom"
+import { useDispatch, useSelector } from 'react-redux'
+import styled from 'styled-components'
+import { toast } from 'react-toastify'
 import {
   Button,
-  Tooltip,
 } from '@mui/material'
 
-import pgcApi from 'src/api/pgcApi';
-import { useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
-import styled from 'styled-components';
+import pgcApi from 'src/api/pgcApi'
 import formatNumber from 'src/common/formatNumber'
 import abi from 'src/common/abi'
-import { pgcSelector } from 'src/selectors/contractSelector';
+import { pgcSelector } from 'src/selectors/contractSelector'
+import { fullscreenLoadingAction } from 'src/reducers/fullscreenLoading/fullscreenLoadingSlice'
 
-const doneStyle = {
-  width: '28px',
-  height: '28px',
-  textAlign: 'center',
-  borderRadius: '50%',
-  background: 'green',
-  margin: '0 auto',
-}
-
-const noDoneStyle = {
-  width: '28px',
-  height: '28px',
-  textAlign: 'center',
-  borderRadius: '50%',
-  background: 'red',
-  margin: '0 auto',
-}
+import ReceiptItem from './ReceiptItem'
 
 const Amount = styled.div`
   font-size: 20px;
@@ -41,23 +23,10 @@ const Amount = styled.div`
   }
 `
 
-const formatDate = timestamp => {
-  if (timestamp) {
-    return moment(timestamp).format('YYYY-MM-DD, HH:MM:SS')
-  }
-  return null
-}
-
-const dotString = string => {
-  if (string) {
-    const head = string.slice(0, 5)
-    const foot = string.slice(string.length - 5)
-    return `${head}...${foot}`
-  }
-}
-
 const Dashboard = props => {
   const navigate = useNavigate()
+
+  const dispatch = useDispatch()
   const web3 = useSelector(state => state.web3.provider)
   const { isAdmin, account } = useSelector(state => state.wallet)
   const pgc = useSelector(pgcSelector)
@@ -114,30 +83,31 @@ const Dashboard = props => {
 
   const onChangeAllowanceNewToken = async (type) => {
     if (parseFloat(approvalNewToken) > 0) {
+      dispatch(fullscreenLoadingAction.showLoading(true))
+
       try {
         const balanceWei = await web3.utils.toWei(approvalNewToken)
-
         const gasPrice = await web3.eth.getGasPrice()
         let gas
         let data
         if (type === 'increase') {
-          gas = await pgc.contract.methods.increaseAllowance(abi.tokenSwap.address, balanceWei)
+          gas = await pgc.methods.increaseAllowance(abi.tokenSwap.address, balanceWei)
             .estimateGas({
               gas: 50000,
               from: account,
               value: '0'
             })
-          data = await pgc.contract.methods.increaseAllowance(abi.tokenSwap.address, balanceWei).encodeABI()
+          data = await pgc.methods.increaseAllowance(abi.tokenSwap.address, balanceWei).encodeABI()
           //encondeABI tương đương với việc chuyển đổi thành chuỗi Hex
         }
         else {
-          gas = await pgc.contract.methods.decreaseAllowance(abi.tokenSwap.address, balanceWei)
+          gas = await pgc.methods.decreaseAllowance(abi.tokenSwap.address, balanceWei)
             .estimateGas({
               gas: 50000,
               from: account,
               value: '0'
             })
-          data = await pgc.contract.methods.decreaseAllowance(abi.tokenSwap.address, balanceWei).encodeABI()
+          data = await pgc.methods.decreaseAllowance(abi.tokenSwap.address, balanceWei).encodeABI()
         }
 
         const txHash = await window.ethereum.request({
@@ -167,63 +137,17 @@ const Dashboard = props => {
             clearInterval(intervalGetReceipt)
             getAllowanceNewToken()
             toast.success('Change appoval new token successfully')
+            dispatch(fullscreenLoadingAction.showLoading(false))
+            setApprovalNewToken('')
           }
         }, 1000)
 
       } catch (error) {
         toast.error(error.message)
+        dispatch(fullscreenLoadingAction.showLoading(false))
+        setApprovalNewToken('')
       }
-      setApprovalNewToken('')
     }
-  }
-  const RequestItem = ({ item }) => {
-    return (
-      <>
-        <tr className='text-center'>
-          <td style={{ verticalAlign: 'middle' }}>{item.address}</td>
-          <td style={{ verticalAlign: 'middle' }}>{formatDate(item.requestTime)}</td>
-          <td style={{ verticalAlign: 'middle' }}>
-            {item.isPayback ?
-              <div style={doneStyle}>
-                <DoneIcon />
-              </div>
-              :
-              <div style={noDoneStyle}>
-                <CloseIcon />
-              </div>
-            }
-          </td>
-          <td style={{ verticalAlign: 'middle' }}>
-            <Button variant='contained' color='success' onClick={() => showDetail(item._id)}>Detail</Button>
-          </td>
-        </tr>
-        <tr style={{ display: listShowDetail.includes(item._id) ? 'table-row' : 'none' }}>
-          {/* <tr> */}
-          <td colSpan={4}>
-            <table className='table table-danger table-bordered'>
-              <thead>
-                <tr className='text-center'>
-                  <th>Payback Token</th>
-                  <th>Payback Time</th>
-                  <th>Transaction Hash</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className='text-center'>
-                  <td>{item.paybackToken} PGC</td>
-                  <td>{formatDate(item.paybackTime)}</td>
-                  <td>
-                    <Tooltip title={item.transactionHash} arrow placement="top">
-                      <a href={`https://testnet.bscscan.com/tx/${item.transactionHash}`} target="_blank">{dotString(item.transactionHash)}</a>
-                    </Tooltip>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </td>
-        </tr>
-      </>
-    )
   }
 
 
@@ -268,20 +192,22 @@ const Dashboard = props => {
 
 
       </div>
-      <h3 className='text-center'>Request Token List</h3>
+      <h3 className='text-center mt-3 text-primary'>Payback Token List</h3>
       <table className="table table-striped table-dark table-hover table-bordered">
         <thead>
           <tr style={{ textAlign: 'center' }}>
             <th className='bg-warning text-dark'>Address</th>
-            <th className='bg-warning text-dark'>Request Time</th>
-            <th className='bg-warning text-dark'>Payback</th>
-            <th className='bg-warning text-dark'></th>
+            <th className='bg-warning text-dark'>Payback Token</th>
+            <th className='bg-warning text-dark'>Payback Time</th>
+            <th className='bg-warning text-dark'>Hash</th>
+            <th className='bg-warning text-dark'>Reward</th>
+            <th className='bg-warning text-dark'>Action</th>
           </tr>
         </thead>
         <tbody>
           {list && list.length > 0 ?
-            list.map((item, index) => <RequestItem item={item} key={index} />)
-            : <tr><td colSpan="4" className='text-center'>No Data</td></tr>
+            list.map((item, index) => <ReceiptItem item={item} key={index} />)
+            : <tr><td colSpan="6" className='text-center'>No Data</td></tr>
           }
         </tbody>
       </table>

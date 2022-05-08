@@ -15,7 +15,6 @@ function* getContract(action) {
 }
 
 async function connectContract(payload) {
-  // const connectContact = await new web3.eth.Contract(contractList[contractName].abi, contractList[contractName].address)
   const {contractName, web3} = payload
   try { 
     return await new web3.eth.Contract(abi[contractName].abi, abi[contractName].address)

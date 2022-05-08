@@ -4,7 +4,6 @@ const initialState = {
   loading: false
 }
 
-
 const mySlice = createSlice({
   name: 'fullscreenLoading',
   initialState,
