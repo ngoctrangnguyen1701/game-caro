@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { walletAction } from 'src/reducers/wallet/wallet';
 import { contractAction } from 'src/reducers/contract/contractSlice';
-import { ContractContext } from 'src/contexts/ContractContextProvider';
+// import { ContractContext } from 'src/contexts/ContractContextProvider';
 
 
 const BuyPGC = () => {
@@ -18,7 +18,7 @@ const BuyPGC = () => {
   const {account, balance, token} = useSelector(state => state.wallet)
   const pgc = useSelector(state => state.contract.pgc)
 
-  const {address: addressContract, abi} = React.useContext(ContractContext).pgc
+  // const {address: addressContract, abi} = React.useContext(ContractContext).pgc
 
 
   const [amountPGC, setAmountPGC] = React.useState(0)

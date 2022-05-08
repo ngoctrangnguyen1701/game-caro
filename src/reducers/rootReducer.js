@@ -7,6 +7,7 @@ import box from './box/boxSlice'
 import web3 from './web3/web3'
 import wallet from './wallet/wallet'
 import contract from './contract/contractSlice'
+import fullscreenLoading from './fullscreenLoading/fullscreenLoadingSlice'
 
 export default combineReducers({
   auth,
@@ -17,4 +18,5 @@ export default combineReducers({
   contract,
   web3,
   wallet,
+  fullscreenLoading,
 })

@@ -23,6 +23,7 @@ import {
 import { fightingAction } from 'src/reducers/fighting/playSlice'
 import { walletAction } from 'src/reducers/wallet/wallet'
 import { contractAction } from 'src/reducers/contract/contractSlice'
+import { fullscreenLoadingAction } from 'src/reducers/fullscreenLoading/fullscreenLoadingSlice'
 
 import { fightingIsPlayOnlineSelector, fightingStatusSelector } from 'src/selectors/fightingSelector'
 
@@ -35,7 +36,6 @@ import {
 } from 'src/selectors/contractSelector'
 
 import formatNumber from 'src/common/formatNumber'
-import intervalGetReceipt from 'src/common/intervalGetReceipt'
 import abi from 'src/common/abi'
 
 const NavBarMain = () => {
@@ -124,84 +124,69 @@ const NavBarMain = () => {
   const onTakeBackMyToken = async () => {
     try {
       const balanceWei = await web3.utils.toWei(paybackToken)
-
       const gasPrice = await web3.eth.getGasPrice()
       const gas = await tokenSwap.methods.swap(balanceWei)
         .estimateGas({
-          gas: 50000,
+          gas: 500000,
           from: account,
           value: '0'
         })
       const data = await tokenSwap.methods.swap(balanceWei).encodeABI()
       //encondeABI tương đương với việc chuyển đổi thành chuỗi Hex
+      
       const txHash = await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [{
           gasPrice: web3.utils.toHex(gasPrice),
-          gas: web3.utils.toHex(gas),
-          from: tokenSwap.address,
-          to: account,
+          gas: web3.utils.toHex(gas + 50000),
+          from: account,
+          to: abi.tokenSwap.address,
           value: '0',
           data
         }]
       })
-      console.log('onTakeBackMyToken', txHash);
-      const receipt = await intervalGetReceipt(txHash)
-      console.log('onTakeBackMyToken', receipt);
 
-      const blockNumber = await web3.eth.getBlock(receipt.blockNumber)
-      // CALL API
-      const payload = {
-        address: account,
-        paybackToken,
-        paybackTime: blockNumber.timestamp,
-        transactionHash: txHash
-      }
-      paybackTokenApi.submitReceipt(payload).then(
-        response => {
-          getExToken()
-          toast.success(`You have received ${paybackToken} PGC`)
-          setIsShowModal(false)
+      let intervalGetReceipt
+      let receipt
+      intervalGetReceipt = setInterval(async () => {
+        receipt = await web3.eth.getTransactionReceipt(txHash)
+        if (receipt) {
+          clearInterval(intervalGetReceipt)
+          const blockNumber = await web3.eth.getBlock(receipt.blockNumber)
+
+          //CALL API
+          const payload = {
+            address: account,
+            paybackToken,
+            paybackTime: blockNumber.timestamp,
+            transactionHash: txHash
+          }
+          paybackTokenApi.submitReceipt(payload).then(
+            response => {
+              getToken()
+              getExToken()
+              dispatch(fullscreenLoadingAction.showLoading(false))
+              toast.success(`You have received ${paybackToken} PGC`)
+              setIsShowModal(false)
+            }
+          ).catch(err => {
+            toast.error(err.message)
+            dispatch(fullscreenLoadingAction.showLoading(false))
+            setIsShowModal(false)
+          })
         }
-      ).catch(err => toast.error(err.message))
-      // console.log('onTakeBackMyToken: ', txHash);
-      // let intervalGetReceipt
-      // let receipt
-      // intervalGetReceipt = setInterval(async () => {
-      //   receipt = await web3.eth.getTransactionReceipt(txHash)
-      //   if (receipt) {
-      //     console.log(receipt);
-      //     clearInterval(intervalGetReceipt)
-
-      //     const blockNumber = await web3.eth.getBlock(receipt.blockNumber)
-      //     console.log(blockNumber)
-
-      //     //CALL API
-      //     const payload = {
-      //       address: account,
-      //       paybackToken,
-      //       paybackTime: blockNumber.timestamp,
-      //       transactionHash: txHash
-      //     }
-      //     paybackTokenApi.submitReceipt(payload).then(
-      //       response => {
-      //         getExToken()
-      //         toast.success(`You have received ${paybackToken} PGC`)
-      //         setIsShowModal(false)
-      //       }
-      //     ).catch(err => toast.error(err.message))
-      //   }
-      // }, 1000)
-
+      }, 1000)
     } catch (error) {
+      setIsShowModal(false)
       toast.error(error.message)
+      dispatch(fullscreenLoadingAction.showLoading(false))
     }
-    setIsShowModal(false)
   }
 
   const onApprove = async () => {
     if (parseFloat(paybackToken) > 0) {
       try {
+        dispatch(fullscreenLoadingAction.showLoading(true))
         const balanceWei = await web3.utils.toWei(paybackToken)
 
         const gasPrice = await web3.eth.getGasPrice()
@@ -224,17 +209,24 @@ const NavBarMain = () => {
             data
           }]
         })
-        console.log('onApprove: ', txHash);
-        const receipt = await intervalGetReceipt(txHash) //--> đợi cho cái interval có thể lấy được cái receipt
-        console.log('onApprove: ', receipt);
-        onTakeBackMyToken()
+
+        let intervalGetReceipt
+        let receipt
+        intervalGetReceipt = setInterval(async() => {
+          receipt = await new web3.eth.getTransactionReceipt(txHash)
+          if(receipt) {
+            clearInterval(intervalGetReceipt)
+            onTakeBackMyToken()
+          }
+        }, 1000)
       } catch (error) {
         toast.error(error.message)
         setIsShowModal(false)
+        dispatch(fullscreenLoadingAction.showLoading(false))
       }
     }
     else {
-      toast.error('Token equal 0 that can be received payback')
+      toast.error('Token equal 0 that can not be received payback')
       setIsShowModal(false)
     }
   }

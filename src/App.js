@@ -19,6 +19,7 @@ import { invitationAction } from './reducers/invitation/invitationSlice';
 
 import NavBarMain from './components/NavBarMain'
 import InvitationModal from './components/InvitationModal';
+import FullScreenLoading from './components/FullScreenLoading';
 
 //<ToastContainer/> và file css của react-toastify là để giúp xuất hiện cái toast
 //để phía bên ngoài thằng <App/> để tất cả component con nằm trong đều có thê sử dụng toast
@@ -102,6 +103,7 @@ function App() {
         <NavBarMain/>
         <ToastContainer/>
         <InvitationModal/>
+        <FullScreenLoading/>
         <Suspense fallback={elementLoading}>
           <Routes>
             {routes && routes.length > 0 && (

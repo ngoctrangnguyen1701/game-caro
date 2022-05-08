@@ -10,10 +10,11 @@ import {
 
 import pgcApi from 'src/api/pgcApi';
 import { useSelector } from 'react-redux';
-import { ContractContext } from 'src/contexts/ContractContextProvider';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import formatNumber from 'src/common/formatNumber'
+import abi from 'src/common/abi'
+import { pgcSelector } from 'src/selectors/contractSelector';
 
 const doneStyle = {
   width: '28px',
@@ -55,22 +56,15 @@ const dotString = string => {
   }
 }
 
-let i = 0
 const Dashboard = props => {
   const navigate = useNavigate()
   const web3 = useSelector(state => state.web3.provider)
   const { isAdmin, account } = useSelector(state => state.wallet)
-  // const exContract = useSelector(state => state.contract.pgc.contract)
-
-  const { pgc, tokenSwap } = React.useContext(ContractContext).contractList
+  const pgc = useSelector(pgcSelector)
 
   const [list, setList] = React.useState([])
   const [listShowDetail, setListShowDetail] = React.useState([])
 
-  // const [isShowModal, setIsShowModal] = React.useState(false)
-  // const [id, setId] = React.useState('')
-  // const [address, setAddress] = React.useState('')
-  // const [paybackToken, setPaybackToken] = React.useState('')
   const [approvalNewToken, setApprovalNewToken] = React.useState('')
   const [allowanceNewToken, setAllowanceNewToken] = React.useState('0')
 
@@ -88,9 +82,7 @@ const Dashboard = props => {
   }, [isAdmin])
 
   React.useEffect(() => {
-    if (web3 && pgc.contract.methods) {
-      getAllowanceNewToken()
-    }
+    if (web3 && pgc.methods) getAllowanceNewToken()
   }, [web3, pgc])
 
 
@@ -114,9 +106,8 @@ const Dashboard = props => {
     }
   }
   const getAllowanceNewToken = async () => {
-    const balanceWei = await pgc.contract.methods.allowance(account, tokenSwap.address).call()
+    const balanceWei = await pgc.methods.allowance(account, abi.tokenSwap.address).call()
     const balance = await web3.utils.fromWei(balanceWei)
-    // console.log('getAllowanceNewToken', balance);
     setAllowanceNewToken(balance)
   }
 
@@ -130,23 +121,23 @@ const Dashboard = props => {
         let gas
         let data
         if (type === 'increase') {
-          gas = await pgc.contract.methods.increaseAllowance(tokenSwap.address, balanceWei)
+          gas = await pgc.contract.methods.increaseAllowance(abi.tokenSwap.address, balanceWei)
             .estimateGas({
               gas: 50000,
               from: account,
               value: '0'
             })
-          data = await pgc.contract.methods.increaseAllowance(tokenSwap.address, balanceWei).encodeABI()
+          data = await pgc.contract.methods.increaseAllowance(abi.tokenSwap.address, balanceWei).encodeABI()
           //encondeABI tương đương với việc chuyển đổi thành chuỗi Hex
         }
         else {
-          gas = await pgc.contract.methods.decreaseAllowance(tokenSwap.address, balanceWei)
+          gas = await pgc.contract.methods.decreaseAllowance(abi.tokenSwap.address, balanceWei)
             .estimateGas({
               gas: 50000,
               from: account,
               value: '0'
             })
-          data = await pgc.contract.methods.decreaseAllowance(tokenSwap.address, balanceWei).encodeABI()
+          data = await pgc.contract.methods.decreaseAllowance(abi.tokenSwap.address, balanceWei).encodeABI()
         }
 
         const txHash = await window.ethereum.request({
@@ -155,7 +146,7 @@ const Dashboard = props => {
             gasPrice: web3.utils.toHex(gasPrice),
             gas: web3.utils.toHex(gas),
             from: account,
-            to: pgc.address,
+            to: abi.pgc.address,
             value: '0',
             data
           }]
@@ -224,7 +215,6 @@ const Dashboard = props => {
                   <td>
                     <Tooltip title={item.transactionHash} arrow placement="top">
                       <a href={`https://testnet.bscscan.com/tx/${item.transactionHash}`} target="_blank">{dotString(item.transactionHash)}</a>
-
                     </Tooltip>
                   </td>
                 </tr>
