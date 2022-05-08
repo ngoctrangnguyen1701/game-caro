@@ -6,6 +6,7 @@ const initialState = {
   account: null,
   balance: 0, //--> balance BNB của ví
   token: 0, //--> số lượng token của contract pgc hiện tại
+  exToken: 0, //--> số lượng token của contract pgc cũ
   isAdmin: false,
 }
 
@@ -24,6 +25,9 @@ const mySlice = createSlice({
     },
     setToken(state, action) {
       state.token = action.payload.token
+    },
+    setExToken(state, action) {
+      state.exToken = action.payload.exToken
     }
   }
 })

@@ -1,5 +1,5 @@
 import React from 'react';
-import { web3Action } from 'src/reducers/web3/web3';
+import { web3Action } from 'src/reducers/web3/web3Slice';
 import { useDispatch } from 'react-redux';
 import BuyPGC from 'src/components/buyPGC/BuyPGC';
 

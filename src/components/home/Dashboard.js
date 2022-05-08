@@ -74,6 +74,7 @@ const Dashboard = props => {
       setApprovalNewToken(value)
     }
   }
+  
   const getAllowanceNewToken = async () => {
     const balanceWei = await pgc.methods.allowance(account, abi.tokenSwap.address).call()
     const balance = await web3.utils.fromWei(balanceWei)

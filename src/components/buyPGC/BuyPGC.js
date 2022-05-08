@@ -7,7 +7,7 @@ import {
 import { Button } from '@mui/material';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
-import { walletAction } from 'src/reducers/wallet/wallet';
+import { walletAction } from 'src/reducers/wallet/walletSlice';
 import { contractAction } from 'src/reducers/contract/contractSlice';
 // import { ContractContext } from 'src/contexts/ContractContextProvider';
 

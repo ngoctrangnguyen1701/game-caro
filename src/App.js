@@ -17,7 +17,7 @@ import { fightingAction } from './reducers/fighting/settingSlice';
 import { fightingAction as fightingPlayAction } from './reducers/fighting/playSlice';
 import { invitationAction } from './reducers/invitation/invitationSlice';
 
-import NavBarMain from './components/NavBarMain'
+import NavBarMain from './components/navbarMain/NavBarMain'
 import InvitationModal from './components/InvitationModal';
 import FullScreenLoading from './components/FullScreenLoading';
 

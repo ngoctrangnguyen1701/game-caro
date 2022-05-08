@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify';
 
-import { AuthContext } from '../contexts/AuthContextProvider'
+import { AuthContext } from '../../contexts/AuthContextProvider'
 import { socket } from 'src/App'
 
 import {
@@ -16,18 +16,16 @@ import {
   Grid,
   Tooltip,
   Button,
-  Dialog,
-  DialogContent,
 } from '@mui/material'
 
 import { fightingAction } from 'src/reducers/fighting/playSlice'
-import { walletAction } from 'src/reducers/wallet/wallet'
+import { walletAction } from 'src/reducers/wallet/walletSlice'
 import { contractAction } from 'src/reducers/contract/contractSlice'
 import { fullscreenLoadingAction } from 'src/reducers/fullscreenLoading/fullscreenLoadingSlice'
 
 import { fightingIsPlayOnlineSelector, fightingStatusSelector } from 'src/selectors/fightingSelector'
 
-import paybackTokenApi from 'src/api/paybackTokenApi'
+// import paybackTokenApi from 'src/api/paybackTokenApi'
 
 import {
   pgcSelector,
@@ -37,6 +35,8 @@ import {
 
 import formatNumber from 'src/common/formatNumber'
 import abi from 'src/common/abi'
+import PaybackTokenModal from './PaybackTokenModal';
+import { paybackTokenAction } from 'src/reducers/paybackToken/paybackTokenSlice';
 
 const NavBarMain = () => {
   const navigate = useNavigate()
@@ -48,13 +48,15 @@ const NavBarMain = () => {
   const isPlayOnline = useSelector(fightingIsPlayOnlineSelector)
 
   const web3 = useSelector(state => state.web3.provider)
-  const { account, token, isAdmin } = useSelector(state => state.wallet)
+  const { account, token, isAdmin, exToken } = useSelector(state => state.wallet)
   const pgc = useSelector(pgcSelector)
   const exPGC = useSelector(exPGCSelector)
   const tokenSwap = useSelector(tokenSwapSelector)
 
-  const [isShowModal, setIsShowModal] = React.useState(false)
+  // const [isShowModal, setIsShowModal] = React.useState(false)
+  // const [exToken, setExToken] = React.useState('')
   const [paybackToken, setPaybackToken] = React.useState('')
+  const [message, setMessage] = React.useState('')
 
   useEffect(() => {
     if (web3) {
@@ -84,16 +86,32 @@ const NavBarMain = () => {
 
   useEffect(() => {
     if (pgc.methods) getToken()
-      //đã lấy được các methods của contract 'pgc'
+    //đã lấy được các methods của contract 'pgc'
   }, [pgc])
 
+  // useEffect(() => {
+  //   if (exPGC.methods) getExToken()
+  // }, [exPGC])
+
   useEffect(() => {
-    if (pgc.methods) getExToken()
-  }, [exPGC])
+    if (parseFloat(exToken) === 0 || parseFloat(paybackToken) === 0) {
+      setMessage('Token equal 0 that can not be received payback')
+    }
+    else if (parseFloat(paybackToken) > parseFloat(exToken)) {
+      setMessage('Payback token can not be less than balance old token')
+    }
+    else {
+      setMessage('')
+    }
+  }, [exToken, paybackToken])
+
+  // useEffect(() => {
+  //   if(isShowModal === false) setPaybackToken('')
+  // }, [isShowModal])
 
   useEffect(() => {
     if (status === 'setting' && isPlayOnline) {
-      console.log(`navigate('/game-caro/play-online')`)
+      // console.log(`navigate('/game-caro/play-online')`)
       navigate('/game-caro/play-online')
     }
   }, [status, isPlayOnline])
@@ -107,12 +125,12 @@ const NavBarMain = () => {
     dispatch(fightingAction.waiting())
   }
 
-  const getExToken = async () => {
-    //số token ở contract pgc cũ
-    const balanceWei = await exPGC.methods.balanceOf(account).call()
-    const balanceExToken = await web3.utils.fromWei(balanceWei)
-    setPaybackToken(balanceExToken)
-  }
+  // const getExToken = async () => {
+  //   //số token ở contract pgc cũ
+  //   const balanceWei = await exPGC.methods.balanceOf(account).call()
+  //   const balanceExToken = await web3.utils.fromWei(balanceWei)
+  //   setExToken(balanceExToken)
+  // }
 
   const getToken = async () => {
     //số token ở contract pgc hiện tại
@@ -121,115 +139,124 @@ const NavBarMain = () => {
     dispatch(walletAction.setToken({ token: balanceToken }))
   }
 
-  const onTakeBackMyToken = async () => {
-    try {
-      const balanceWei = await web3.utils.toWei(paybackToken)
-      const gasPrice = await web3.eth.getGasPrice()
-      const gas = await tokenSwap.methods.swap(balanceWei)
-        .estimateGas({
-          gas: 500000,
-          from: account,
-          value: '0'
-        })
-      const data = await tokenSwap.methods.swap(balanceWei).encodeABI()
-      //encondeABI tương đương với việc chuyển đổi thành chuỗi Hex
-      
-      const txHash = await window.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [{
-          gasPrice: web3.utils.toHex(gasPrice),
-          gas: web3.utils.toHex(gas),
-          from: account,
-          to: abi.tokenSwap.address,
-          value: '0',
-          data
-        }]
-      })
+  // const onConfirmValue = value => {
+  //   const regex = /^[0-9]+$/
+  //   //https://stackoverflow.com/questions/9011524/regex-to-check-whether-a-string-contains-only-numbers
+  //   //check a string contain only number
+  //   if (value && regex.test(value)) {
+  //     setPaybackToken(value)
+  //   }
+  // }
 
-      let intervalGetReceipt
-      let receipt
-      intervalGetReceipt = setInterval(async () => {
-        receipt = await web3.eth.getTransactionReceipt(txHash)
-        if (receipt) {
-          clearInterval(intervalGetReceipt)
-          const blockNumber = await web3.eth.getBlock(receipt.blockNumber)
+  // const onTakeBackMyToken = async () => {
+  //   try {
+  //     const balanceWei = await web3.utils.toWei(paybackToken)
+  //     const gasPrice = await web3.eth.getGasPrice()
+  //     const gas = await tokenSwap.methods.swap(balanceWei)
+  //       .estimateGas({
+  //         gas: 500000,
+  //         from: account,
+  //         value: '0'
+  //       })
+  //     const data = await tokenSwap.methods.swap(balanceWei).encodeABI()
+  //     //encondeABI tương đương với việc chuyển đổi thành chuỗi Hex
 
-          //CALL API
-          const payload = {
-            address: account,
-            paybackToken,
-            paybackTime: blockNumber.timestamp,
-            transactionHash: txHash
-          }
-          paybackTokenApi.submitReceipt(payload).then(
-            response => {
-              getToken()
-              getExToken()
-              dispatch(fullscreenLoadingAction.showLoading(false))
-              toast.success(`You have received ${paybackToken} PGC`)
-              setIsShowModal(false)
-            }
-          ).catch(err => {
-            toast.error(err.message)
-            dispatch(fullscreenLoadingAction.showLoading(false))
-            setIsShowModal(false)
-          })
-        }
-      }, 1000)
-    } catch (error) {
-      setIsShowModal(false)
-      toast.error(error.message)
-      dispatch(fullscreenLoadingAction.showLoading(false))
-    }
-  }
+  //     const txHash = await window.ethereum.request({
+  //       method: 'eth_sendTransaction',
+  //       params: [{
+  //         gasPrice: web3.utils.toHex(gasPrice),
+  //         gas: web3.utils.toHex(gas),
+  //         from: account,
+  //         to: abi.tokenSwap.address,
+  //         value: '0',
+  //         data
+  //       }]
+  //     })
 
-  const onApprove = async () => {
-    if (parseFloat(paybackToken) > 0) {
-      try {
-        dispatch(fullscreenLoadingAction.showLoading(true))
-        const balanceWei = await web3.utils.toWei(paybackToken)
+  //     let intervalGetReceipt
+  //     let receipt
+  //     intervalGetReceipt = setInterval(async () => {
+  //       receipt = await web3.eth.getTransactionReceipt(txHash)
+  //       if (receipt) {
+  //         clearInterval(intervalGetReceipt)
+  //         const blockNumber = await web3.eth.getBlock(receipt.blockNumber)
 
-        const gasPrice = await web3.eth.getGasPrice()
-        const gas = await exPGC.methods.approve(abi.tokenSwap.address, balanceWei)
-          .estimateGas({
-            gas: 50000,
-            from: account,
-            value: '0'
-          })
-        const data = await exPGC.methods.approve(abi.tokenSwap.address, balanceWei).encodeABI()
-        //encondeABI tương đương với việc chuyển đổi thành chuỗi Hex
-        const txHash = await window.ethereum.request({
-          method: 'eth_sendTransaction',
-          params: [{
-            gasPrice: web3.utils.toHex(gasPrice),
-            gas: web3.utils.toHex(gas),
-            from: account,
-            to: abi.exPGC.address,
-            value: '0',
-            data
-          }]
-        })
+  //         //CALL API
+  //         const payload = {
+  //           address: account,
+  //           paybackToken,
+  //           paybackTime: blockNumber.timestamp,
+  //           transactionHash: txHash
+  //         }
+  //         paybackTokenApi.submitReceipt(payload).then(
+  //           response => {
+  //             getToken()
+  //             getExToken()
+  //             dispatch(fullscreenLoadingAction.showLoading(false))
+  //             toast.success(`You have received ${paybackToken} PGC`)
+  //             setIsShowModal(false)
+  //           }
+  //         ).catch(err => {
+  //           toast.error(err.message)
+  //           dispatch(fullscreenLoadingAction.showLoading(false))
+  //           setIsShowModal(false)
+  //         })
+  //       }
+  //     }, 1000)
+  //   } catch (error) {
+  //     setIsShowModal(false)
+  //     toast.error(error.message)
+  //     dispatch(fullscreenLoadingAction.showLoading(false))
+  //   }
+  // }
 
-        let intervalGetReceipt
-        let receipt
-        intervalGetReceipt = setInterval(async() => {
-          receipt = await new web3.eth.getTransactionReceipt(txHash)
-          if(receipt) {
-            clearInterval(intervalGetReceipt)
-            onTakeBackMyToken()
-          }
-        }, 1000)
-      } catch (error) {
-        toast.error(error.message)
-        setIsShowModal(false)
-        dispatch(fullscreenLoadingAction.showLoading(false))
-      }
-    }
-    else {
-      toast.error('Token equal 0 that can not be received payback')
-      setIsShowModal(false)
-    }
-  }
+  // const onApprove = async () => {
+  //   if (parseFloat(paybackToken) > 0) {
+  //     try {
+  //       dispatch(fullscreenLoadingAction.showLoading(true))
+  //       const balanceWei = await web3.utils.toWei(paybackToken)
+
+  //       const gasPrice = await web3.eth.getGasPrice()
+  //       const gas = await exPGC.methods.approve(abi.tokenSwap.address, balanceWei)
+  //         .estimateGas({
+  //           gas: 50000,
+  //           from: account,
+  //           value: '0'
+  //         })
+  //       const data = await exPGC.methods.approve(abi.tokenSwap.address, balanceWei).encodeABI()
+  //       //encondeABI tương đương với việc chuyển đổi thành chuỗi Hex
+  //       const txHash = await window.ethereum.request({
+  //         method: 'eth_sendTransaction',
+  //         params: [{
+  //           gasPrice: web3.utils.toHex(gasPrice),
+  //           gas: web3.utils.toHex(gas),
+  //           from: account,
+  //           to: abi.exPGC.address,
+  //           value: '0',
+  //           data
+  //         }]
+  //       })
+
+  //       let intervalGetReceipt
+  //       let receipt
+  //       intervalGetReceipt = setInterval(async () => {
+  //         receipt = await new web3.eth.getTransactionReceipt(txHash)
+  //         if (receipt) {
+  //           clearInterval(intervalGetReceipt)
+  //           onTakeBackMyToken()
+  //         }
+  //       }, 1000)
+  //     } catch (error) {
+  //       toast.error(error.message)
+  //       setIsShowModal(false)
+  //       dispatch(fullscreenLoadingAction.showLoading(false))
+  //     }
+  //   }
+  //   else {
+  //     toast.error('Token equal 0 that can not be received payback')
+  //     setIsShowModal(false)
+  //   }
+  // }
 
 
   return (
@@ -263,7 +290,7 @@ const NavBarMain = () => {
                 <Button
                   color='secondary'
                   variant='contained'
-                  onClick={() => setIsShowModal(true)}
+                  onClick={() => dispatch(paybackTokenAction.showModal(true))}
                   className="me-2"
                 >Take back my token</Button>
               </>
@@ -308,28 +335,7 @@ const NavBarMain = () => {
             )}
           </Box>
         </Toolbar>
-        <Dialog
-          open={isShowModal}
-          onClose={() => setIsShowModal(false)}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogContent>
-            <Typography id="modal-modal-title" variant="h6" color="error" className='mb-3'>
-              Please check information
-            </Typography>
-            <p className='mb-0'>Address: <span style={{ fontWeight: 'bold' }}>{account}</span></p>
-            <p className='mb-0'>Payback token: <span style={{ fontWeight: 'bold' }}> {paybackToken} PGC</span></p>
-            <Button
-              variant="contained"
-              color="success"
-              className="d-block mx-auto mt-3"
-              onClick={onApprove}
-            >
-              Submit
-            </Button>
-          </DialogContent>
-        </Dialog>
+        <PaybackTokenModal/>
       </Container>
     </AppBar>
   );
