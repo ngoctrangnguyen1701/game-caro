@@ -28,7 +28,7 @@ const mySlice = createSlice({
     },
     setExToken(state, action) {
       state.exToken = action.payload.exToken
-    }
+    },
   }
 })
 
