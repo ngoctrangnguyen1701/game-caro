@@ -21,11 +21,6 @@ import { fullscreenLoadingAction } from 'src/reducers/fullscreenLoading/fullscre
 import {paybackTokenAction} from 'src/reducers/paybackToken/paybackTokenSlice';
 
 const PaybackTokenModal = (props) => {
-  // const {
-  //   isShowModal,
-  //   setIsShowModal,
-  // } = props
-
   const dispatch = useDispatch()
   const web3 = useSelector(state => state.web3.provider)
   const { account, exToken } = useSelector(state => state.wallet)
@@ -37,9 +32,6 @@ const PaybackTokenModal = (props) => {
   const [paybackToken, setPaybackToken] = React.useState('')
   const [message, setMessage] = React.useState('')
 
-  // React.useEffect(() => {
-  //   if (exPGC.methods) getExToken()
-  // }, [exPGC])
   React.useEffect(() => {
     dispatch(paybackTokenAction.clearState())
   }, [])
@@ -92,13 +84,6 @@ const PaybackTokenModal = (props) => {
     dispatch(walletAction.setExToken({exToken: balanceExToken}))
   }
 
-  // const getToken = async () => {
-  //   //số token ở contract pgc hiện tại
-  //   const balanceWei = await pgc.methods.balanceOf(account).call()
-  //   const balanceToken = await web3.utils.fromWei(balanceWei)
-  //   dispatch(walletAction.setToken({ token: balanceToken }))
-  // }
-
   const onTakeBackMyToken = async () => {
     try {
       const balanceWei = await web3.utils.toWei(paybackToken)
@@ -140,25 +125,11 @@ const PaybackTokenModal = (props) => {
             transactionHash: txHash
           }
           dispatch(paybackTokenAction.submitReceipt(payload))
-          // paybackTokenApi.submitReceipt(payload).then(
-          //   response => {
-          //     getToken()
-          //     getExToken()
-          //     dispatch(fullscreenLoadingAction.showLoading(false))
-          //     toast.success(`You have received ${paybackToken} PGC`)
-          //     setIsShowModal(false)
-          //   }
-          // ).catch(err => {
-          //   toast.error(err.message)
-          //   dispatch(fullscreenLoadingAction.showLoading(false))
-          //   setIsShowModal(false)
-          // })
         }
       }, 1000)
     } catch (error) {
-      dispatch(paybackTokenAction.showModal(false))
-      // setIsShowModal(false)
       toast.error(error.message)
+      dispatch(paybackTokenAction.showModal(false))
       dispatch(fullscreenLoadingAction.showLoading(false))
     }
   }
@@ -201,14 +172,12 @@ const PaybackTokenModal = (props) => {
         }, 1000)
       } catch (error) {
         toast.error(error.message)
-        // setIsShowModal(false)
         dispatch(paybackTokenAction.showModal(false))
         dispatch(fullscreenLoadingAction.showLoading(false))
       }
     }
     else {
       toast.error('Token equal 0 that can not be received payback')
-      // setIsShowModal(false)
       dispatch(paybackTokenAction.showModal(false))
     }
   }

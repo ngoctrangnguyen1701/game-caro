@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { walletAction } from 'src/reducers/wallet/walletSlice';
 import { contractAction } from 'src/reducers/contract/contractSlice';
 // import { ContractContext } from 'src/contexts/ContractContextProvider';
-
+import abi from 'src/common/abi'
 
 const BuyPGC = () => {
   const dispatch = useDispatch()
@@ -47,7 +47,7 @@ const BuyPGC = () => {
       const balanceWei = await web3.eth.getBalance(account)
       const balanceBNB = await web3.utils.fromWei(balanceWei)
 
-      const contract = await new web3.eth.Contract(abi, addressContract)
+      const contract = await new web3.eth.Contract(abi.pgc.abi, abi.pgc.address)
       dispatch(contractAction.interactContract({pgc: contract}))
 
       const tokenWei = await contract.methods.balanceOf(account).call()

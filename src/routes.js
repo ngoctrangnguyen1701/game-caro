@@ -7,7 +7,7 @@ const LogInPage = React.lazy(() => import ('./pages/LogInPage'))
 const SignUpPage = React.lazy(() => import ('./pages/SignUpPage'))
 const ChatRoomPage = React.lazy(() => import ('./pages/ChatRoomPage'))
 const LearnBlockchainPage = React.lazy(() => import ('./pages/LearnBlockchainPage'))
-const BuyPGCPage = React.lazy(() => import ('./pages/BuyPGCPage'))
+// const BuyPGCPage = React.lazy(() => import ('./pages/BuyPGCPage'))
 
 const routes = [
   {
@@ -42,10 +42,10 @@ const routes = [
     path: '/learn-blockchain',
     element: <LearnBlockchainPage/>,
   },
-  {
-    path: '/buy-pgc',
-    element: <BuyPGCPage/>,
-  },
+  // {
+  //   path: '/buy-pgc',
+  //   element: <BuyPGCPage/>,
+  // },
 ]
 
 export default routes
