@@ -2,7 +2,9 @@ import moment from 'moment'
 
 const formatDate = timestamp => {
   if (timestamp) {
-    return moment(timestamp).format('YYYY-MM-DD, HH:MM:SS')
+    const relativeTime = moment(timestamp).startOf('minutes').fromNow()
+    const date = moment(timestamp).format('YYYY-MM-DD, h:mm:ss')
+    return `${relativeTime} (${date})`
   }
   return null
 }

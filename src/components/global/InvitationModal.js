@@ -15,7 +15,7 @@ import { invitationAction } from 'src/reducers/invitation/invitationSlice';
 import { invitationListSelector } from 'src/selectors/invitationSelector';
 import { fightingIsPlayOnlineSelector, fightingStatusSelector } from 'src/selectors/fightingSelector';
 
-import GameCaroOpponent from './gameCaro/GameCaroOpponent'
+import GameCaroOpponent from 'src/components/gameCaro/GameCaroOpponent'
 
 
 const Notify = styled.div`

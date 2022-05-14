@@ -37,8 +37,13 @@ const ReceiptItem = ({ item }) => {
       <tr className='text-center'>
         <td style={{ verticalAlign: 'middle' }}>{item.address}</td>
         <td style={{ verticalAlign: 'middle' }}>{formatNumber(item.paybackToken)}</td>
-        <td style={{ verticalAlign: 'middle' }}>{formatDate(item.paybackTime)}</td>
-        <td style={{ verticalAlign: 'middle' }}>{formatDotString(item.transactionHash)}</td>
+        <td style={{ verticalAlign: 'middle' }}>{formatDate(item.paybackTime * 1000)}</td>
+        <td style={{ verticalAlign: 'middle' }}>
+          <Tooltip title={item.transactionHash} arrow placement="top">
+            <a href={`https://testnet.bscscan.com/tx/${item.transactionHash}`} target="_blank">{formatDotString(item.transactionHash)}</a>
+          </Tooltip>
+
+        </td>
         <td style={{ verticalAlign: 'middle' }}>
           {item.isPayback ?
             <div style={doneStyle}>
@@ -51,37 +56,13 @@ const ReceiptItem = ({ item }) => {
           }
         </td>
         <td style={{ verticalAlign: 'middle' }}>
-          <Button 
-            variant='contained' 
+          <Button
+            variant='contained'
             color='success'
-            // onClick={() => showDetail(item._id)}
+          // onClick={() => showDetail(item._id)}
           >Detail</Button>
         </td>
       </tr>
-      {/* <tr style={{ display: listShowDetail.includes(item._id) ? 'table-row' : 'none' }}>
-        <td colSpan={4}>
-          <table className='table table-danger table-bordered'>
-            <thead>
-              <tr className='text-center'>
-                <th>Payback Token</th>
-                <th>Payback Time</th>
-                <th>Transaction Hash</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className='text-center'>
-                <td>{item.paybackToken} PGC</td>
-                <td>{formatDate(item.paybackTime)}</td>
-                <td>
-                  <Tooltip title={item.transactionHash} arrow placement="top">
-                    <a href={`https://testnet.bscscan.com/tx/${item.transactionHash}`} target="_blank">{dotString(item.transactionHash)}</a>
-                  </Tooltip>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </td>
-      </tr> */}
     </>
   )
 };

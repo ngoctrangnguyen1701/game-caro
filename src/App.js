@@ -18,8 +18,8 @@ import { fightingAction as fightingPlayAction } from './reducers/fighting/playSl
 import { invitationAction } from './reducers/invitation/invitationSlice';
 
 import NavBarMain from './components/navbarMain/NavBarMain'
-import InvitationModal from './components/InvitationModal';
-import FullScreenLoading from './components/FullScreenLoading';
+import InvitationModal from 'src/components/global/InvitationModal';
+import FullScreenLoading from 'src/components/global/FullScreenLoading';
 
 //<ToastContainer/> và file css của react-toastify là để giúp xuất hiện cái toast
 //để phía bên ngoài thằng <App/> để tất cả component con nằm trong đều có thê sử dụng toast

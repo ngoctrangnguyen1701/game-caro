@@ -1,11 +1,15 @@
 import React from 'react'
-import moment from 'moment'
 import { useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { toast } from 'react-toastify'
 import {
   Button,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material'
 
 import pgcApi from 'src/api/pgcApi'
@@ -15,6 +19,9 @@ import { pgcSelector } from 'src/selectors/contractSelector'
 import { fullscreenLoadingAction } from 'src/reducers/fullscreenLoading/fullscreenLoadingSlice'
 
 import ReceiptItem from './ReceiptItem'
+import { paybackTokenAction } from 'src/reducers/paybackToken/paybackTokenSlice'
+import DualRingLoading from '../global/DualRingLoading'
+import Pagination from '../global/Pagination'
 
 const Amount = styled.div`
   font-size: 20px;
@@ -30,20 +37,20 @@ const Dashboard = props => {
   const web3 = useSelector(state => state.web3.provider)
   const { isAdmin, account } = useSelector(state => state.wallet)
   const pgc = useSelector(pgcSelector)
+  const { loading, list, message } = useSelector(state => state.paybackToken)
 
-  const [list, setList] = React.useState([])
+  // const [list, setList] = React.useState([])
   const [listShowDetail, setListShowDetail] = React.useState([])
 
   const [approvalNewToken, setApprovalNewToken] = React.useState('')
   const [allowanceNewToken, setAllowanceNewToken] = React.useState('0')
+  const [filterAddress, setFilterAddress] = React.useState('')
+  const [filterTransaction, setFilterTransaction] = React.useState('')
+  const [sortBy, setSortBy] = React.useState('default')
 
   React.useEffect(() => {
     if (isAdmin) {
-      pgcApi.requestTokenList().then(response => {
-        setList(response.data)
-      }).catch(err => {
-        console.log(err);
-      })
+      dispatch(paybackTokenAction.getList())
     }
     else {
       // navigate('/') //--> tắt chức năng đẩy về
@@ -54,6 +61,12 @@ const Dashboard = props => {
     if (web3 && pgc.methods) getAllowanceNewToken()
   }, [web3, pgc])
 
+  React.useEffect(() => {
+    if (message) {
+      toast.warning(message)
+    }
+    return () => dispatch(paybackTokenAction.clearState())
+  }, [message])
 
   const showDetail = id => {
     let newArr = []
@@ -74,7 +87,7 @@ const Dashboard = props => {
       setApprovalNewToken(value)
     }
   }
-  
+
   const getAllowanceNewToken = async () => {
     const balanceWei = await pgc.methods.allowance(account, abi.tokenSwap.address).call()
     const balance = await web3.utils.fromWei(balanceWei)
@@ -131,10 +144,10 @@ const Dashboard = props => {
         //nên khi gọi methods 'getTransactionReceipt' sẽ trả về null
         //khi nào transaction đó được ghi nhận vào blockchain(đã được đào)
         //thì nó sẽ trả về object
-        intervalGetReceipt = setInterval(async() => {
+        intervalGetReceipt = setInterval(async () => {
           receipt = await web3.eth.getTransactionReceipt(txHash);
           // console.log(receipt);
-          if(receipt) {
+          if (receipt) {
             clearInterval(intervalGetReceipt)
             getAllowanceNewToken()
             toast.success('Change appoval new token successfully')
@@ -149,6 +162,45 @@ const Dashboard = props => {
         setApprovalNewToken('')
       }
     }
+  }
+
+  const onPageChange = (value) => {
+    const payload = {
+      address: filterAddress ? filterAddress.toLowerCase() : null,
+      transaction: filterTransaction ? filterTransaction : null,
+      sortBy: sortBy === 'default' ? null : sortBy,
+      page: value
+    }
+    dispatch(paybackTokenAction.getList(payload))
+  }
+
+  const onSortBy = value => {
+    setSortBy(value)
+    const payload = {
+      address: filterAddress ? filterAddress.toLowerCase() : null,
+      transaction: filterTransaction ? filterTransaction : null,
+      sortBy: value === 'default' ? null : value,
+      page: 1, //khi nào có sortBy thì sẽ trả về tìm kiếm từ page 1
+    }
+    dispatch(paybackTokenAction.getList(payload))
+  }
+
+  const onSearch = () => {
+    setSortBy('default')
+    const payload = {
+      address: filterAddress ? filterAddress.toLowerCase() : null,
+      transaction: filterTransaction ? filterTransaction : null,
+      sortBy: null, //khi nào có search thì sẽ trả về tìm kiếm theo sắp xếp mặc định
+      page: 1, //khi nào có search thì sẽ trả về tìm kiếm từ page 1
+    }
+    dispatch(paybackTokenAction.getList(payload))
+  }
+
+  const onReset = () => {
+    setSortBy('default')
+    setFilterAddress('')
+    setFilterTransaction('')
+    dispatch(paybackTokenAction.getList())
   }
 
 
@@ -194,6 +246,56 @@ const Dashboard = props => {
 
       </div>
       <h3 className='text-center mt-3 text-primary'>Payback Token List</h3>
+      <div className='container'>
+        <div>
+          <TextField
+            label="Address"
+            variant="outlined"
+            color='primary'
+            value={filterAddress}
+            onChange={e => setFilterAddress(e.target.value)}
+          />
+          <TextField
+            label="Transaction"
+            variant="outlined"
+            color='secondary'
+            value={filterTransaction}
+            onChange={e => setFilterTransaction(e.target.value)}
+            className="mx-2"
+          />
+          <FormControl>
+            <InputLabel id="demo-simple-select-label">Sort by</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={sortBy}
+              label="Sort By"
+              onChange={e => onSortBy(e.target.value)}
+            >
+              <MenuItem value='default'>Default</MenuItem>
+              <MenuItem value='latest'>Latest</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+        <div>
+          <Button
+            variant='contained'
+            color='error'
+            className='m-1'
+            onClick={onSearch}
+          >
+            Search
+          </Button>
+          <Button
+            variant='outlined'
+            color='warning'
+            className='m-1'
+            onClick={onReset}
+          >
+            Reset
+          </Button>
+        </div>
+      </div>
       <table className="table table-striped table-dark table-hover table-bordered">
         <thead>
           <tr style={{ textAlign: 'center' }}>
@@ -206,12 +308,31 @@ const Dashboard = props => {
           </tr>
         </thead>
         <tbody>
-          {list && list.length > 0 ?
+          {loading &&
+            <tr>
+              <td colSpan={6}>
+                <div className='d-flex justify-content-center'>
+                  <DualRingLoading showLoading={loading} />
+                </div>
+              </td>
+            </tr>}
+          {!loading && list && list.length > 0 &&
             list.map((item, index) => <ReceiptItem item={item} key={index} />)
-            : <tr><td colSpan="6" className='text-center'>No Data</td></tr>
+          }
+          {!loading && list && list.length === 0 &&
+            <tr><td colSpan="6" className='text-center'>No Data</td></tr>
           }
         </tbody>
       </table>
+      {!loading && list && list.length > 0 &&
+        <div className='mb-5'>
+          <Pagination
+            page={1}
+            totalPages={10}
+            onPageChange={onPageChange}
+          />
+        </div>
+      }
     </div>
   );
 };

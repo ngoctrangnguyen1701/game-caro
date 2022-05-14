@@ -1,4 +1,4 @@
-import {put, call, takeEvery, select, fork} from 'redux-saga/effects'
+import {delay, put, call, takeEvery, select, fork} from 'redux-saga/effects'
 import {contractAction} from 'src/reducers/contract/contractSlice'
 import {paybackTokenAction} from 'src/reducers/paybackToken/paybackTokenSlice'
 import abi from 'src/common/abi'
@@ -9,6 +9,7 @@ import { fullscreenLoadingAction } from 'src/reducers/fullscreenLoading/fullscre
 
 export default function* saga() {
   yield takeEvery('paybackToken/submitReceipt', submitReceipt)
+  yield takeEvery('paybackToken/getList', getList)
 }
 
 function* submitReceipt(action) {
@@ -45,4 +46,14 @@ async function getToken(payload) {
   const {contract, account, web3} = payload
   const balanceWei = await contract.methods.balanceOf(account).call()
   return await web3.utils.fromWei(balanceWei)
+}
+
+function* getList(action) {
+  try {
+    const res = yield call(paybackTokenApi.list, action.payload)
+    yield delay(300)
+    yield put(paybackTokenAction.getListSuccess(res.data))
+  } catch (error) {
+    yield put(paybackTokenAction.getListFailed({message: error.message}))
+  }
 }
