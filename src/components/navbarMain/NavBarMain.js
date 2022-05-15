@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify';
+import Web3 from 'web3';
 
 import { AuthContext } from '../../contexts/AuthContextProvider'
 import { socket } from 'src/App'
@@ -31,6 +32,7 @@ import {
 import formatNumber from 'src/common/formatNumber'
 import PaybackTokenModal from './PaybackTokenModal';
 import { paybackTokenAction } from 'src/reducers/paybackToken/paybackTokenSlice';
+import authApi from 'src/api/authApi';
 
 const NavBarMain = () => {
   const navigate = useNavigate()
@@ -56,6 +58,19 @@ const NavBarMain = () => {
         else {
           const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
           dispatch(walletAction.setAccount({ account: accounts[0] }))
+          // const signature = await web3.eth.personal.sign('message to login', accounts[0])
+          try {
+            const web3Metamask = new Web3(window.ethereum)
+            // const signature = await web3.eth.sign('message to login', accounts[0])
+            const message = 'message to login'
+            const signature = await web3Metamask.eth.personal.sign(message, accounts[0])
+            console.log(signature);
+            const res = await authApi.submitSignature({ signature, message })
+            console.log(res);
+          } catch (error) {
+            toast.error(error.message)
+          }
+
 
           window.ethereum.on('accountsChanged', () => {
             //lắng nghe sự kiện khi có sự thay đổi account ở metamask, trang sẽ reload
@@ -176,7 +191,7 @@ const NavBarMain = () => {
             )}
           </Box>
         </Toolbar>
-        <PaybackTokenModal/>
+        <PaybackTokenModal />
       </Container>
     </AppBar>
   );
