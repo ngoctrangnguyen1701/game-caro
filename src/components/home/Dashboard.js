@@ -167,7 +167,7 @@ const Dashboard = props => {
   const onPageChange = (value) => {
     const payload = {
       address: filterAddress ? filterAddress.toLowerCase() : null,
-      transaction: filterTransaction ? filterTransaction : null,
+      transactionHash: filterTransaction ? filterTransaction : null,
       sortBy: sortBy === 'default' ? null : sortBy,
       page: value
     }
@@ -178,7 +178,7 @@ const Dashboard = props => {
     setSortBy(value)
     const payload = {
       address: filterAddress ? filterAddress.toLowerCase() : null,
-      transaction: filterTransaction ? filterTransaction : null,
+      transactionHash: filterTransaction ? filterTransaction : null,
       sortBy: value === 'default' ? null : value,
       page: 1, //khi nào có sortBy thì sẽ trả về tìm kiếm từ page 1
     }
@@ -189,7 +189,7 @@ const Dashboard = props => {
     setSortBy('default')
     const payload = {
       address: filterAddress ? filterAddress.toLowerCase() : null,
-      transaction: filterTransaction ? filterTransaction : null,
+      transactionHash: filterTransaction ? filterTransaction : null,
       sortBy: null, //khi nào có search thì sẽ trả về tìm kiếm theo sắp xếp mặc định
       page: 1, //khi nào có search thì sẽ trả về tìm kiếm từ page 1
     }
