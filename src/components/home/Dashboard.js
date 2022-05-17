@@ -53,7 +53,7 @@ const Dashboard = props => {
       dispatch(paybackTokenAction.getList())
     }
     else {
-      // navigate('/') //--> tắt chức năng đẩy về
+      navigate('/') //--> tắt chức năng đẩy về
     }
   }, [isAdmin])
 

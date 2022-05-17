@@ -33,6 +33,7 @@ import formatNumber from 'src/common/formatNumber'
 import PaybackTokenModal from './PaybackTokenModal';
 import { paybackTokenAction } from 'src/reducers/paybackToken/paybackTokenSlice';
 import authApi from 'src/api/authApi';
+import { fullscreenLoadingAction } from 'src/reducers/fullscreenLoading/fullscreenLoadingSlice';
 
 const NavBarMain = () => {
   const navigate = useNavigate()
@@ -56,19 +57,33 @@ const NavBarMain = () => {
           return toast.error('Please connect to Metamask')
         }
         else {
+          dispatch(fullscreenLoadingAction.showLoading(true))
           const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
           dispatch(walletAction.setAccount({ account: accounts[0] }))
-          // const signature = await web3.eth.personal.sign('message to login', accounts[0])
           try {
+            //do cái này tương tác với metamask nên provider của web3 phải là cái window.ethereum,
+            //chứ không phải là cái mạng blockchain nào đó như bsc
             const web3Metamask = new Web3(window.ethereum)
             // const signature = await web3.eth.sign('message to login', accounts[0])
             const message = 'message to login'
             const signature = await web3Metamask.eth.personal.sign(message, accounts[0])
-            console.log(signature);
             const res = await authApi.submitSignature({ signature, message })
-            console.log(res);
+            if(res && res.data !== null && res.data.adminToken) {
+              //nếu có adminToken trả về sẽ lưu vào session
+              //lý do lưu vào session là do session khi tắt trình duyệt sẽ tự động mất những cái đã lưu
+              sessionStorage.setItem('adminToken', JSON.stringify(res.data.adminToken))
+              dispatch(walletAction.setIsAdmin(true))
+            }
+            else {
+              sessionStorage.removeItem('adminToken')
+              dispatch(walletAction.setIsAdmin(false))
+            }
+            dispatch(fullscreenLoadingAction.showLoading(false))
+
           } catch (error) {
             toast.error(error.message)
+            dispatch(fullscreenLoadingAction.showLoading(false))
+            dispatch(walletAction.setIsAdmin(false))
           }
 
 
