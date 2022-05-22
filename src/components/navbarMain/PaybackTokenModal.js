@@ -9,32 +9,31 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
-// import paybackTokenApi from 'src/api/paybackTokenApi'
 import {
   exPGCSelector,
   tokenSwapSelector,
+  pgcSelector,
 } from 'src/selectors/contractSelector'
 import abi from 'src/common/abi';
 import formatNumber from 'src/common/formatNumber';
 import { walletAction } from 'src/reducers/wallet/walletSlice';
 import { fullscreenLoadingAction } from 'src/reducers/fullscreenLoading/fullscreenLoadingSlice';
 import {paybackTokenAction} from 'src/reducers/paybackToken/paybackTokenSlice';
+import { Web3Context } from 'src/contexts/Web3ContextProvider';
+import paybackTokenApi from 'src/api/paybackTokenApi';
 
 const PaybackTokenModal = (props) => {
   const dispatch = useDispatch()
-  const web3 = useSelector(state => state.web3.provider)
+  const web3 = React.useContext(Web3Context)
+
   const { account, exToken } = useSelector(state => state.wallet)
   const tokenSwap = useSelector(tokenSwapSelector)
   const exPGC = useSelector(exPGCSelector)
+  const pgc = useSelector(pgcSelector)
   const {status, message: messagePaybackToken, isShowModal} = useSelector(state => state.paybackToken)
-
 
   const [paybackToken, setPaybackToken] = React.useState('')
   const [message, setMessage] = React.useState('')
-
-  React.useEffect(() => {
-    dispatch(paybackTokenAction.clearState())
-  }, [])
 
   React.useEffect(() => {
     if (exPGC.methods) getExToken()
@@ -65,7 +64,12 @@ const PaybackTokenModal = (props) => {
   }, [status, messagePaybackToken])
 
   React.useEffect(() => {
-    if(isShowModal === false) setPaybackToken('')
+    if(isShowModal) {
+      getExToken() //cập nhật lại token cũ hiện có mỗi khi show modal lên
+    }
+    else {
+      setPaybackToken('')
+    }
   }, [isShowModal])
 
   const onConfirmValue = value => {
@@ -124,7 +128,11 @@ const PaybackTokenModal = (props) => {
             paybackTime: blockNumber.timestamp,
             transactionHash: txHash
           }
-          dispatch(paybackTokenAction.submitReceipt(payload))
+          const res = await paybackTokenApi.submitReceipt(payload)
+          toast.success(`You have received ${res.data.paybackToken} PGC`)
+          dispatch(paybackTokenAction.showModal(false))
+          dispatch(fullscreenLoadingAction.showLoading(false))
+          getToken()
         }
       }, 1000)
     } catch (error) {
@@ -134,6 +142,7 @@ const PaybackTokenModal = (props) => {
     }
   }
 
+  //Đầu tiên để có thể swap token cũ và token mới, người dùng phải approve cho contract 'tokenSwap' số lượng token cũ, sau đó mới gọi đến hàm'swap' của contract 'tokenSwap' (phía chủ của token mới cũng phải approve cho contract 'tokenSwap' sử dụng 1 lượng token mới tương ứng)
   const onApprove = async () => {
     if (parseFloat(paybackToken) > 0) {
       try {
@@ -180,6 +189,13 @@ const PaybackTokenModal = (props) => {
       toast.error('Token equal 0 that can not be received payback')
       dispatch(paybackTokenAction.showModal(false))
     }
+  }
+
+  const getToken = async () => {
+    //số token ở contract pgc hiện tại
+    const balanceWei = await pgc.methods.balanceOf(account).call()
+    const balanceToken = await web3.utils.fromWei(balanceWei)
+    dispatch(walletAction.setToken({ token: balanceToken }))
   }
 
   return (

@@ -20,7 +20,7 @@ use BEP20 of Binance Smart Chain (testnet)
 
 5. effect loading when call metamask or call api
 
-6. Metamask, singnature submit to serve to verify
+6. Metamask, singnature submit to server to verify
 
 7. Dashboard Screen (ADMIN)
 + have authenticate for wallet of admin

@@ -9,7 +9,6 @@ const Web3ContextProvider = ({children}) =>{
 
   React.useEffect(() => {
     const web3Provider = new Web3(NETWORK_BLOCKCHAIN)
-    console.log(web3Provider)
     setWeb3(web3Provider)
   }, [])
 

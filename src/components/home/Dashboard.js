@@ -22,6 +22,7 @@ import ReceiptItem from './ReceiptItem'
 import { paybackTokenAction } from 'src/reducers/paybackToken/paybackTokenSlice'
 import DualRingLoading from '../global/DualRingLoading'
 import Pagination from '../global/Pagination'
+import { Web3Context } from 'src/contexts/Web3ContextProvider'
 
 const Amount = styled.div`
   font-size: 20px;
@@ -32,9 +33,9 @@ const Amount = styled.div`
 
 const Dashboard = props => {
   const navigate = useNavigate()
-
+  const web3 = React.useContext(Web3Context)
   const dispatch = useDispatch()
-  const web3 = useSelector(state => state.web3.provider)
+  // const web3 = useSelector(state => state.web3.provider)
   const { isAdmin, account } = useSelector(state => state.wallet)
   const pgc = useSelector(pgcSelector)
   const { loading, list, message, page, totalPages } = useSelector(state => state.paybackToken)
@@ -68,13 +69,6 @@ const Dashboard = props => {
     // if (web3 && pgc.methods) getAllowanceNewToken()
     getAllowanceNewToken()
   }, [web3, pgc])
-
-  React.useEffect(() => {
-    if (message) {
-      toast.warning(message)
-    }
-    return () => dispatch(paybackTokenAction.clearState())
-  }, [message])
 
   const showDetail = id => {
     let newArr = []

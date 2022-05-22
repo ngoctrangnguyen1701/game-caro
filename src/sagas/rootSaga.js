@@ -1,8 +1,8 @@
 import {all, spawn} from 'redux-saga/effects'
 import authSaga from './auth/authSaga'
 import boxSaga from './boxSaga'
-import contractSaga from './contractSaga'
 import paybackTokenSaga from './paybackTokenSaga'
+
 
 export default function* rootSaga(){
   // yield all([
@@ -16,6 +16,6 @@ export default function* rootSaga(){
   //spawn là mạnh thằng nào thằng nấy chạy, function kia có bị lỗi thì function khác cũng sẽ không bị dừng lại
   yield spawn(authSaga)
   yield spawn(boxSaga)
-  yield spawn(contractSaga)
   yield spawn(paybackTokenSaga)
+
 }

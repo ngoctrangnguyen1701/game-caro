@@ -95,15 +95,10 @@ const NavBarMain = () => {
             window.location.reload()
           })
 
-          //CONNECT CONTRACT VIA SAGA
-          // dispatch(contractAction.connect('pgc'))
-          // dispatch(contractAction.connect('exPGC'))
-          // dispatch(contractAction.connect('tokenSwap'))
-
           //CONNECT CONTRACT
-          // connectContract('pgc')
-          // connectContract('exPGC')
-          // connectContract('tokenSwap')
+          connectContract('pgc')
+          connectContract('exPGC')
+          connectContract('tokenSwap')
         }
       }
       connectMetamask()
