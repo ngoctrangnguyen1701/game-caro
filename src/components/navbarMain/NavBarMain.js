@@ -47,7 +47,6 @@ const NavBarMain = () => {
   const status = useSelector(fightingStatusSelector)
   const isPlayOnline = useSelector(fightingIsPlayOnlineSelector)
 
-  // const web3 = useSelector(state => state.web3.provider)
   const { account, token, isAdmin, } = useSelector(state => state.wallet)
   const pgc = useSelector(pgcSelector)
 

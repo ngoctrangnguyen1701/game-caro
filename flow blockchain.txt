@@ -11,12 +11,16 @@ use BEP20 of Binance Smart Chain (testnet)
 + when buy PGC success, submit transaction hash to server
 
 4. take back your token
-+ client, before swap token check balance token in old contract
+**CLIENT, before swap token check balance token in old contract
   ++ if balance > 0, next step
     +++ approve all amount of token in balance for 'TokenSwap' contract
     +++ approve success, call methods 'swap' of 'TokenSwap' contract
     +++ swap success, submit to server (transactionHash, paybackToken, paybackTime, address)
   ++ balance = 0, cancel swap token
+
+**SERVER
+  + when receive receipt, calculate reward which client can be reward
+  + save collection 'rewards', attach id of that receipt
 
 5. effect loading when call metamask or call api
 
@@ -40,3 +44,8 @@ example: paybackToken = 2600 ==> reward is 2 sapphire(2000) + 1 ruby(500), remai
 + sapphire (xanh): 200 token(10%), 500 token(30%), 1000 token(60%)
 + ruby (đỏ): 200 token(20%), 500 token(40%), 1000 token(40%)
 + quartz (thạch anh trắng): 200 token(60%), 500 token(30%), 1000 token(10%)
+
+**CLIENT (ADMIN)
++ click btn 'Reward', call api confirm reward, data includes (id of receipt)
+**SERVER
++ submit reward to client(via address)

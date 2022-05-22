@@ -35,12 +35,10 @@ const Dashboard = props => {
   const navigate = useNavigate()
   const web3 = React.useContext(Web3Context)
   const dispatch = useDispatch()
-  // const web3 = useSelector(state => state.web3.provider)
   const { isAdmin, account } = useSelector(state => state.wallet)
   const pgc = useSelector(pgcSelector)
-  const { loading, list, message, page, totalPages } = useSelector(state => state.paybackToken)
+  const { loading, list, page, totalPages } = useSelector(state => state.paybackToken)
 
-  // const [list, setList] = React.useState([])
   const [listShowDetail, setListShowDetail] = React.useState([])
 
   const [approvalNewToken, setApprovalNewToken] = React.useState('')
@@ -54,7 +52,7 @@ const Dashboard = props => {
       dispatch(paybackTokenAction.getList())
     }
     else {
-      navigate('/') //--> tắt chức năng đẩy về
+      // navigate('/') //--> tắt chức năng đẩy về
     }
   }, [isAdmin])
 
