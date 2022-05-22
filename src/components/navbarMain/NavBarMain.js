@@ -6,6 +6,7 @@ import Web3 from 'web3';
 
 import { AuthContext } from '../../contexts/AuthContextProvider'
 import { socket } from 'src/App'
+import abi from 'src/common/abi';
 
 import {
   AppBar,
@@ -34,17 +35,19 @@ import PaybackTokenModal from './PaybackTokenModal';
 import { paybackTokenAction } from 'src/reducers/paybackToken/paybackTokenSlice';
 import authApi from 'src/api/authApi';
 import { fullscreenLoadingAction } from 'src/reducers/fullscreenLoading/fullscreenLoadingSlice';
+import { Web3Context } from 'src/contexts/Web3ContextProvider';
 
 const NavBarMain = () => {
   const navigate = useNavigate()
   const { user, setUser } = useContext(AuthContext)
   const { username, avatar, } = user
+  const web3 = useContext(Web3Context)
 
   const dispatch = useDispatch()
   const status = useSelector(fightingStatusSelector)
   const isPlayOnline = useSelector(fightingIsPlayOnlineSelector)
 
-  const web3 = useSelector(state => state.web3.provider)
+  // const web3 = useSelector(state => state.web3.provider)
   const { account, token, isAdmin, } = useSelector(state => state.wallet)
   const pgc = useSelector(pgcSelector)
 
@@ -93,9 +96,14 @@ const NavBarMain = () => {
           })
 
           //CONNECT CONTRACT VIA SAGA
-          dispatch(contractAction.connect('pgc'))
-          dispatch(contractAction.connect('exPGC'))
-          dispatch(contractAction.connect('tokenSwap'))
+          // dispatch(contractAction.connect('pgc'))
+          // dispatch(contractAction.connect('exPGC'))
+          // dispatch(contractAction.connect('tokenSwap'))
+
+          //CONNECT CONTRACT
+          // connectContract('pgc')
+          // connectContract('exPGC')
+          // connectContract('tokenSwap')
         }
       }
       connectMetamask()
@@ -129,6 +137,14 @@ const NavBarMain = () => {
     dispatch(walletAction.setToken({ token: balanceToken }))
   }
 
+  const connectContract = async(contractName) => {
+    try {
+      const contract = await new web3.eth.Contract(abi[contractName].abi, abi[contractName].address)
+      dispatch(contractAction[contractName](contract))
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
 
   return (
     <AppBar position="static" style={{ backgroundColor: '#121212' }}>

@@ -10,7 +10,7 @@ import io from 'socket.io-client'
 
 import CircularProgress from '@mui/material/CircularProgress';
 
-import { linkServer } from './common/constants';
+import { linkServer, NETWORK_BLOCKCHAIN } from './common/constants';
 import routes from './routes'
 import { onlineUserAction } from './reducers/onlineUser/onlineUserListSlice';
 import { fightingAction } from './reducers/fighting/settingSlice';
@@ -20,6 +20,7 @@ import { invitationAction } from './reducers/invitation/invitationSlice';
 import NavBarMain from './components/navbarMain/NavBarMain'
 import InvitationModal from 'src/components/global/InvitationModal';
 import FullScreenLoading from 'src/components/global/FullScreenLoading';
+import Web3 from 'web3';
 //<ToastContainer/> và file css của react-toastify là để giúp xuất hiện cái toast
 //để phía bên ngoài thằng <App/> để tất cả component con nằm trong đều có thê sử dụng toast
 //mà không cần phải import lại <ToastContainer/> và file css
@@ -70,7 +71,9 @@ function App() {
       dispatch(invitationAction.prepareRemove(data))
       setTimeout(()=>{
         return dispatch(invitationAction.remove(data))
-      }, 10000)
+      }, 10000)// dispatch({type: 'web3/connect'})
+      const web3 = new Web3(NETWORK_BLOCKCHAIN)
+      dispatch({type: 'web3/connect', payload: web3})
     })
 
     socket.on('settingFighting', data => {
@@ -92,9 +95,17 @@ function App() {
     })
     //don't need to off event of socket, cause when component App unmount, 
     //it's mean exsit to this webapp
-
-    dispatch({type: 'web3/connect'})
   }, [])
+
+  // useEffect(() => {
+  //   const connectWeb3 = async() => {
+  //     // const web3 = new Web3(NETWORK_BLOCKCHAIN)
+  //     // console.log(web3);
+  //     // dispatch({type: 'web3/connect', payload: web3})
+  //     dispatch({type: 'web3/connect'})
+  //   }
+  //   connectWeb3()
+  // }, [])
   
   return (
     <div>

@@ -13,6 +13,7 @@ const mySlice = createSlice({
   reducers: {
     connect(state, action) {
       state.provider = new Web3(NETWORK_BLOCKCHAIN)
+      // state.provider = action.payload
     }
   }
 })

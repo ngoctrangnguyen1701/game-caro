@@ -37,7 +37,7 @@ const Dashboard = props => {
   const web3 = useSelector(state => state.web3.provider)
   const { isAdmin, account } = useSelector(state => state.wallet)
   const pgc = useSelector(pgcSelector)
-  const { loading, list, message } = useSelector(state => state.paybackToken)
+  const { loading, list, message, page, totalPages } = useSelector(state => state.paybackToken)
 
   // const [list, setList] = React.useState([])
   const [listShowDetail, setListShowDetail] = React.useState([])
@@ -58,7 +58,15 @@ const Dashboard = props => {
   }, [isAdmin])
 
   React.useEffect(() => {
-    if (web3 && pgc.methods) getAllowanceNewToken()
+    const getAllowanceNewToken = async () => {
+      if(web3 && pgc.methods) {
+        const balanceWei = await pgc.methods.allowance(account, abi.tokenSwap.address).call()
+        const balance = await web3.utils.fromWei(balanceWei)
+        setAllowanceNewToken(balance)
+      }
+    }
+    // if (web3 && pgc.methods) getAllowanceNewToken()
+    getAllowanceNewToken()
   }, [web3, pgc])
 
   React.useEffect(() => {
@@ -88,11 +96,11 @@ const Dashboard = props => {
     }
   }
 
-  const getAllowanceNewToken = async () => {
-    const balanceWei = await pgc.methods.allowance(account, abi.tokenSwap.address).call()
-    const balance = await web3.utils.fromWei(balanceWei)
-    setAllowanceNewToken(balance)
-  }
+  // const getAllowanceNewToken = async () => {
+  //   const balanceWei = await pgc.methods.allowance(account, abi.tokenSwap.address).call()
+  //   const balance = await web3.utils.fromWei(balanceWei)
+  //   setAllowanceNewToken(balance)
+  // }
 
 
   const onChangeAllowanceNewToken = async (type) => {
@@ -149,7 +157,9 @@ const Dashboard = props => {
           // console.log(receipt);
           if (receipt) {
             clearInterval(intervalGetReceipt)
-            getAllowanceNewToken()
+            const balanceWei = await pgc.methods.allowance(account, abi.tokenSwap.address).call()
+            const balance = await web3.utils.fromWei(balanceWei)
+            setAllowanceNewToken(balance)
             toast.success('Change appoval new token successfully')
             dispatch(fullscreenLoadingAction.showLoading(false))
             setApprovalNewToken('')
@@ -327,8 +337,8 @@ const Dashboard = props => {
       {!loading && list && list.length > 0 &&
         <div className='mb-5'>
           <Pagination
-            page={1}
-            totalPages={10}
+            page={page}
+            totalPages={totalPages}
             onPageChange={onPageChange}
           />
         </div>

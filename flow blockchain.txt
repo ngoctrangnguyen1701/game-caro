@@ -9,7 +9,6 @@ use BEP20 of Binance Smart Chain (testnet)
 + before buy PGC, check balance of BNB must be greater than amount of BNB that wil pay
 + limit buy PGC 100 - 10.000 PGC/time
 + when buy PGC success, submit transaction hash to server
-**Bug: chưa cập nhật lại token và balance khi transaction thành công
 
 4. take back your token
 + client, before swap token check balance token in old contract
@@ -21,13 +20,16 @@ use BEP20 of Binance Smart Chain (testnet)
 
 5. effect loading when call metamask or call api
 
-6. Dashboard Screen (ADMIN)
+6. Metamask, singnature submit to serve to verify
+
+7. Dashboard Screen (ADMIN)
++ have authenticate for wallet of admin
 + only Admin can access
 + btn Approve, approve new token for 'TokenSwap' contract
 + display allowance of amount of new token, total amount of payback token
 + list that address have take back ex token
 
-7. feature 'REWARD' called 'LUCKY TICKET' for payback Token
+8. feature 'REWARD' called 'LUCKY TICKET' for payback Token
 less 200 = nothing
 200 payback token/time = 1 quartz
 500 payback token/time = 1 ruby
