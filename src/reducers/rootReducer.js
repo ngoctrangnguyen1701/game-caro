@@ -8,6 +8,7 @@ import wallet from './wallet/walletSlice'
 import contract from './contract/contractSlice'
 import fullscreenLoading from './fullscreenLoading/fullscreenLoadingSlice'
 import paybackToken from './paybackToken/paybackTokenSlice'
+import confirmReward from './confirmReward/confirmRewardSlice'
 
 export default combineReducers({
   auth,
@@ -19,4 +20,5 @@ export default combineReducers({
   wallet,
   fullscreenLoading,
   paybackToken,
+  confirmReward,
 })

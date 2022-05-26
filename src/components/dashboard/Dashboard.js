@@ -23,6 +23,7 @@ import { paybackTokenAction } from 'src/reducers/paybackToken/paybackTokenSlice'
 import DualRingLoading from '../global/DualRingLoading'
 import Pagination from '../global/Pagination'
 import { Web3Context } from 'src/contexts/Web3ContextProvider'
+import ConfirmRewardModal from './ConfirmRewardModal'
 
 const Amount = styled.div`
   font-size: 20px;
@@ -87,13 +88,6 @@ const Dashboard = props => {
       setApprovalNewToken(value)
     }
   }
-
-  // const getAllowanceNewToken = async () => {
-  //   const balanceWei = await pgc.methods.allowance(account, abi.tokenSwap.address).call()
-  //   const balance = await web3.utils.fromWei(balanceWei)
-  //   setAllowanceNewToken(balance)
-  // }
-
 
   const onChangeAllowanceNewToken = async (type) => {
     if (parseFloat(approvalNewToken) > 0) {
@@ -245,7 +239,6 @@ const Dashboard = props => {
           </div>
         </div>
 
-
       </div>
       <h3 className='text-center mt-3 text-primary'>Payback Token List</h3>
       <div className='container'>
@@ -300,19 +293,20 @@ const Dashboard = props => {
       </div>
       <table className="table table-striped table-dark table-hover table-bordered">
         <thead>
-          <tr style={{ textAlign: 'center' }}>
+          <tr style={{ textAlign: 'center', verticalAlign: 'middle' }}>
             <th className='bg-warning text-dark'>Address</th>
             <th className='bg-warning text-dark'>Payback Token</th>
             <th className='bg-warning text-dark'>Payback Time</th>
             <th className='bg-warning text-dark'>Hash</th>
             <th className='bg-warning text-dark'>Reward</th>
-            <th className='bg-warning text-dark'>Action</th>
+            <th className='bg-warning text-dark'>Is Rewarded</th>
+            <th className='bg-warning text-dark'>Reward Time</th>
           </tr>
         </thead>
         <tbody>
           {loading &&
             <tr>
-              <td colSpan={6}>
+              <td colSpan={7}>
                 <div className='d-flex justify-content-center'>
                   <DualRingLoading showLoading={loading} />
                 </div>
@@ -322,7 +316,7 @@ const Dashboard = props => {
             list.map((item, index) => <ReceiptItem item={item} key={index} />)
           }
           {!loading && list && list.length === 0 &&
-            <tr><td colSpan="6" className='text-center'>No Data</td></tr>
+            <tr><td colSpan="7" className='text-center'>No Data</td></tr>
           }
         </tbody>
       </table>
@@ -335,6 +329,9 @@ const Dashboard = props => {
           />
         </div>
       }
+
+      {/* MODAL */}
+      <ConfirmRewardModal/>
     </div>
   );
 };
