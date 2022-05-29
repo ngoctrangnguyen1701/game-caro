@@ -47,6 +47,7 @@ const elementLoading = (
 
 function App() {
   console.log(firebaseConfig);
+  console.log(process.env);
   const dispatch = useDispatch()
 
   useEffect(()=>{
