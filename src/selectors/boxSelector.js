@@ -1,1 +1,0 @@
-export const amountOfBoxesSelector = state => state.box.amountOfBoxes

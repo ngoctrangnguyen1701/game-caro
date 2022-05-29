@@ -28,7 +28,7 @@ const whoIsWinner = (arr, width, height) =>{
               consecutiveRowIndexs.push(i + a)  //i + a --> index of cell consecutive row
             }
           }
-          console.log('consecutiveRowCells: ', consecutiveRowCells)
+          // // console.log('consecutiveRowCells: ', consecutiveRowCells)
 
           if(consecutiveRowCells.length === 5){
             let headStopCell = {}
@@ -43,8 +43,8 @@ const whoIsWinner = (arr, width, height) =>{
               //nên chỉ xét các ô có tọa độ x khác width - 5
               footStopCell = arr[i + 5] || {}
             }
-            console.log('consecutiveRowCells', 'headStopCell', headStopCell)
-            console.log('consecutiveRowCells', 'footStopCell', footStopCell)
+            // // console.log('consecutiveRowCells', 'headStopCell', headStopCell)
+            // // console.log('consecutiveRowCells', 'footStopCell', footStopCell)
             //X O O O O O X   --> not win
             //X O O O O O O   --> not win (6 ô liên tiếp cũng không thắng)
             //  O O O O O X   --> win
@@ -88,12 +88,12 @@ const whoIsWinner = (arr, width, height) =>{
               consecutiveColumnIndexs.push(i + width*j) //i + width*j --> index of cell consecutive column
             }
           }
-          console.log('consecutiveColumnCells: ', consecutiveColumnCells)
+          // // console.log('consecutiveColumnCells: ', consecutiveColumnCells)
           if(consecutiveColumnCells.length === 5){
             const headStopCell = arr[i - width] || {}
             const footStopCell = arr[i + width*5] || {}
-            console.log('consecutiveColumnCells', 'headStopCell', headStopCell)
-            console.log('consecutiveColumnCells', 'footStopCell', footStopCell)
+            // // console.log('consecutiveColumnCells', 'headStopCell', headStopCell)
+            // // console.log('consecutiveColumnCells', 'footStopCell', footStopCell)
             if(!headStopCell.value || !footStopCell.value){
               if(headStopCell.value === currentValue || footStopCell.value === currentValue){
               }
@@ -126,7 +126,7 @@ const whoIsWinner = (arr, width, height) =>{
               consecutiveCrossRightIndexs.push(i + (width + 1)*z) //index of cell consecutive cross right
             }
           }
-          console.log('consecutiveCrossRightCells: ', consecutiveCrossRightCells)
+          // console.log('consecutiveCrossRightCells: ', consecutiveCrossRightCells)
 
           if(consecutiveCrossRightCells.length === 5){
             let headStopCell = {}
@@ -142,8 +142,8 @@ const whoIsWinner = (arr, width, height) =>{
               //thì không có ô chặn ở cuối
               footStopCell = arr[i + (width + 1)*5] || {}
             }
-            console.log('consecutiveCrossRightCells', 'headStopCell', headStopCell)
-            console.log('consecutiveCrossRightCells', 'footStopCell', footStopCell)
+            // console.log('consecutiveCrossRightCells', 'headStopCell', headStopCell)
+            // console.log('consecutiveCrossRightCells', 'footStopCell', footStopCell)
             if(!headStopCell.value || !footStopCell.value){
               if(headStopCell.value === currentValue || footStopCell.value === currentValue){
               }
@@ -174,7 +174,7 @@ const whoIsWinner = (arr, width, height) =>{
               consecutiveCrossLeftIndexs.push(i + (width - 1)*b) //index of cell consecutive cross left
             }
           }
-          console.log('consecutiveCrossLeftCells: ', consecutiveCrossLeftCells)
+          // console.log('consecutiveCrossLeftCells: ', consecutiveCrossLeftCells)
 
           if(consecutiveCrossLeftCells.length === 5){
             let headStopCell = {}
@@ -190,8 +190,8 @@ const whoIsWinner = (arr, width, height) =>{
               //thì không có ô chặn ở cuối
               footStopCell = arr[i + (width - 1)*5] || {}
             }
-            console.log('consecutiveCrossLeftCells', 'headStopCell', headStopCell)
-            console.log('consecutiveCrossLeftCells', 'footStopCell', footStopCell)
+            // console.log('consecutiveCrossLeftCells', 'headStopCell', headStopCell)
+            // console.log('consecutiveCrossLeftCells', 'footStopCell', footStopCell)
 
             if(!headStopCell.value || !footStopCell.value){
               if(headStopCell.value === currentValue || footStopCell.value === currentValue){

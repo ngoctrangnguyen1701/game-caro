@@ -21,7 +21,6 @@ import {Card, Content} from './styles/GameCaroOpponentStyle'
 
 import { Loader } from './styles/LoadingStyle';
 
-// let i = 1
 const GameCaroOpponent = props => {
   const {
     username,
@@ -38,7 +37,6 @@ const GameCaroOpponent = props => {
     notChosen,
     agreeLoading,
   } = props
-  // console.log(`Render GameCaroOpponent ${i++}: ${username}`);
 
   const dispatch = useDispatch()
   const {user} = useContext(AuthContext)

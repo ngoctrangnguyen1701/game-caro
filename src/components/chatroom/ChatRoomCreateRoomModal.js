@@ -39,7 +39,7 @@ const ChatRoomCreateRoomModal = props =>{
       const docRef = await addDoc(collection(db, 'chatRooms'), {
         roomName,
       })
-      console.log('Add to firestore successfully', docRef.id)
+      // console.log('Add to firestore successfully', docRef.id)
       toast.success('Create new chat room successfully')
       setShowModal(false)
     }

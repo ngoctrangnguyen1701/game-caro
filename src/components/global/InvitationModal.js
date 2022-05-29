@@ -59,19 +59,16 @@ const InvitationModal = () => {
 
   useEffect(()=>{
     socket.on('choosePlayerFailed', data => {
-      // console.log('choosePlayerFailed: ', data);
       toast.error(data.message)
     })
 
     socket.on('receiveInvitation', data => {
-      // console.log('receiveInvitation: ', data);
       setIsShowNotify(true)
       setHideInititalNotify(true)
       dispatch(invitationAction.add(data))
     })
 
     socket.on('choosePlayerSuccess', data => {
-      // console.log('choosePlayerSuccess: ', data);
       toast.success(data.message)
     })
 

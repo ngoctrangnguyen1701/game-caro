@@ -22,9 +22,7 @@ function* signUp (action){
     yield call(addToFirestore, {username})
     
   } catch (error) {
-    console.log(error);
     const responseError = error.request.response
-    // console.log('responseError: ', responseError);
     if(responseError){
       yield put(signUpAction.failed(JSON.parse(responseError)))
     }
@@ -69,9 +67,7 @@ function* logIn(action){
       }
     }
   } catch (error) {
-    console.log(error);
     const responseError = error.request.response
-    // console.log('responseError: ', responseError);
     if(responseError){
       yield put(logInAction.failed(JSON.parse(responseError)))
     }
@@ -87,7 +83,7 @@ const addToFirestore = async (data) => {
       username: data.username,
       avatar: data.avatar || '',
     })
-    console.log('Add to firestore successfully', docRef.id);  
+    // console.log('Add to firestore successfully', docRef.id);  
   } catch (error) {
     console.error(error);
   }

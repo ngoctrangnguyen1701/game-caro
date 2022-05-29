@@ -1,15 +1,11 @@
 import React from 'react';
-import {useMatch} from 'react-router-dom'
 import Home from '../components/home/Home';
-import Dashboard from '../components/dashboard/Dashboard'
 
 const HomePage = props => {
-  const isAdmin = useMatch('/admin')
-
 
   return (
     <>
-      {isAdmin ? <Dashboard/> : <Home/>}
+      <Home/>
     </>
   );
 };

@@ -46,7 +46,7 @@ const AuthContextProvider = ({children}) =>{
           // kèm theo dữ liệu là 1 obj
         })
         .catch(err => {
-          console.log(err)
+          toast.error(err.message)
         })
     }
   }, [accessToken])

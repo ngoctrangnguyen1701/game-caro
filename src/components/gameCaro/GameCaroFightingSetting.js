@@ -86,7 +86,6 @@ const GameCaroFightingSetting = () => {
       })
 
       socket.on('startFighting', () => {
-        console.log('startFighting')
         dispatch(fightingAction.start())
       })
 
@@ -117,7 +116,6 @@ const GameCaroFightingSetting = () => {
 
   useEffect(()=>{
     if(status === 'stop') {
-      console.log(`socket.emit('stopFighting', {fightingResult: result})`)
       socket.emit('stopFighting', {fightingResult: result})
     }
   }, [status])

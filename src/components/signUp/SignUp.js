@@ -42,7 +42,6 @@ const SignUp = props => {
         .required('Required'),
     }),
     onSubmit: values => {
-      //console.log(values)
       // dispatch({type: 'auth/createUser', payload: values}) --> redux gửi obj gồm có type và payload
       //redux toolkit, sử dụng createSlice đã kết hợp reducer và actionCreator
       //nên chỉ cần dùng tên action bỏ giá trị vào là nó sẽ tự tạo ra obj gồm có type và payload là cái value truyền vào

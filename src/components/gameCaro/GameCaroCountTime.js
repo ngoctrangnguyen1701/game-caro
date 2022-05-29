@@ -29,7 +29,6 @@ const GameCaroCountTime = () => {
           minutes += 1
         }
         var result = `${Math.floor(minutes / 10)}${minutes%10}:${Math.floor(seconds / 10)}${seconds%10}.${miliseconds}`
-        //console.log(result);
         setTime (result)
       }, 100)
     }

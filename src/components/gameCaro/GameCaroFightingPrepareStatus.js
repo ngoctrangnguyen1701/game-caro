@@ -36,7 +36,6 @@ const GameCaroFightingPrepareStatus = () => {
   }
 
   const handleDisagree = () => {
-    console.log('handleDisagree');
     dispatch(fightingAction.resetSetting())
     socket.emit('disagreeFightingSetting')
   }

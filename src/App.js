@@ -10,7 +10,7 @@ import io from 'socket.io-client'
 
 import CircularProgress from '@mui/material/CircularProgress';
 
-import { linkServer, NETWORK_BLOCKCHAIN } from './common/constants';
+import { linkServer } from './common/constants';
 import routes from './routes'
 import { onlineUserAction } from './reducers/onlineUser/onlineUserListSlice';
 import { fightingAction } from './reducers/fighting/settingSlice';
@@ -20,7 +20,6 @@ import { invitationAction } from './reducers/invitation/invitationSlice';
 import NavBarMain from './components/navbarMain/NavBarMain'
 import InvitationModal from 'src/components/global/InvitationModal';
 import FullScreenLoading from 'src/components/global/FullScreenLoading';
-import Web3 from 'web3';
 //<ToastContainer/> và file css của react-toastify là để giúp xuất hiện cái toast
 //để phía bên ngoài thằng <App/> để tất cả component con nằm trong đều có thê sử dụng toast
 //mà không cần phải import lại <ToastContainer/> và file css
@@ -71,41 +70,27 @@ function App() {
       dispatch(invitationAction.prepareRemove(data))
       setTimeout(()=>{
         return dispatch(invitationAction.remove(data))
-      }, 10000)// dispatch({type: 'web3/connect'})
-      const web3 = new Web3(NETWORK_BLOCKCHAIN)
-      dispatch({type: 'web3/connect', payload: web3})
+      }, 10000)
     })
 
     socket.on('settingFighting', data => {
       //when two players are in fighting room
-      // console.log('settingFighting: ', data)
       dispatch(fightingAction.setting(data))
       dispatch(fightingPlayAction.playOnline())
     })
 
     socket.on('updateFightingUserList', data => {
-      // console.log('updateFightingUserList : ', data)
       dispatch(onlineUserAction.updateFightingStatus(data))
       dispatch(invitationAction.updateFightingStatus(data))
     })
 
     socket.on('waitingFightingUser', data => {
-      console.log('waitingFightingUser: ', data)
       dispatch(onlineUserAction.add(data))
     })
     //don't need to off event of socket, cause when component App unmount, 
     //it's mean exsit to this webapp
   }, [])
 
-  // useEffect(() => {
-  //   const connectWeb3 = async() => {
-  //     // const web3 = new Web3(NETWORK_BLOCKCHAIN)
-  //     // console.log(web3);
-  //     // dispatch({type: 'web3/connect', payload: web3})
-  //     dispatch({type: 'web3/connect'})
-  //   }
-  //   connectWeb3()
-  // }, [])
   
   return (
     <div>

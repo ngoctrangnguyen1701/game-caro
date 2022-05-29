@@ -32,7 +32,6 @@ const GameCaroBoard = () =>{
 
   useEffect(()=>{
     socket.on('changeTurn', data => {
-      // console.log('changeTurn: ', data)
       return dispatch(fightingAction.opponentTurn(data))
       //return to not double dispatch
     })
@@ -50,7 +49,6 @@ const GameCaroBoard = () =>{
 
   useEffect(()=>{
     const {winValue, winFiveCells} = whoIsWinner(board, width, height)
-    // console.log({winValue, winFiveCells})
     if(winValue){
       if(isPlayYourself){
         const winner = winValue === 'X' ? 'player1' : 'player2'
@@ -60,7 +58,6 @@ const GameCaroBoard = () =>{
 
       //when play online
       const winner = winValue === 'X' ? player1.username : player2.username
-      console.log({winner});
       if(winner === user.username){
         dispatch(fightingAction.stop({result: 'win', winner, message: `You have won`, winFiveCells}))
         socket.emit('playerHasWon', {winner, message: `${winner} has won`, winFiveCells})

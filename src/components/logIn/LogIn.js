@@ -11,6 +11,7 @@ import firebase from '../../firebase/firebaseConfig';
 import { logInSelector } from 'src/selectors/logInSelector';
 
 import CircularProgress from '@mui/material/CircularProgress'
+import { toast } from 'react-toastify';
 
 
 const LogIn = props => {
@@ -65,11 +66,11 @@ const LogIn = props => {
     }
     firebase.auth().signInWithPopup(provider)
       .then(res => {
-        console.log('firebase: ', res);
+        // console.log('firebase: ', res);
         //when login with facebook or google successlly
         const {isNewUser} = res.additionalUserInfo
         const {user: socialAccount} = res.user.multiFactor
-        console.log('socialAccount: ', socialAccount)
+        // console.log('socialAccount: ', socialAccount)
 
         const {displayName, photoURL, email} = socialAccount
         const payload = {
@@ -81,7 +82,7 @@ const LogIn = props => {
         dispatch({type: 'auth/logIn/logInWithSocialAccount', payload}) 
       })
       .catch(err => {
-        console.log(err);
+        toast.error(err.message)
       })
   }
 

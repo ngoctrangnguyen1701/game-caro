@@ -37,7 +37,6 @@ const GameCaroFightingStartStopStatus = () => {
 
   useEffect(()=>{
     socket.on('suggestReplayFighting', data => {
-      console.log('suggestReplayFighting')
       dispatchModalContext({type: 'SHOW_REPLAY_FIGHTING_MODAL', payload: true})
       dispatchModalContext({type: 'MESSAGE_REPLAY_FIGHTING_MODAL', payload: data.message})
     })

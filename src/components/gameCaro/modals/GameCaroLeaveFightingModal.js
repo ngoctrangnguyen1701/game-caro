@@ -30,10 +30,8 @@ const GameCaroLeaveFightingModal = () =>{
 
 
   const handleLeaveFighting = () => {
-    console.log({isFightingStop})
     if(isFightingStop === false){
       //when fighting still no stop yet, leave will be losed
-      console.log(`socket.emit('stopFighting', {fightingResult: 'lose'})`)
       socket.emit('stopFighting', {fightingResult: 'lose'})
     }
     socket.emit('leaveFighting', {isFightingStop})

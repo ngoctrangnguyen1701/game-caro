@@ -11,7 +11,6 @@ import GameCaroFightingStartStopStatus from './GameCaroFightingStartStopStatus';
 
 
 const GameCaroPlayYourself = () => {
-  console.log('render GameCaroPlayYourself');
   const dispatch = useDispatch()
 
   useEffect(() => {
