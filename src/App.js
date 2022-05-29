@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 import 'react-toastify/dist/ReactToastify.css';
 import 'animate.css';
 import io from 'socket.io-client'
-
+import { firebaseConfig } from './firebase/firebaseConfig';
 
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -46,6 +46,7 @@ const elementLoading = (
 )
 
 function App() {
+  console.log(firebaseConfig);
   const dispatch = useDispatch()
 
   useEffect(()=>{

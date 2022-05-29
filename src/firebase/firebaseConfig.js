@@ -12,7 +12,7 @@ import { getFirestore } from "firebase/firestore";
 //   appId: "1:699372360865:web:be137c04320fcc52ea4ce0"
 // };
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
   authDomain: process.env.REACT_APP_AUTH_DOMAIN,
   projectId: process.env.REACT_APP_PROJECT_ID,
@@ -20,6 +20,7 @@ const firebaseConfig = {
   messagingSenderId: process.env.REACT_APP_MESSAGIN_SENDER_ID,
   appId: process.env.REACT_APP_APP_ID,
 };
+
 
 // Use this to initialize the firebase App
 const firebaseApp = firebase.initializeApp(firebaseConfig);
