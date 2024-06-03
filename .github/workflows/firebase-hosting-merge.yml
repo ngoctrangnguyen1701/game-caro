@@ -31,3 +31,5 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_GAME_CARO_73268 }}'
           channelId: live
           projectId: game-caro-73268
+
+# https://stackoverflow.com/questions/74305339/github-actions-build-fails-for-nextjs-giving-error-error0308010cdigital-enve
