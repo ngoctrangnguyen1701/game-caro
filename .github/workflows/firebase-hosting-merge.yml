@@ -18,13 +18,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # - name: Install NodeJS
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: '14.18.0'
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14.18.0'
       - name: Install dependencies
         run: npm install
-      - run: npm ci && npm run build
+      # - run: npm ci && npm run build
+      - name Build React App
+        run: npm build 
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
